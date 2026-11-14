@@ -54,19 +54,26 @@ tests/            # PyTest
 
 ## Cài đặt
 
-Yêu cầu: Python 3.11, Docker.
+Yêu cầu: Python ≥ 3.11 (CI và môi trường chuẩn của nhóm dùng 3.11), Docker.
 
 ```bash
 python -m venv .venv
 # Windows: .venv\Scripts\activate   |  Linux/macOS: source .venv/bin/activate
 pip install -e ".[dev]"            # lõi + test
 pip install -e ".[rag]"            # FlagEmbedding, qdrant-client, rank-bm25, underthesea
+pip install -e ".[ocr]"            # easyocr, cho PDF scan
 pip install -e ".[demo]"           # streamlit
 
 cp .env.example .env               # điền API key
 docker compose up -d qdrant        # Qdrant tại http://localhost:6333
+python scripts/fetch_raw.py        # tải PDF theo data/raw/manifest.csv, chuyển sang Markdown
 pytest
 ```
+
+- **GPU:** `pip` mặc định cài PyTorch bản CPU trên Windows. Có GPU NVIDIA thì cài trước: `pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124`.
+- **Không có Docker:** đặt `QDRANT_PATH=qdrant_storage/local` trong `.env` để dùng Qdrant dạng nhúng (`rag/vector_store.py`).
+- **Thử client LLM:** `python -m rag.llm_client --provider vllm --model <mã> "Câu hỏi"`.
+- **Notebook Tuần 1:** `notebooks/01_embedding_trial.ipynb` (BGE-M3 trên 10 văn bản), `notebooks/02_vllm_smoke_colab.ipynb` (vLLM 7B, chạy trên Colab/Kaggle).
 
 vLLM (cho mô hình mở) cài riêng trên máy có GPU: `pip install -e ".[vllm]"`.
 
