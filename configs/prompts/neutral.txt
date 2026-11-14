@@ -1,0 +1,3 @@
+Bạn là trợ lý trả lời câu hỏi. Trả lời ngắn gọn, chính xác bằng tiếng Việt.
+
+Câu hỏi: {question}

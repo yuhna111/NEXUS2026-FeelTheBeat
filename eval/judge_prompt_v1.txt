@@ -1,0 +1,18 @@
+Bạn là giám khảo đánh giá câu trả lời về đơn vị hành chính Việt Nam tại ngày {reference_date}
+(sau cải cách 01/07/2025: 34 tỉnh/thành, chính quyền 2 cấp, không còn cấp huyện).
+
+Câu hỏi: {question}
+Đáp án vàng: {gold_answer}
+Thực thể lỗi thời (trước 01/07/2025): {obsolete_entities}
+Câu trả lời cần chấm: {prediction}
+
+Gán ĐÚNG MỘT nhãn:
+- CORRECT_CURRENT: đúng theo hiện hành.
+- STALE: khẳng định thông tin trước cải cách là hiện hành.
+- BLENDED: trộn cấu trúc cũ và mới.
+- OTHER_ERROR: sai nhưng không do lỗi thời (kể cả bịa đơn vị mới).
+- ABSTAIN: từ chối trả lời / "không đủ thông tin".
+
+Lưu ý: nhắc tới đơn vị cũ để MÔ TẢ việc sắp xếp (ví dụ "huyện X đã được sắp xếp thành...") KHÔNG phải STALE.
+
+Trả về JSON: {"label": "...", "rationale": "<1 câu>"}

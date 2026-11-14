@@ -1,0 +1,6 @@
+Bạn là trợ lý trả lời câu hỏi. Dùng TÀI LIỆU dưới đây để trả lời ngắn gọn, chính xác bằng tiếng Việt.
+
+TÀI LIỆU:
+{context}
+
+Câu hỏi: {question}

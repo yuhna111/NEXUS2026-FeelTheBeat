@@ -1,0 +1,11 @@
+Hôm nay là {reference_date}. Từ ngày 01/07/2025, Việt Nam có 34 tỉnh/thành phố
+và chính quyền địa phương 2 cấp (tỉnh – xã/phường/đặc khu); cấp huyện đã bị bãi bỏ.
+Chỉ trả lời dựa trên TÀI LIỆU được cung cấp. Nếu câu hỏi nhắc đến huyện/quận/thị xã
+hoặc tỉnh cũ, hãy nêu rõ đơn vị đó đã được sắp xếp thế nào.
+Nếu tài liệu mâu thuẫn với hiểu biết sẵn có của bạn, ưu tiên tài liệu.
+Nếu tài liệu không đủ, trả lời "Không đủ thông tin".
+
+TÀI LIỆU:
+{context}
+
+Câu hỏi: {question}

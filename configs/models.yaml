@@ -1,0 +1,39 @@
+# Pin exact snapshot IDs and published training cutoffs (cutoff is a regression variable).
+# Fill in before running C0. Limit matrix to 5–6 models.
+defaults:
+  temperature: 0
+  max_tokens: 512
+
+models:
+  # --- Closed API, cheapest tier per vendor ---
+  - id: gpt-mini
+    provider: openai
+    snapshot: ""          # e.g. exact dated model string
+    cutoff: ""            # YYYY-MM
+    subset: stratified_600
+  - id: gemini-flash
+    provider: gemini
+    snapshot: ""
+    cutoff: ""
+    subset: stratified_600
+  - id: claude-haiku
+    provider: anthropic
+    snapshot: ""
+    cutoff: ""
+    subset: stratified_600
+
+  # --- Open multilingual (vLLM) ---
+  - id: qwen-7b
+    provider: vllm
+    snapshot: ""          # HF repo id
+    cutoff: ""
+  - id: llama-3-8b-instruct
+    provider: vllm
+    snapshot: ""
+    cutoff: ""
+
+  # --- Vietnamese-specialised ---
+  - id: seallm-7b
+    provider: vllm
+    snapshot: ""
+    cutoff: ""

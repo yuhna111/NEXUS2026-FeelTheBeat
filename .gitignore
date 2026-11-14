@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Secrets
+.env
+*.key
+
+# Vector DB / model caches
+qdrant_storage/
+chroma_db/
+.cache/
+hf_cache/
+*.safetensors
+*.bin
+
+# LLM call cache (raw API cache; outputs/ IS tracked)
+.llm_cache/
+
+# Large raw files — keep manifest.csv, commit PDFs via Git LFS or release assets
+data/raw/**/*.pdf
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
