@@ -3,8 +3,8 @@
 - Tổng: **80 câu** (toan50: 50, vinh30: 30)
 - Theo nhóm: A_direct 39, B_obsolete_trap 16, C_multihop_spatial 7, D_before_after 7, E_procedure 6, F_rumor 5
 - Câu `control`: 3
-- Câu có căn cứ là khoản **đã có trong kho** `data/parsed/` (dùng được cho Recall@k): **14** — P-T-B02, P-T-B04, P-T-B05, P-T-B06, P-T-B07, P-T-B08, P-T-C05, P-T-C06, P-T-C07, P-T-E01, P-T-E07, P-V-B04, P-V-B08, P-V-C07
-- Câu viện dẫn NQ 202/2025/QH15: có `clause_id` nhưng văn bản chưa vào kho (TV1 bổ sung tuần 2).
+- Câu có căn cứ là khoản **đã có trong kho** `data/parsed/` (dùng được cho Recall@k): **33** — P-T-A01, P-T-A02, P-T-A03, P-T-A05, P-T-A06, P-T-A07, P-T-A08, P-T-A09, P-T-A10, P-T-A11, P-T-A12, P-T-A13, P-T-A14, P-T-A15, P-T-B02, P-T-B04, P-T-B05, P-T-B06, P-T-B07, P-T-B08, P-T-C05, P-T-C06, P-T-C07, P-T-E01, P-T-E03, P-T-E04, P-T-E05, P-T-E06, P-T-E07, P-T-E08, P-V-B04, P-V-B08, P-V-C07
+- Văn bản chưa có trong kho: NQ 76/2025/UBTVQH15, NQ 60-NQ/TW, các thông báo/công văn; câu chỉ viện dẫn các văn bản này chưa tính Recall@k.
 - Câu đã kiểm (`verified=true`): 0
 
 ## Câu gần như trùng chữ giữa hai bộ (độ giống ≥ 0,85)

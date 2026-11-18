@@ -11,6 +11,16 @@ Lược đồ bản ghi benchmark: xem `docs/qa_schema.md`.
 
 **Lưu ý:** số hiệu nghị quyết cấp xã trong ví dụ (NQ 1656) cần TV1 đối chiếu lại với Công báo.
 
+## Văn bản khung trong `raw/` (tuần 2)
+
+| File | Nguồn | Ghi chú |
+|---|---|---|
+| `NQ-202-2025-QH15.md` | Báo Đại biểu Nhân dân (toàn văn) | |
+| `NQ-203-2025-QH15.md` | Báo Đại biểu Nhân dân (toàn văn) | Các điều Hiến pháp được sửa nằm trong khoản của Điều 1 |
+| `LUAT-72-2025-QH15.md` | Công báo số 807+808 (PDF, datafiles.chinhphu.vn), chuyển chữ bằng pdf.js | 54 điều |
+| `NQ-190-2025-QH15.md` | luatminhkhue.vn (toàn văn) | Bản gốc 19/02/2025, chưa gồm sửa đổi sau đó; nên đối chiếu Công báo |
+| NQ 76/2025/UBTVQH15 | **chưa có** | Các trang toàn văn tìm được đều chặn truy cập tự động |
+
 ## Ghi chú về `commune_lineage.csv`
 
 - `new_commune_code` là **mã nội bộ** `<số NQ>-<khoản>` (ví dụ `1656-005`); đơn vị không sắp xếp có mã `<số NQ>-U<nn>`. Đây không phải mã ĐVHC của Tổng cục Thống kê.

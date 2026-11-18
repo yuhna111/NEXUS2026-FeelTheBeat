@@ -198,8 +198,8 @@ def main() -> None:
         f"- Câu `control`: {sum(r['item_role'] == 'control' for r in recs)}",
         f"- Câu có căn cứ là khoản **đã có trong kho** `data/parsed/` (dùng được cho Recall@k): "
         f"**{len(recall_ready)}** — {', '.join(recall_ready)}",
-        "- Câu viện dẫn NQ 202/2025/QH15: có `clause_id` nhưng văn bản chưa vào kho "
-        "(TV1 bổ sung tuần 2).",
+        "- Văn bản chưa có trong kho: NQ 76/2025/UBTVQH15, NQ 60-NQ/TW, các thông báo/công văn; "
+        "câu chỉ viện dẫn các văn bản này chưa tính Recall@k.",
         f"- Câu đã kiểm (`verified=true`): {sum(r['verified'] for r in recs)}", "",
         "## Câu gần như trùng chữ giữa hai bộ (độ giống ≥ 0,85)", "", "Câu trùng ý nhưng khác chữ (ví dụ cùng hỏi số tỉnh) cần người xem lại.", "",
         "| Câu TV3 | Gần giống câu TV1 | Độ giống |", "|---|---|---|",
