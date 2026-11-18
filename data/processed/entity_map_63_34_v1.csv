@@ -1,0 +1,64 @@
+old_province,new_province,is_control,admin_center_new,area_km2_new,population_new,legal_basis,admin_center_basis
+Hà Giang,Tuyên Quang,False,khu vực tỉnh Tuyên Quang cũ,13795.5,1865270.0,"NQ 202/2025/QH15, Điều 1, khoản 1","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Tuyên Quang,Tuyên Quang,False,khu vực tỉnh Tuyên Quang cũ,13795.5,1865270.0,"NQ 202/2025/QH15, Điều 1, khoản 1","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Yên Bái,Lào Cai,False,khu vực tỉnh Yên Bái cũ,13256.92,1778785.0,"NQ 202/2025/QH15, Điều 1, khoản 2","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Lào Cai,Lào Cai,False,khu vực tỉnh Yên Bái cũ,13256.92,1778785.0,"NQ 202/2025/QH15, Điều 1, khoản 2","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Bắc Kạn,Thái Nguyên,False,khu vực tỉnh Thái Nguyên cũ,8375.21,1799489.0,"NQ 202/2025/QH15, Điều 1, khoản 3","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Thái Nguyên,Thái Nguyên,False,khu vực tỉnh Thái Nguyên cũ,8375.21,1799489.0,"NQ 202/2025/QH15, Điều 1, khoản 3","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Vĩnh Phúc,Phú Thọ,False,khu vực tỉnh Phú Thọ cũ,9361.38,4022638.0,"NQ 202/2025/QH15, Điều 1, khoản 4","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Hòa Bình,Phú Thọ,False,khu vực tỉnh Phú Thọ cũ,9361.38,4022638.0,"NQ 202/2025/QH15, Điều 1, khoản 4","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Phú Thọ,Phú Thọ,False,khu vực tỉnh Phú Thọ cũ,9361.38,4022638.0,"NQ 202/2025/QH15, Điều 1, khoản 4","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Bắc Giang,Bắc Ninh,False,khu vực tỉnh Bắc Giang cũ,4718.6,3619433.0,"NQ 202/2025/QH15, Điều 1, khoản 5","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Bắc Ninh,Bắc Ninh,False,khu vực tỉnh Bắc Giang cũ,4718.6,3619433.0,"NQ 202/2025/QH15, Điều 1, khoản 5","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Thái Bình,Hưng Yên,False,khu vực tỉnh Hưng Yên cũ,2514.81,3567943.0,"NQ 202/2025/QH15, Điều 1, khoản 6","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Hưng Yên,Hưng Yên,False,khu vực tỉnh Hưng Yên cũ,2514.81,3567943.0,"NQ 202/2025/QH15, Điều 1, khoản 6","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Hải Phòng,Hải Phòng,False,khu vực thành phố Hải Phòng cũ,3194.72,4664124.0,"NQ 202/2025/QH15, Điều 1, khoản 7","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Hải Dương,Hải Phòng,False,khu vực thành phố Hải Phòng cũ,3194.72,4664124.0,"NQ 202/2025/QH15, Điều 1, khoản 7","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Hà Nam,Ninh Bình,False,khu vực tỉnh Ninh Bình cũ,3942.62,4412264.0,"NQ 202/2025/QH15, Điều 1, khoản 8","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Nam Định,Ninh Bình,False,khu vực tỉnh Ninh Bình cũ,3942.62,4412264.0,"NQ 202/2025/QH15, Điều 1, khoản 8","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Ninh Bình,Ninh Bình,False,khu vực tỉnh Ninh Bình cũ,3942.62,4412264.0,"NQ 202/2025/QH15, Điều 1, khoản 8","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Quảng Bình,Quảng Trị,False,khu vực tỉnh Quảng Bình cũ,12700.0,1870845.0,"NQ 202/2025/QH15, Điều 1, khoản 9","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Quảng Trị,Quảng Trị,False,khu vực tỉnh Quảng Bình cũ,12700.0,1870845.0,"NQ 202/2025/QH15, Điều 1, khoản 9","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Đà Nẵng,Đà Nẵng,False,khu vực thành phố Đà Nẵng cũ,11859.59,3065628.0,"NQ 202/2025/QH15, Điều 1, khoản 10","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Quảng Nam,Đà Nẵng,False,khu vực thành phố Đà Nẵng cũ,11859.59,3065628.0,"NQ 202/2025/QH15, Điều 1, khoản 10","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Kon Tum,Quảng Ngãi,False,khu vực tỉnh Quảng Ngãi cũ,14832.55,2161755.0,"NQ 202/2025/QH15, Điều 1, khoản 11","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Quảng Ngãi,Quảng Ngãi,False,khu vực tỉnh Quảng Ngãi cũ,14832.55,2161755.0,"NQ 202/2025/QH15, Điều 1, khoản 11","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Bình Định,Gia Lai,False,khu vực tỉnh Bình Định cũ,21576.53,3583693.0,"NQ 202/2025/QH15, Điều 1, khoản 12","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Gia Lai,Gia Lai,False,khu vực tỉnh Bình Định cũ,21576.53,3583693.0,"NQ 202/2025/QH15, Điều 1, khoản 12","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Ninh Thuận,Khánh Hòa,False,khu vực tỉnh Khánh Hòa cũ,8555.86,2243554.0,"NQ 202/2025/QH15, Điều 1, khoản 13","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Khánh Hòa,Khánh Hòa,False,khu vực tỉnh Khánh Hòa cũ,8555.86,2243554.0,"NQ 202/2025/QH15, Điều 1, khoản 13","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Đắk Nông,Lâm Đồng,False,khu vực tỉnh Lâm Đồng cũ,24233.07,3872999.0,"NQ 202/2025/QH15, Điều 1, khoản 14","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Bình Thuận,Lâm Đồng,False,khu vực tỉnh Lâm Đồng cũ,24233.07,3872999.0,"NQ 202/2025/QH15, Điều 1, khoản 14","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Lâm Đồng,Lâm Đồng,False,khu vực tỉnh Lâm Đồng cũ,24233.07,3872999.0,"NQ 202/2025/QH15, Điều 1, khoản 14","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Phú Yên,Đắk Lắk,False,khu vực tỉnh Đắk Lắk cũ,18096.4,3346853.0,"NQ 202/2025/QH15, Điều 1, khoản 15","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Đắk Lắk,Đắk Lắk,False,khu vực tỉnh Đắk Lắk cũ,18096.4,3346853.0,"NQ 202/2025/QH15, Điều 1, khoản 15","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Hồ Chí Minh,Hồ Chí Minh,False,khu vực thành phố Hồ Chí Minh cũ,6772.59,14002598.0,"NQ 202/2025/QH15, Điều 1, khoản 16","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Bà Rịa - Vũng Tàu,Hồ Chí Minh,False,khu vực thành phố Hồ Chí Minh cũ,6772.59,14002598.0,"NQ 202/2025/QH15, Điều 1, khoản 16","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Bình Dương,Hồ Chí Minh,False,khu vực thành phố Hồ Chí Minh cũ,6772.59,14002598.0,"NQ 202/2025/QH15, Điều 1, khoản 16","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Bình Phước,Đồng Nai,False,khu vực tỉnh Đồng Nai cũ,12737.18,4491408.0,"NQ 202/2025/QH15, Điều 1, khoản 17","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Đồng Nai,Đồng Nai,False,khu vực tỉnh Đồng Nai cũ,12737.18,4491408.0,"NQ 202/2025/QH15, Điều 1, khoản 17","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Long An,Tây Ninh,False,khu vực tỉnh Long An cũ,8536.44,3254170.0,"NQ 202/2025/QH15, Điều 1, khoản 18","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Tây Ninh,Tây Ninh,False,khu vực tỉnh Long An cũ,8536.44,3254170.0,"NQ 202/2025/QH15, Điều 1, khoản 18","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Cần Thơ,Cần Thơ,False,khu vực thành phố Cần Thơ cũ,6360.83,4199824.0,"NQ 202/2025/QH15, Điều 1, khoản 19","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Sóc Trăng,Cần Thơ,False,khu vực thành phố Cần Thơ cũ,6360.83,4199824.0,"NQ 202/2025/QH15, Điều 1, khoản 19","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Hậu Giang,Cần Thơ,False,khu vực thành phố Cần Thơ cũ,6360.83,4199824.0,"NQ 202/2025/QH15, Điều 1, khoản 19","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Bến Tre,Vĩnh Long,False,khu vực tỉnh Vĩnh Long cũ,6296.2,4257581.0,"NQ 202/2025/QH15, Điều 1, khoản 20","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Trà Vinh,Vĩnh Long,False,khu vực tỉnh Vĩnh Long cũ,6296.2,4257581.0,"NQ 202/2025/QH15, Điều 1, khoản 20","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Vĩnh Long,Vĩnh Long,False,khu vực tỉnh Vĩnh Long cũ,6296.2,4257581.0,"NQ 202/2025/QH15, Điều 1, khoản 20","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Tiền Giang,Đồng Tháp,False,khu vực tỉnh Tiền Giang cũ,5938.64,4370046.0,"NQ 202/2025/QH15, Điều 1, khoản 21","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Đồng Tháp,Đồng Tháp,False,khu vực tỉnh Tiền Giang cũ,5938.64,4370046.0,"NQ 202/2025/QH15, Điều 1, khoản 21","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Bạc Liêu,Cà Mau,False,khu vực tỉnh Cà Mau cũ,7942.39,2606672.0,"NQ 202/2025/QH15, Điều 1, khoản 22","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Cà Mau,Cà Mau,False,khu vực tỉnh Cà Mau cũ,7942.39,2606672.0,"NQ 202/2025/QH15, Điều 1, khoản 22","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Kiên Giang,An Giang,False,khu vực tỉnh Kiên Giang cũ,9888.91,4952238.0,"NQ 202/2025/QH15, Điều 1, khoản 23","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+An Giang,An Giang,False,khu vực tỉnh Kiên Giang cũ,9888.91,4952238.0,"NQ 202/2025/QH15, Điều 1, khoản 23","NQ 60-NQ/TW ngày 12/4/2025, danh sách kèm theo (mục II)"
+Hà Nội,Hà Nội,True,giữ nguyên (không sắp xếp),,,"NQ 202/2025/QH15, Điều 1, khoản 24 (không thực hiện sắp xếp)",
+Huế,Huế,True,giữ nguyên (không sắp xếp),,,"NQ 202/2025/QH15, Điều 1, khoản 24 (không thực hiện sắp xếp)",
+Lai Châu,Lai Châu,True,giữ nguyên (không sắp xếp),,,"NQ 202/2025/QH15, Điều 1, khoản 24 (không thực hiện sắp xếp)",
+Điện Biên,Điện Biên,True,giữ nguyên (không sắp xếp),,,"NQ 202/2025/QH15, Điều 1, khoản 24 (không thực hiện sắp xếp)",
+Sơn La,Sơn La,True,giữ nguyên (không sắp xếp),,,"NQ 202/2025/QH15, Điều 1, khoản 24 (không thực hiện sắp xếp)",
+Lạng Sơn,Lạng Sơn,True,giữ nguyên (không sắp xếp),,,"NQ 202/2025/QH15, Điều 1, khoản 24 (không thực hiện sắp xếp)",
+Quảng Ninh,Quảng Ninh,True,giữ nguyên (không sắp xếp),,,"NQ 202/2025/QH15, Điều 1, khoản 24 (không thực hiện sắp xếp)",
+Thanh Hóa,Thanh Hóa,True,giữ nguyên (không sắp xếp),,,"NQ 202/2025/QH15, Điều 1, khoản 24 (không thực hiện sắp xếp)",
+Nghệ An,Nghệ An,True,giữ nguyên (không sắp xếp),,,"NQ 202/2025/QH15, Điều 1, khoản 24 (không thực hiện sắp xếp)",
+Hà Tĩnh,Hà Tĩnh,True,giữ nguyên (không sắp xếp),,,"NQ 202/2025/QH15, Điều 1, khoản 24 (không thực hiện sắp xếp)",
+Cao Bằng,Cao Bằng,True,giữ nguyên (không sắp xếp),,,"NQ 202/2025/QH15, Điều 1, khoản 24 (không thực hiện sắp xếp)",
