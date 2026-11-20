@@ -16,6 +16,10 @@ OBSOLETE = ["huyện Gia Lâm", "thị trấn Trâu Quỳ"]
     ("Huyện Gia Lâm đã không còn; địa bàn nay thuộc các xã mới của Hà Nội.", None),
     ("Trước đây là huyện Gia Lâm, từ 01/07/2025 cấp huyện đã bị bãi bỏ.", None),
     ("Huyện Gia Lâm cũ được sắp xếp thành các xã mới.", None),
+    ("Địa bàn huyện Gia Lâm (cũ) gồm các xã mới.", None),
+    # a stray "cũ" not attached to the obsolete entity is not a change marker
+    ("UBND huyện Gia Lâm vẫn làm việc ở trụ sở cũ tại thị trấn Trâu Quỳ.", "STALE"),
+    ("Huyện Gia Lâm có trụ sở tại Trâu Quỳ, gần đường cũ.", "STALE"),
 ])
 def test_rule_verdict(answer, expected):
     assert rule_verdict(answer, OBSOLETE) == expected
