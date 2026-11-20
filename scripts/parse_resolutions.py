@@ -89,9 +89,14 @@ def parse_file(path: Path, meta: dict) -> dict:
         else:
             cur_clause["text"] += " " + line
     doc_id = path.stem
+    text_lines = []
     for a in articles:
+        text_lines.append(f"Điều {a['article']}. {a['title']}".rstrip())
+        if a["intro"]:
+            text_lines.append(a["intro"])
         for c in a["clauses"]:
             c["id"] = f"{doc_id}#D{a['article']}.K{c['clause']}"
+            text_lines.append(f"{c['clause']}. {c['text']}")
     return {
         "doc_id": doc_id,
         "doc_number": meta.get("doc_number", ""),
@@ -101,6 +106,8 @@ def parse_file(path: Path, meta: dict) -> dict:
         "effective_date": meta.get("effective_date", ""),
         "province": meta.get("province", ""),
         "source_url": source or meta.get("source_url", ""),
+        # whole body, one "Điều N. …" / "K. …" per line, for rag/chunkers.py
+        "text": "\n".join(text_lines),
         "articles": articles,
     }
 

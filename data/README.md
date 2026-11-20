@@ -3,7 +3,7 @@
 | Thư mục | Nội dung | Người phụ trách |
 |---------|----------|-----------------|
 | `raw/` | Văn bản pháp lý gốc (NQ 202/2025/QH15, NQ 76/2025/UBTVQH15, Luật Tổ chức CQĐP 2025, 34 NQ cấp xã) + `manifest.csv` (URL, số hiệu, ngày hiệu lực, SHA-256). PDF không commit, chỉ commit Markdown đã chuyển. | TV1 |
-| `parsed/` | JSON theo Điều–Khoản, mỗi khoản có `id` dạng `<doc_id>#D<điều>.K<khoản>` (dùng làm `clause_id` trong benchmark và id chunk). Sinh bằng `python scripts/parse_resolutions.py` | TV1 |
+| `parsed/` | JSON `{doc_id, …, text, articles[...]}`; `text` là toàn văn, mỗi dòng một "Điều N. …" hoặc "K. …" (đọc thẳng bằng `rag/chunkers.py`). Mỗi khoản có `id` dạng `<doc_id>#D<điều>.K<khoản>` (dùng làm `clause_id` trong benchmark và id chunk). Sinh bằng `python scripts/parse_resolutions.py` | TV1 |
 | `processed/` | `entity_map_63_34_v1.csv` (63 dòng, trung tâm hành chính theo NQ 60-NQ/TW), `commune_lineage.csv` (3.321 xã mới, 10.559 dòng; sinh bằng `python scripts/build_lineage.py`), `popularity.csv` | TV1 |
 | `benchmark/` | `pilot_80.jsonl` + `pilot_80_report.md` (sinh bằng `python scripts/build_pilot_jsonl.py`), `vn_admin2025_qa_vX.Y.jsonl`, `datasheet.md`, `oracle_contexts.jsonl`, `distractors.jsonl` | TV1 |
 
