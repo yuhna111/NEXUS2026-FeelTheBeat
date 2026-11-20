@@ -5,7 +5,7 @@ and checks each against the manifest's SHA-256, so every teammate works on ident
 
 Scanned PDFs (no text layer) are OCR'd with EasyOCR. OCR output is a DRAFT: it contains
 diacritic and punctuation errors and must be proofread before any gold answer relies on it.
-Keep such files under data/raw/ocr_draft/ (the manifest `file` column says where).
+The manifest `file` column says where each Markdown file is written.
 
     python scripts/fetch_raw.py            # download missing PDFs, convert missing Markdown
     python scripts/fetch_raw.py --force    # re-convert Markdown even if it exists

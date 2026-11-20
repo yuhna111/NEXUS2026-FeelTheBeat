@@ -11,4 +11,4 @@ Lược đồ bản ghi benchmark: xem `benchmark/sample.jsonl` và plan §1.2.
 
 **Lưu ý:** số hiệu nghị quyết cấp xã trong ví dụ (NQ 1656) cần TV1 đối chiếu lại với Công báo.
 
-**Bản OCR nháp:** nghị quyết cấp xã trên Cổng văn bản Chính phủ là PDF scan. `scripts/fetch_raw.py` OCR chúng vào `raw/ocr_draft/`; các file này còn lỗi dấu và lỗi số thứ tự Khoản, TV1 phải soát lại trước khi dùng làm bằng chứng vàng. Số hiệu 34 nghị quyết cấp xã là 1654–1687/NQ-UBTVQH15.
+**Văn bản cấp xã:** 34 nghị quyết 1654–1687/NQ-UBTVQH15 nằm trong `raw/` dưới dạng chữ do TV1 chuẩn bị; đây là nguồn duy nhất cho chỉ mục và bằng chứng vàng. Bản OCR nháp tuần 1 (`raw/ocr_draft/`) đã bị xoá vì trùng và kém chính xác hơn. `scripts/fetch_raw.py` vẫn OCR được PDF scan nếu sau này cần thêm văn bản; kết quả OCR phải được soát lại trước khi dùng.
