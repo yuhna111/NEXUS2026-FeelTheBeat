@@ -13,8 +13,9 @@ models:
     subset: stratified_600
   - id: gemini-flash
     provider: gemini
-    snapshot: ""
-    cutoff: ""
+    snapshot: "gemini-3.5-flash-lite"   # version 3.5-flash-lite-07-2026; no pinned id is callable,
+                                        # each cached call records usage.model_version
+    cutoff: ""            # TODO: take from Google's model card, with source
     subset: stratified_600
   - id: claude-haiku
     provider: anthropic
