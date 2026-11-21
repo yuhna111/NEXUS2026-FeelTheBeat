@@ -87,7 +87,7 @@ vLLM (cho mô hình mở) cài riêng trên máy có GPU: `pip install -e ".[vll
 | Thành viên | Vai trò | Thư mục chính |
 |------------|---------|---------------|
 | Trịnh Quốc Toản | Kiến trúc dữ liệu & Benchmark | `data/`, `qgen/`, `docs/annotation_guide*` |
-| Nguyễn An Huy | Pipeline RAG & LLM | `rag/`, `configs/`, `outputs/`, `demo/` |
+| TV2 | Pipeline RAG & LLM | `rag/`, `configs/`, `outputs/`, `demo/` |
 | Tạ Quang Vinh | Đánh giá, Phân tích & Demo | `eval/`, `results/`, `figures/`, `paper/` |
 
 ## Mốc quan trọng
