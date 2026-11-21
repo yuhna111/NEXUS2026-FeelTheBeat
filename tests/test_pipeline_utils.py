@@ -9,14 +9,16 @@ from rag.run_inference import done_ids, load_subset_ids, select_models
 OBSOLETE = ["huyện Gia Lâm", "thị trấn Trâu Quỳ"]
 
 
+# Expectations follow TV3's context-aware rules (main, PR #3): an answer that
+# describes the change is decided NOT_STALE by the rules, not sent to the judge.
 @pytest.mark.parametrize("answer,expected", [
     ("Trụ sở đặt tại phường Long Biên, Hà Nội.", "NOT_STALE"),
     ("Trụ sở UBND huyện Gia Lâm đặt tại thị trấn Trâu Quỳ.", "STALE"),
     ("Huyện Gia Lâm cũng có trụ sở tại Trâu Quỳ.", "STALE"),  # "cũng" is not the marker "cũ"
-    ("Huyện Gia Lâm đã không còn; địa bàn nay thuộc các xã mới của Hà Nội.", None),
-    ("Trước đây là huyện Gia Lâm, từ 01/07/2025 cấp huyện đã bị bãi bỏ.", None),
-    ("Huyện Gia Lâm cũ được sắp xếp thành các xã mới.", None),
-    ("Địa bàn huyện Gia Lâm (cũ) gồm các xã mới.", None),
+    ("Huyện Gia Lâm đã không còn; địa bàn nay thuộc các xã mới của Hà Nội.", "NOT_STALE"),
+    ("Trước đây là huyện Gia Lâm, từ 01/07/2025 cấp huyện đã bị bãi bỏ.", "NOT_STALE"),
+    ("Huyện Gia Lâm cũ được sắp xếp thành các xã mới.", "NOT_STALE"),
+    ("Địa bàn huyện Gia Lâm (cũ) gồm các xã mới.", "NOT_STALE"),
     # a stray "cũ" not attached to the obsolete entity is not a change marker
     ("UBND huyện Gia Lâm vẫn làm việc ở trụ sở cũ tại thị trấn Trâu Quỳ.", "STALE"),
     ("Huyện Gia Lâm có trụ sở tại Trâu Quỳ, gần đường cũ.", "STALE"),
