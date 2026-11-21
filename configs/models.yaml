@@ -25,8 +25,8 @@ models:
   # --- Open multilingual (vLLM) ---
   - id: qwen-7b
     provider: vllm
-    snapshot: ""          # HF repo id
-    cutoff: ""
+    snapshot: "Qwen/Qwen2.5-7B-Instruct-AWQ"   # vLLM smoke test on Colab T4, 22/11/2026
+    cutoff: ""            # TODO: Qwen has not published a dated cutoff; find a citable source
   - id: llama-3-8b-instruct
     provider: vllm
     snapshot: ""
