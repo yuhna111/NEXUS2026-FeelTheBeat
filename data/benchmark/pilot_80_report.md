@@ -1,5 +1,7 @@
 # Báo cáo gộp bộ pilot (tự sinh bởi scripts/build_pilot_jsonl.py)
 
+> **Đã thay thế:** file `pilot_80.jsonl` đi kèm báo cáo này theo định dạng nháp v0.1. Bản dùng chính thức là `pilot_80_v0.2.jsonl` (TV2 gộp lại theo `docs/qa_schema.md` v1.0, có `gold_clause_ids`).
+
 - Tổng: **80 câu** (toan50: 50, vinh30: 30)
 - Theo nhóm: A_direct 39, B_obsolete_trap 16, C_multihop_spatial 7, D_before_after 7, E_procedure 6, F_rumor 5
 - Câu `control`: 3
