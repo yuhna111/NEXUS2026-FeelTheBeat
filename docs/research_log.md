@@ -25,3 +25,35 @@ Mỗi tuần đúng 5 trường: **Đã làm gì · Kết quả · Khó khăn ·
 
 **Số giờ làm việc**
 - TV1: [số] giờ · TV2: [số] giờ · TV3: [số] giờ
+
+## Tuần 2 (16/11 – 22/11/2026)
+**Đã làm gì**
+- TV1: [điền]
+- TV2: Kéo main về nhánh của TV2, xoá bản OCR nháp, gộp 50 câu TV1 + 30 câu TV3 thành `data/benchmark/pilot_80_v0.2.jsonl` theo `docs/qa_schema.md` v1.0 (PR #5). Đổi mã đoạn của `rag/chunkers.legal_chunks` sang dạng mã khoản `<doc_id>#D<điều>.K<khoản>` để khớp trực tiếp với bộ câu hỏi. Hoàn thiện `rag/index_build.py` (BGE-M3 → Qdrant, dựng lại từ đầu mỗi lần chạy) và dựng 2 collection `vnadmin_fixed`, `vnadmin_legal` trên 38 văn bản dạng chữ. Viết `rag/retriever.py`: BM25 (rank_bm25 + underthesea, từ điển địa danh lấy từ `commune_lineage.csv` và `entity_map_63_34_v1.csv`), dense (BGE-M3 + Qdrant), kết hợp (RRF, k = 60, 20 ứng viên mỗi bên). Viết `rag/eval_retrieval.py` tính Recall@5 và MRR@5, lưu log truy xuất top-20 từng câu vào `outputs/retrieval_w2/` để TV3 kiểm chéo.
+- TV3: [điền]
+
+**Kết quả**
+- TV1: [điền]
+- TV2: Chia đoạn trên 38 văn bản: 398 đoạn cố định (512/64, trung bình 491 từ, 594 token) và 3.825 đoạn theo Điều–Khoản (trung bình 59 từ, 72 token), không đoạn nào bị cắt ở 1.024 token. Nhúng BGE-M3 trên GTX 1660 Ti 6 GB: 275 giây cho đoạn cố định, 397 giây cho đoạn Điều–Khoản, VRAM đỉnh 1,5 GB. Recall@5 trên 55 câu có khoản nguồn trong kho (`pilot_80_v0.2`):
+
+  | Truy xuất | Chia cố định | Chia theo Điều–Khoản |
+  |---|---|---|
+  | BM25 | 0,455 (25/55) | 0,582 (32/55) |
+  | Vector (BGE-M3) | 0,545 (30/55) | **0,800 (44/55)** |
+  | Kết hợp (RRF) | 0,691 (38/55) | 0,764 (42/55) |
+
+  Trên 33 câu theo cách đếm của TV1 (`pilot_80.jsonl`, evidence `in_corpus`): vector và kết hợp theo Điều–Khoản cùng đạt 0,879 (29/33). Cột Điều–Khoản khớp với `eval.metrics.recall_at_k` của TV3. Chia theo Điều–Khoản tốt hơn chia cố định ở cả 3 cách truy xuất; RRF chưa có reranker làm giảm nhẹ so với vector đơn thuần ở cách chia Điều–Khoản. Số liệu pilot, 80 câu chưa được kiểm (`verified = false`). Bảng đầy đủ: `results/retrieval_w2/recall.md`.
+- TV3: [điền]
+
+**Khó khăn**
+- TV1: [điền]
+- TV2: Quy tắc chấm cho đoạn cố định (đoạn chứa 80 ký tự đầu của khoản đúng) đang tạm theo đề xuất của TV1, cần TV3 chốt (mục mở (3) trong `qa_schema.md`). `data/parsed` có 5 mã khoản lặp (NQ 203 Điều 1 khoản 1–3, Luật 72 Điều 30 khoản 1–2) do văn bản trích lại điều luật khác; đã xử lý khi lưu vào Qdrant, không câu pilot nào dùng các mã này. 25/80 câu chưa có khoản nguồn trong kho (NQ 76 chưa có) nên chưa tính Recall.
+- TV3: [điền]
+
+**Kế hoạch tuần tới**
+- TV1: [điền]
+- TV2: Thêm reranker `bge-reranker-v2-m3` vào cách kết hợp (cấu hình C3) và đo lại Recall@5. Chạy C0 (không truy xuất) trên bộ pilot với các mô hình đã có key. Chạy lại `notebooks/01_embedding_trial.ipynb` trên kho văn bản chữ.
+- TV3: [điền]
+
+**Số giờ làm việc**
+- TV1: [số] giờ · TV2: [số] giờ · TV3: [số] giờ

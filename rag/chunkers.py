@@ -2,6 +2,10 @@
 
 - fixed_chunks: 512 tokens, overlap 64 (config C1)
 - legal_chunks: one chunk per Khoản, with parent Điều title as metadata (C2–C4)
+
+chunk_id of a legal chunk is the clause id used in data/parsed and the benchmark
+(`<doc_id>#D<điều>.K<khoản>`; an Điều without Khoản is `<doc_id>#D<điều>`), so
+Recall@k compares ids directly. Fixed chunks are `<doc_id>#fixed<i>`.
 """
 from __future__ import annotations
 
@@ -47,13 +51,13 @@ def legal_chunks(doc_id: str, text: str) -> list[Chunk]:
         khoans = list(_KHOAN.finditer(body))
         header = f"Điều {article}. {title}".strip()
         if not khoans:
-            out.append(Chunk(f"{doc_id}#Art{article}", doc_id, f"{header}\n{body.strip()}",
+            out.append(Chunk(f"{doc_id}#D{article}", doc_id, f"{header}\n{body.strip()}",
                              {"article": article, "clause": None, "article_title": title}))
             continue
         for ki, k in enumerate(khoans):
             kend = khoans[ki + 1].start() if ki + 1 < len(khoans) else len(body)
             clause = k.group(1)
-            out.append(Chunk(f"{doc_id}#Art{article}.{clause}", doc_id,
+            out.append(Chunk(f"{doc_id}#D{article}.K{clause}", doc_id,
                              f"{header}\n{body[k.start():kend].strip()}",
                              {"article": article, "clause": clause, "article_title": title}))
     return out

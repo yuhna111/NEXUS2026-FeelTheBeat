@@ -1,0 +1,19 @@
+{
+  "chunker": "fixed",
+  "chunks": 398,
+  "docs": 38,
+  "words_mean": 490.7,
+  "words_max": 512,
+  "duplicate_chunk_ids": [],
+  "load_s": 20.7,
+  "tokens_mean": 593.8,
+  "truncated_over_max_len": 0,
+  "embed_s": 275.2,
+  "chunks_per_s": 1.4,
+  "vram_peak_gb": 1.2,
+  "device": "NVIDIA GeForce GTX 1660 Ti with Max-Q Design",
+  "collection": "vnadmin_fixed",
+  "points": 398,
+  "embedder": "BAAI/bge-m3",
+  "dim": 1024
+}

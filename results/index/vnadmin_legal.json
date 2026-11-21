@@ -1,0 +1,25 @@
+{
+  "chunker": "legal",
+  "chunks": 3825,
+  "docs": 38,
+  "words_mean": 58.8,
+  "words_max": 557,
+  "duplicate_chunk_ids": [
+    "LUAT-72-2025-QH15#D30.K1",
+    "LUAT-72-2025-QH15#D30.K2",
+    "NQ-203-2025-QH15#D1.K1",
+    "NQ-203-2025-QH15#D1.K2",
+    "NQ-203-2025-QH15#D1.K3"
+  ],
+  "load_s": 16.8,
+  "tokens_mean": 72.2,
+  "truncated_over_max_len": 0,
+  "embed_s": 396.7,
+  "chunks_per_s": 9.6,
+  "vram_peak_gb": 1.5,
+  "device": "NVIDIA GeForce GTX 1660 Ti with Max-Q Design",
+  "collection": "vnadmin_legal",
+  "points": 3825,
+  "embedder": "BAAI/bge-m3",
+  "dim": 1024
+}
