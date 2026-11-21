@@ -3,6 +3,10 @@
 Writes outputs/<config>/<model_id>.jsonl, one line per question with:
 model_id, config, question_id, prompt, context_ids, output, timestamp.
 
+Re-running resumes: questions already in the output file are skipped (delete the
+file to start over). A model with `subset: <name>` in configs/models.yaml only
+runs the ids listed in data/benchmark/subsets/<name>.txt.
+
 Usage:
     python -m rag.run_inference --config C0 [--models qwen-7b,gpt-mini] [--limit 30]
 """
@@ -18,12 +22,45 @@ from rag.llm_client import LLMClient
 
 BENCH = Path("data/benchmark/vn_admin2025_qa_v1.0.jsonl")
 PROMPTS = Path("configs/prompts")
+SUBSETS = Path("data/benchmark/subsets")
 
 
-def load_questions(path: Path, limit: int | None) -> list[dict]:
+def load_questions(path: Path) -> list[dict]:
     with path.open(encoding="utf-8") as f:
-        qs = [json.loads(line) for line in f if line.strip()]
-    return qs[:limit] if limit else qs
+        return [json.loads(line) for line in f if line.strip()]
+
+
+def load_subset_ids(name: str, subsets_dir: Path = SUBSETS) -> set[str]:
+    """Question ids of a named subset: <subsets_dir>/<name>.txt, one id per line."""
+    path = subsets_dir / f"{name}.txt"
+    if not path.exists():
+        raise SystemExit(f"Thiếu file tập con {path} (mỗi dòng một question id).")
+    return {line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()}
+
+
+def done_ids(out_path: Path) -> set[str]:
+    """Question ids already written to an output file, so a re-run resumes instead of overwriting."""
+    if not out_path.exists():
+        return set()
+    with out_path.open(encoding="utf-8") as f:
+        return {json.loads(line)["question_id"] for line in f if line.strip()}
+
+
+def select_models(models: list[dict], wanted: str) -> list[dict]:
+    """Filter by comma-separated ids and require a pinned snapshot for each selected model."""
+    if wanted:
+        ids = [w.strip() for w in wanted.split(",") if w.strip()]
+        unknown = sorted(set(ids) - {m["id"] for m in models})
+        if unknown:
+            raise SystemExit(f"Không có trong configs/models.yaml: {', '.join(unknown)}")
+        models = [m for m in models if m["id"] in ids]
+    unpinned = [m["id"] for m in models if not m.get("snapshot")]
+    if unpinned:
+        raise SystemExit(
+            "configs/models.yaml chưa điền `snapshot` cho: " + ", ".join(unpinned)
+            + ". Điền mã snapshot chính xác hoặc chọn mô hình khác bằng --models."
+        )
+    return models
 
 
 def build_prompt(cfg: dict, q: dict, context: str = "") -> str:
@@ -41,20 +78,29 @@ def main() -> None:
     args = ap.parse_args()
 
     cfg = yaml.safe_load(Path("configs/retrieval.yaml").read_text(encoding="utf-8"))[args.config]
-    models = yaml.safe_load(Path("configs/models.yaml").read_text(encoding="utf-8"))["models"]
-    if args.models:
-        wanted = set(args.models.split(","))
-        models = [m for m in models if m["id"] in wanted]
+    models = select_models(
+        yaml.safe_load(Path("configs/models.yaml").read_text(encoding="utf-8"))["models"],
+        args.models,
+    )
 
-    questions = load_questions(Path(args.bench), args.limit)
+    questions = load_questions(Path(args.bench))
     out_dir = Path("outputs") / args.config
     out_dir.mkdir(parents=True, exist_ok=True)
 
     for m in models:
-        client = LLMClient(provider=m["provider"], model=m["snapshot"] or m["id"])
+        qs = questions
+        if m.get("subset"):
+            keep = load_subset_ids(m["subset"])
+            qs = [q for q in qs if q["id"] in keep]
+        if args.limit:
+            qs = qs[: args.limit]
+
+        client = LLMClient(provider=m["provider"], model=m["snapshot"])
         out_path = out_dir / f"{m['id']}.jsonl"
-        with out_path.open("w", encoding="utf-8") as f:
-            for q in questions:
+        done = done_ids(out_path)
+        todo = [q for q in qs if q["id"] not in done]
+        with out_path.open("a", encoding="utf-8") as f:
+            for q in todo:
                 context, context_ids = "", []  # TODO(TV2): retrieval for C1–C6
                 rec = client.generate(build_prompt(cfg, q, context))
                 f.write(json.dumps({
@@ -62,7 +108,7 @@ def main() -> None:
                     "prompt": rec["prompt"], "context_ids": context_ids,
                     "output": rec["output"], "timestamp": rec["timestamp"],
                 }, ensure_ascii=False) + "\n")
-        print(f"wrote {out_path}")
+        print(f"{out_path}: +{len(todo)} mới, {len(qs) - len(todo)} đã có sẵn")
 
 
 if __name__ == "__main__":

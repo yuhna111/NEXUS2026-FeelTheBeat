@@ -9,7 +9,11 @@
 
 Lược đồ bản ghi benchmark: xem `docs/qa_schema.md`.
 
+**Bộ pilot gộp:** `benchmark/pilot_80_v0.2.jsonl` = 50 câu TV1 (`pilot_80.jsonl`, nâng lên v1.0) + 30 câu TV3 (`pilot_30_vinh.jsonl`), định dạng theo `docs/qa_schema.md`. Sinh lại bằng `python scripts/merge_pilot_sets.py --toan data/benchmark/pilot_80.jsonl`; kiểm bằng `python -m eval.qa_schema data/benchmark/pilot_80_v0.2.jsonl`. `gold_clause_ids` của câu TV1 được suy tự động và đánh dấu trong `verification_note`, TV1 cần xác nhận.
+
 **Lưu ý:** số hiệu nghị quyết cấp xã trong ví dụ (NQ 1656) cần TV1 đối chiếu lại với Công báo.
+
+**Văn bản cấp xã:** 34 nghị quyết 1654–1687/NQ-UBTVQH15 nằm trong `raw/` dưới dạng chữ do TV1 chuẩn bị; đây là nguồn duy nhất cho chỉ mục và bằng chứng vàng. Bản OCR nháp tuần 1 (`raw/ocr_draft/`) đã bị xoá vì trùng và kém chính xác hơn. `scripts/fetch_raw.py` vẫn OCR được PDF scan nếu sau này cần thêm văn bản; kết quả OCR phải được soát lại trước khi dùng.
 
 ## Văn bản khung trong `raw/` (tuần 2)
 

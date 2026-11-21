@@ -15,4 +15,4 @@ Gán ĐÚNG MỘT nhãn:
 
 Lưu ý: nhắc tới đơn vị cũ để MÔ TẢ việc sắp xếp (ví dụ "huyện X đã được sắp xếp thành...") KHÔNG phải STALE.
 
-Trả về JSON: {"label": "...", "rationale": "<1 câu>"}
+Trả về JSON: {{"label": "...", "rationale": "<1 câu>"}}

@@ -116,3 +116,20 @@ class LLMClient:
             )
             return r.text, {}
         raise ValueError(f"Unknown provider: {self.provider}")
+
+
+if __name__ == "__main__":
+    # Smoke test: python -m rag.llm_client --provider vllm --model <id> "Câu hỏi"
+    import argparse
+    import sys
+
+    ap = argparse.ArgumentParser(description="One cached call through LLMClient.")
+    ap.add_argument("--provider", required=True, choices=["openai", "gemini", "anthropic", "vllm"])
+    ap.add_argument("--model", required=True)
+    ap.add_argument("--system")
+    ap.add_argument("prompt")
+    a = ap.parse_args()
+    sys.stdout.reconfigure(encoding="utf-8")
+    rec = LLMClient(provider=a.provider, model=a.model).generate(a.prompt, system=a.system)
+    print(rec["output"])
+    print(f"--- usage: {rec['usage']} · cache: {rec['key'][:12]}", file=sys.stderr)
