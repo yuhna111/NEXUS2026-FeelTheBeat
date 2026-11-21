@@ -9,7 +9,7 @@ import pytest
 
 PROC = Path("data/processed")
 LINEAGE = PROC / "commune_lineage.csv"
-ENTITY = PROC / "entity_map_63_34_draft.csv"
+ENTITY = PROC / "entity_map_63_34_v1.csv"
 
 
 def _load(p: Path) -> pd.DataFrame:
