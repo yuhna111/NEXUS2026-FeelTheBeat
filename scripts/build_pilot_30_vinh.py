@@ -49,10 +49,10 @@ EVIDENCE: dict[str, tuple[list[str], list[str], list[tuple[str | None, str]], st
     "A07": ([cid(NQ202, 1, 24)], [], [
         (None, "NQ thành lập TP Huế trực thuộc trung ương (2024) [TODO_VERIFY số hiệu; sheet ghi NQ 1314/NQ-UBTVQH15]"),
     ], "K24 nêu 6 thành phố và Hà Nội, Huế; mốc Huế lên TP trực thuộc TW (01/01/2025) chưa có văn bản trong kho."),
-    "A08": ([], [], [
-        ("NQ-76-2025-UBTVQH15", "NQ 76/2025/UBTVQH15 (chưa có trong data/parsed)"),
-        (None, "Các NQ sắp xếp cấp xã của từng tỉnh; thông cáo của Chính phủ [TODO_VERIFY]"),
-    ], "Số 3.321 / 2.621 / 687 / 13 chưa tìm được khoản nào trong kho nêu trực tiếp."),
+    "A08": ([], [cid("NQ-76-2025-UBTVQH15", 1, 3)], [
+        (None, "34 NQ 1654–1687/NQ-UBTVQH15, câu tổng kết cuối Điều 1 của từng NQ (TV1 cộng trong commune_lineage.csv)"),
+    ], "NQ 76 Điều 1 khoản 3 chỉ nêu mục tiêu giảm khoảng 60–70% số ĐVHC cấp xã và việc xã, thị trấn sắp xếp thành xã; "
+       "không khoản nào nêu trực tiếp 3.321 / 2.621 / 687 / 13. Số này là tổng cộng từ 34 NQ cấp xã, nên chưa có khoản vàng cho Recall@k."),
     "B01": ([cid(L72, 51, 3), cid(L72, 1, 1)], [], [
         ("NQ-203-2025-QH15", "NQ 203/2025/QH15 (Hiến pháp sửa đổi) — chưa định vị khoản"),
     ], ""),
@@ -140,13 +140,16 @@ def split_kw(s: Any) -> list[str]:
     return out
 
 
+NORMATIVE_UBTVQH = {"NQ-76-2025-UBTVQH15"}
+
+
 def citation(clause_id: str) -> str:
     doc, rest = clause_id.split("#")
     art, cl = rest[1:].split(".K")
     kind, num, year, body = doc.split("-")
     if kind == "LUAT":
         ref = f"Luật {num}/{year}/{body}"
-    elif body == "QH15":
+    elif body == "QH15" or doc in NORMATIVE_UBTVQH:
         ref = f"NQ {num}/{year}/{body}"
     else:
         ref = f"NQ {num}/NQ-{body}"

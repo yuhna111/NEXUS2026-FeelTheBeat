@@ -1,4 +1,4 @@
-# Định dạng câu hỏi VN-Admin2025-QA — v1.0
+# Định dạng câu hỏi VN-Admin2025-QA — v1.0 (cập nhật 22/11/2026: mục 3, mục 5)
 
 Thay cho bản nháp v0.1 (TV1, nhánh `feat/data`). Áp dụng cho mọi file `data/benchmark/*.jsonl` từ `pilot-0.2` trở đi.
 Validator: `python -m eval.qa_schema <file.jsonl> --parsed data/parsed` (test: `tests/test_qa_schema.py`).
@@ -58,7 +58,9 @@ Validator: `python -m eval.qa_schema <file.jsonl> --parsed data/parsed` (test: `
 - Lấy nhãn: `eval.qa_schema.recall_gold_ids(rec)` → `set[str] | None`. Bản ghi `pilot-0.1` (chưa có trường này, ví dụ `pilot_80.jsonl`) được suy ra từ `evidence[]` có `in_corpus = true`.
 - Hit: `recall_at_k(gold_ids, retrieved, k)` trong `eval/metrics.py`, với `retrieved` là `context_ids` trong output của TV2.
 
-**Nối ID với TV2.** `rag/chunkers.legal_chunks` đặt `chunk_id = <doc_id>#Art<điều>.<khoản>`, còn `data/parsed` dùng `<doc_id>#D<điều>.K<khoản>`. Hai dạng chuyển qua lại một-một bằng `clause_id_to_chunk_id` / `chunk_id_to_clause_id` (`eval/qa_schema.py`). Chunk `#fixed<i>` (C1) và chunk cấp Điều `#Art<điều>` không có khoản tương ứng → Recall@k của C1 cần quy tắc riêng (mục 5).
+**Nối ID với TV2.** Từ tuần 2, `rag/chunkers.legal_chunks` đặt `chunk_id` theo đúng mã khoản của `data/parsed`: `<doc_id>#D<điều>.K<khoản>` (Điều không chia khoản: `<doc_id>#D<điều>`). Recall@k so khớp `context_ids` với `gold_clause_ids` trực tiếp, không cần chuyển đổi. Đoạn chia cố định (C1) có mã `<doc_id>#fixed<i>`, chấm theo quy tắc phủ khoản ở `eval/metrics_spec.md` mục 5.8 (`fixed_chunk_hit`, `fixed_hit_rank`). Đoạn cấp Điều `#D<điều>` không trùng mã khoản nào nên không tính là trúng.
+
+> Dạng cũ `<doc_id>#Art<điều>.<khoản>` (trước tuần 2) không còn được sinh ra. `clause_id_to_chunk_id` / `chunk_id_to_clause_id` trong `eval/qa_schema.py` chỉ giữ để đọc output cũ; `eval/metrics.py` tự đổi `#Art` sang `#D…K…` khi gặp.
 
 ## 4. Ví dụ hợp lệ
 
@@ -71,4 +73,5 @@ Validator: `python -m eval.qa_schema <file.jsonl> --parsed data/parsed` (test: `
 - Câu `control`: `obsolete_answer` rỗng. Mục tiêu ~20% câu nhóm B là control (`qgen/templates.py`).
 - `obsolete_entities` chỉ chứa chuỗi khớp được; không ghi mô tả ("chỉ nêu…", "(nói như vẫn còn)").
 - Không bịa số hiệu, Điều, khoản. Thiếu → `null` + `[TODO_VERIFY]` trong `citation`, hoặc `TODO_VERIFY_CLAUSE` trong `gold_clause_ids`.
-- Mở: (1) giữ hay gộp `E_procedure`, `F_rumor` (TV1 + TV3); (2) TV2 chọn: đổi `chunk_id` sang dạng `#D.K` hay dùng hàm nối ID ở mục 3; (3) quy tắc Recall@k cho chunk cố định C1 (đề xuất: hit nếu chunk chứa trọn văn bản một khoản vàng); (4) `scripts/build_pilot_jsonl.py` của TV1 cần sinh thêm `gold_clause_ids`.
+- Mở: (1) giữ hay gộp `E_procedure`, `F_rumor` (TV1 + TV3); (4) `scripts/build_pilot_jsonl.py` của TV1 cần sinh thêm `gold_clause_ids`.
+- Đã đóng (22/11/2026): (2) TV2 đổi `chunk_id` sang dạng `#D…K…` (mục 3); (3) quy tắc Recall@k cho đoạn cố định C1: cùng văn bản và phủ liên tục ≥ 50% một khoản vàng (`eval/metrics_spec.md` v0.3, mục 5.8).
