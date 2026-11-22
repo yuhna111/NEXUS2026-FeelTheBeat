@@ -1,3 +1,5 @@
+import pytest
+
 from rag.chunkers import Chunk
 from rag.eval_retrieval import hit_rank, norm, score
 from rag.index_build import chunk_stats, point_id
@@ -15,6 +17,7 @@ def simple_tok(text):
 
 
 def test_bm25_ranks_matching_chunk_first():
+    pytest.importorskip("rank_bm25")  # [rag] extra; CI installs only [dev]
     bm = BM25Retriever(CHUNKS, simple_tok)
     hits = bm.search("phường Hoàn Kiếm được hợp nhất từ những phường nào", k=2)
     assert hits[0].chunk_id == "NQ-1#D1.K1"
