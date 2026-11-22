@@ -1,0 +1,72 @@
+alias,canonical,source
+TP.HCM,Hồ Chí Minh,metrics_spec §2
+TP HCM,Hồ Chí Minh,metrics_spec §2
+HCMC,Hồ Chí Minh,metrics_spec §2
+Sài Gòn,Hồ Chí Minh,metrics_spec §2; cảnh báo: trùng tên phường Sài Gòn (TP HCM) sau 2025
+Ho Chi Minh City,Hồ Chí Minh,TV3 bổ sung 22/11
+Đak Nông,Đắk Nông,metrics_spec §2
+Đắc Nông,Đắk Nông,metrics_spec §2
+Đắc Lắc,Đắk Lắk,TV3 bổ sung 22/11
+Daklak,Đắk Lắk,TV3 bổ sung 22/11
+BR-VT,Bà Rịa - Vũng Tàu,metrics_spec §2
+Bà Rịa Vũng Tàu,Bà Rịa - Vũng Tàu,metrics_spec §2
+Tp. Huế,Huế,metrics_spec §2
+Ba Ria - Vung Tau,Bà Rịa - Vũng Tàu,"bỏ dấu, entity_map_63_34_v1"
+Binh Duong,Bình Dương,"bỏ dấu, entity_map_63_34_v1"
+Binh Phuoc,Bình Phước,"bỏ dấu, entity_map_63_34_v1"
+Binh Thuan,Bình Thuận,"bỏ dấu, entity_map_63_34_v1"
+Binh Dinh,Bình Định,"bỏ dấu, entity_map_63_34_v1"
+Bac Lieu,Bạc Liêu,"bỏ dấu, entity_map_63_34_v1"
+Bac Giang,Bắc Giang,"bỏ dấu, entity_map_63_34_v1"
+Bac Kan,Bắc Kạn,"bỏ dấu, entity_map_63_34_v1"
+Bac Ninh,Bắc Ninh,"bỏ dấu, entity_map_63_34_v1"
+Ben Tre,Bến Tre,"bỏ dấu, entity_map_63_34_v1"
+Cao Bang,Cao Bằng,"bỏ dấu, entity_map_63_34_v1"
+Ca Mau,Cà Mau,"bỏ dấu, entity_map_63_34_v1"
+Can Tho,Cần Thơ,"bỏ dấu, entity_map_63_34_v1"
+Hue,Huế,"bỏ dấu, entity_map_63_34_v1"
+Ha Giang,Hà Giang,"bỏ dấu, entity_map_63_34_v1"
+Ha Nam,Hà Nam,"bỏ dấu, entity_map_63_34_v1"
+Ha Noi,Hà Nội,"bỏ dấu, entity_map_63_34_v1"
+Ha Tinh,Hà Tĩnh,"bỏ dấu, entity_map_63_34_v1"
+Hoa Binh,Hòa Bình,"bỏ dấu, entity_map_63_34_v1"
+Hung Yen,Hưng Yên,"bỏ dấu, entity_map_63_34_v1"
+Hai Duong,Hải Dương,"bỏ dấu, entity_map_63_34_v1"
+Hai Phong,Hải Phòng,"bỏ dấu, entity_map_63_34_v1"
+Hau Giang,Hậu Giang,"bỏ dấu, entity_map_63_34_v1"
+Ho Chi Minh,Hồ Chí Minh,"bỏ dấu, entity_map_63_34_v1"
+Khanh Hoa,Khánh Hòa,"bỏ dấu, entity_map_63_34_v1"
+Kien Giang,Kiên Giang,"bỏ dấu, entity_map_63_34_v1"
+Lai Chau,Lai Châu,"bỏ dấu, entity_map_63_34_v1"
+Lao Cai,Lào Cai,"bỏ dấu, entity_map_63_34_v1"
+Lam Dong,Lâm Đồng,"bỏ dấu, entity_map_63_34_v1"
+Lang Son,Lạng Sơn,"bỏ dấu, entity_map_63_34_v1"
+Nam Dinh,Nam Định,"bỏ dấu, entity_map_63_34_v1"
+Nghe An,Nghệ An,"bỏ dấu, entity_map_63_34_v1"
+Ninh Binh,Ninh Bình,"bỏ dấu, entity_map_63_34_v1"
+Ninh Thuan,Ninh Thuận,"bỏ dấu, entity_map_63_34_v1"
+Phu Tho,Phú Thọ,"bỏ dấu, entity_map_63_34_v1"
+Phu Yen,Phú Yên,"bỏ dấu, entity_map_63_34_v1"
+Quang Binh,Quảng Bình,"bỏ dấu, entity_map_63_34_v1"
+Quang Nam,Quảng Nam,"bỏ dấu, entity_map_63_34_v1"
+Quang Ngai,Quảng Ngãi,"bỏ dấu, entity_map_63_34_v1"
+Quang Ninh,Quảng Ninh,"bỏ dấu, entity_map_63_34_v1"
+Quang Tri,Quảng Trị,"bỏ dấu, entity_map_63_34_v1"
+Soc Trang,Sóc Trăng,"bỏ dấu, entity_map_63_34_v1"
+Son La,Sơn La,"bỏ dấu, entity_map_63_34_v1"
+Thanh Hoa,Thanh Hóa,"bỏ dấu, entity_map_63_34_v1"
+Thai Binh,Thái Bình,"bỏ dấu, entity_map_63_34_v1"
+Thai Nguyen,Thái Nguyên,"bỏ dấu, entity_map_63_34_v1"
+Tien Giang,Tiền Giang,"bỏ dấu, entity_map_63_34_v1"
+Tra Vinh,Trà Vinh,"bỏ dấu, entity_map_63_34_v1"
+Tuyen Quang,Tuyên Quang,"bỏ dấu, entity_map_63_34_v1"
+Tay Ninh,Tây Ninh,"bỏ dấu, entity_map_63_34_v1"
+Vinh Long,Vĩnh Long,"bỏ dấu, entity_map_63_34_v1"
+Vinh Phuc,Vĩnh Phúc,"bỏ dấu, entity_map_63_34_v1"
+Yen Bai,Yên Bái,"bỏ dấu, entity_map_63_34_v1"
+Dien Bien,Điện Biên,"bỏ dấu, entity_map_63_34_v1"
+Da Nang,Đà Nẵng,"bỏ dấu, entity_map_63_34_v1"
+Dak Lak,Đắk Lắk,"bỏ dấu, entity_map_63_34_v1"
+Dak Nong,Đắk Nông,"bỏ dấu, entity_map_63_34_v1"
+Dong Nai,Đồng Nai,"bỏ dấu, entity_map_63_34_v1"
+Dong Thap,Đồng Tháp,"bỏ dấu, entity_map_63_34_v1"
