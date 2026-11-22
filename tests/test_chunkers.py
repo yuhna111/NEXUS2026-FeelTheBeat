@@ -11,7 +11,7 @@ Nghị quyết có hiệu lực từ ngày 01/07/2025.
 
 def test_legal_chunks():
     chunks = legal_chunks("NQ-TEST", LEGAL)
-    assert [c.chunk_id for c in chunks] == ["NQ-TEST#Art1.1", "NQ-TEST#Art1.2", "NQ-TEST#Art2"]
+    assert [c.chunk_id for c in chunks] == ["NQ-TEST#D1.K1", "NQ-TEST#D1.K2", "NQ-TEST#D2"]
     assert chunks[0].text.startswith("Điều 1.")
 
 

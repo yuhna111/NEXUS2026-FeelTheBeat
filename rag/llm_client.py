@@ -109,12 +109,18 @@ class LLMClient:
         if self.provider == "gemini":
             from google import genai
 
-            r = genai.Client().models.generate_content(
+            # Keep a reference: a temporary genai.Client() can be closed (and its HTTP
+            # session with it) before the request is sent.
+            client = genai.Client()
+            r = client.models.generate_content(
                 model=self.model, contents=prompt,
                 config={"system_instruction": system, "temperature": self.temperature,
                         "max_output_tokens": self.max_tokens},
             )
-            return r.text, {}
+            usage = r.usage_metadata.model_dump(exclude_none=True) if r.usage_metadata else {}
+            # Gemini aliases can be served by a newer model; record what actually answered.
+            usage["model_version"] = r.model_version
+            return r.text or "", usage
         raise ValueError(f"Unknown provider: {self.provider}")
 
 
