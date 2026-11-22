@@ -33,7 +33,7 @@ api = ["anthropic>=0.34", "google-genai>=0.3"]
 vllm = ["vllm>=0.5"]
 eval = ["statsmodels>=0.14", "scikit-learn>=1.4", "matplotlib>=3.8", "seaborn>=0.13"]
 demo = ["streamlit>=1.36"]
-dev = ["pytest>=8.0", "ruff>=0.5", "jupyter>=1.0"]
+dev = ["pytest>=8.0", "ruff>=0.5", "jupyter>=1.0", "rank-bm25>=0.2.2"]
 
 [tool.setuptools.packages.find]
 include = ["rag*", "eval*", "qgen*"]
