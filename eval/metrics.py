@@ -106,6 +106,54 @@ def mrr(gold_ids: Sequence[set[str]], retrieved: Sequence[Sequence[str]], k: int
     return total / len(gold_ids) if gold_ids else 0.0
 
 
+FIXED_MIN_COVER = 0.5
+
+
+def _ws_tokens(s: str | None) -> list[str]:
+    return unicodedata.normalize("NFC", s or "").lower().split()
+
+
+def clause_coverage(clause_text: str | None, chunk_text: str | None) -> float:
+    """Longest contiguous run of the clause's tokens inside the chunk, as a share of the clause."""
+    a, b = _ws_tokens(clause_text), _ws_tokens(chunk_text)
+    if not a or not b:
+        return 0.0
+    best, prev = 0, [0] * (len(b) + 1)
+    for x in a:
+        cur = [0] * (len(b) + 1)
+        for j, y in enumerate(b, start=1):
+            if x == y:
+                cur[j] = prev[j - 1] + 1
+                if cur[j] > best:
+                    best = cur[j]
+        prev = cur
+    return best / len(a)
+
+
+def fixed_chunk_hit(chunk_id: str, chunk_text: str | None,
+                    gold_clauses: Mapping[str, str | Sequence[str]],
+                    min_cover: float = FIXED_MIN_COVER) -> bool:
+    """metrics_spec §5.8: same doc_id as a gold clause and covers ≥ min_cover of that clause contiguously."""
+    doc = (chunk_id or "").split("#", 1)[0]
+    for cid, texts in gold_clauses.items():
+        if cid.split("#", 1)[0] != doc:
+            continue
+        for t in [texts] if isinstance(texts, str) else texts:
+            if clause_coverage(t, chunk_text) >= min_cover:
+                return True
+    return False
+
+
+def fixed_hit_rank(context_ids: Sequence[str], chunk_texts: Mapping[str, str],
+                   gold_clauses: Mapping[str, str | Sequence[str]], k: int | None = None,
+                   min_cover: float = FIXED_MIN_COVER) -> int | None:
+    ranked = list(context_ids or [])
+    for rank, cid in enumerate(ranked[:k] if k else ranked, start=1):
+        if fixed_chunk_hit(cid, chunk_texts.get(cid), gold_clauses, min_cover):
+            return rank
+    return None
+
+
 @dataclass(frozen=True)
 class Ratio:
     num: int

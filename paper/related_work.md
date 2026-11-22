@@ -303,7 +303,7 @@ Nghiên cứu của chúng tôi liên quan tới ba hướng: hỏi đáp có y�
 
 | Bài | Dùng cho |
 |---|---|
-| Lewis và cs. (2020) — Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks, NeurIPS | Trích dẫn gốc của RAG (bắt buộc có) |
+| Lewis và cs. (2020) — Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks, NeurIPS | Trích dẫn gốc của RAG (bắt buộc có). Đã đối chiếu 22/11: `lewis2020rag` trong `refs.bib` (số trang còn TODO_VERIFY) |
 | Dhingra và cs. (2022) — Time-Aware Language Models as Temporal Knowledge Bases (TempLAMA), TACL | Tri thức tham số gắn thời điểm |
 | Zhang & Choi (2021) — SituatedQA, EMNLP | Đáp án phụ thuộc ngữ cảnh thời gian/địa lý |
 | Yu và cs. (2023) — CREPE; Kim và cs. (2023) — (QA)² | Câu hỏi tiền giả định sai (nhóm B) |
@@ -318,8 +318,8 @@ Nghiên cứu của chúng tôi liên quan tới ba hướng: hỏi đáp có y�
 - [ ] Đọc B6 (ClashEval) đầu tiên; đặt định nghĩa prior bias cạnh công thức PBER và sửa câu phân biệt ở phần D nếu cần.
 - [ ] Với mỗi thẻ B1–B9: làm mục "Tự kiểm tra khi đọc", xóa nhãn **[kiểm tra]** khi đã xác nhận.
 - [ ] Kiểm tra các ô "✗ [kiểm tra]" trong bảng C.1, đặc biệt FreshQA có câu đối chứng âm hay không.
-- [ ] Tìm kiếm xem đã có bài nào về LLM và cải cách hành chính Việt Nam 2025 chưa, trước khi viết "đầu tiên".
-- [ ] Tải BibTeX chính thức của 9 bài vào `paper/refs.bib`.
+- [x] Tìm kiếm xem đã có bài nào về LLM và cải cách hành chính Việt Nam 2025 chưa, trước khi viết "đầu tiên". → **Đã có: ViAdminShift (arXiv:2611.03171, 03/11/2026)**, benchmark tiếng Việt về chính đợt sắp xếp 2025. Không dùng chữ "đầu tiên"; định vị lại mục 3 (xem `paper/refs_verification.md`).
+- [x] Tải BibTeX chính thức của 9 bài vào `paper/refs.bib` (22/11/2026; cùng 4 bài nền của TV1, đối chiếu ở `paper/refs_verification.md`).
 - [ ] Viết lại phần D bằng lời của mình, rút gọn theo giới hạn trang.
 
 ---

@@ -1,0 +1,190 @@
+% paper/refs.bib — VN-Admin2025 (TV3), đối chiếu nguồn gốc ngày 22/11/2026
+% Danh mục 13 tài liệu = 9 bài nền ở paper/related_work.md mục F.1
+%   + 5 bài nền TV1 tóm tắt ở tuần 1 (RAG, RealTime QA, FreshLLMs, Dated Data, khảo sát hallucination),
+%   FreshLLMs trùng nên tính một lần.
+% Trường lấy từ trang chính thức (ACL Anthology, PMLR, NeurIPS, ICLR, ACM/Crossref, arXiv).
+% Trường chưa đối chiếu được ghi % TODO_VERIFY ngay cạnh.
+
+% ---------------------------------------------------------------------------
+% A. Hỏi đáp có yếu tố thời gian, tri thức lỗi thời
+% ---------------------------------------------------------------------------
+
+@inproceedings{chen2021timeqa,
+  title     = {A Dataset for Answering Time-Sensitive Questions},
+  author    = {Chen, Wenhu and Wang, Xinyi and Wang, William Yang},
+  booktitle = {Proceedings of the Neural Information Processing Systems Track on Datasets and Benchmarks},
+  year      = {2021},
+  url       = {https://neurips.cc/virtual/2021/29880},
+  eprint    = {2108.06314},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{liska2022streamingqa,
+  title     = {{StreamingQA}: A Benchmark for Adaptation to New Knowledge over Time in Question Answering Models},
+  author    = {Liska, Adam and Kocisky, Tomas and Gribovskaya, Elena and Terzi, Tayfun and Sezener, Eren and Agrawal, Devang and De Masson D'Autume, Cyprien and Scholtes, Tim and Zaheer, Manzil and Young, Susannah and Gilsenan-Mcmahon, Ellen and Austin, Sophia and Blunsom, Phil and Lazaridou, Angeliki},
+  booktitle = {Proceedings of the 39th International Conference on Machine Learning},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {162},
+  pages     = {13604--13622},
+  publisher = {PMLR},
+  year      = {2022},
+  url       = {https://proceedings.mlr.press/v162/liska22a.html}
+}
+
+@inproceedings{kasai2023realtimeqa,
+  title     = {{RealTime QA}: What's the Answer Right Now?},
+  author    = {Kasai, Jungo and Sakaguchi, Keisuke and Takahashi, Yoichi and Le Bras, Ronan and Asai, Akari and Yu, Xinyan Velocity and Radev, Dragomir and Smith, Noah A. and Choi, Yejin and Inui, Kentaro},
+  booktitle = {Advances in Neural Information Processing Systems 36 (NeurIPS 2023), Datasets and Benchmarks Track},
+  year      = {2023},
+  url       = {https://papers.neurips.cc/paper_files/paper/2023/hash/9941624ef7f867a502732b5154d30cb7-Abstract-Datasets_and_Benchmarks.html},
+  eprint    = {2207.13332},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{vu2024freshllms,
+  title     = {{FreshLLMs}: Refreshing Large Language Models with Search Engine Augmentation},
+  author    = {Vu, Tu and Iyyer, Mohit and Wang, Xuezhi and Constant, Noah and Wei, Jerry and Wei, Jason and Tar, Chris and Sung, Yun-Hsuan and Zhou, Denny and Le, Quoc and Luong, Thang},
+  booktitle = {Findings of the Association for Computational Linguistics: {ACL} 2024},
+  pages     = {13697--13720},
+  address   = {Bangkok, Thailand},
+  publisher = {Association for Computational Linguistics},
+  year      = {2024},
+  doi       = {10.18653/v1/2024.findings-acl.813},
+  url       = {https://aclanthology.org/2024.findings-acl.813/}
+}
+
+% TODO_VERIFY: url bản COLM trên OpenReview (trang chặn truy cập tự động); tạm dùng arXiv
+@inproceedings{cheng2024dateddata,
+  title     = {Dated Data: Tracing Knowledge Cutoffs in Large Language Models},
+  author    = {Cheng, Jeffrey and Marone, Marc and Weller, Orion and Lawrie, Dawn and Khashabi, Daniel and Van Durme, Benjamin},
+  booktitle = {First Conference on Language Modeling ({COLM})},
+  year      = {2024},
+  url       = {https://arxiv.org/abs/2403.12958},
+  eprint    = {2403.12958},
+  archivePrefix = {arXiv},
+  note      = {Outstanding Paper Award}
+}
+
+% ---------------------------------------------------------------------------
+% B. Xung đột tri thức (trí nhớ tham số và ngữ cảnh)
+% ---------------------------------------------------------------------------
+
+@inproceedings{longpre2021entity,
+  title     = {Entity-Based Knowledge Conflicts in Question Answering},
+  author    = {Longpre, Shayne and Perisetla, Kartik and Chen, Anthony and Ramesh, Nikhil and DuBois, Chris and Singh, Sameer},
+  booktitle = {Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing},
+  pages     = {7052--7063},
+  address   = {Online and Punta Cana, Dominican Republic},
+  publisher = {Association for Computational Linguistics},
+  year      = {2021},
+  doi       = {10.18653/v1/2021.emnlp-main.565},
+  url       = {https://aclanthology.org/2021.emnlp-main.565/}
+}
+
+@inproceedings{xie2024chameleon,
+  title     = {Adaptive Chameleon or Stubborn Sloth: Revealing the Behavior of Large Language Models in Knowledge Conflicts},
+  author    = {Xie, Jian and Zhang, Kai and Chen, Jiangjie and Lou, Renze and Su, Yu},
+  booktitle = {The Twelfth International Conference on Learning Representations ({ICLR})},
+  year      = {2024},
+  url       = {https://proceedings.iclr.cc/paper_files/paper/2024/hash/99261adc8a6356b38bcf999bba9a26dc-Abstract-Conference.html},
+  eprint    = {2305.13300},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{wu2024clasheval,
+  title     = {{ClashEval}: Quantifying the Tug-of-War between an {LLM}'s Internal Prior and External Evidence},
+  author    = {Wu, Kevin and Wu, Eric and Zou, James},
+  booktitle = {Advances in Neural Information Processing Systems 37 (NeurIPS 2024), Datasets and Benchmarks Track},
+  year      = {2024},
+  url       = {https://proceedings.neurips.cc/paper_files/paper/2024/file/3aa291abc426d7a29fb08418c1244177-Paper-Datasets_and_Benchmarks_Track.pdf},
+  eprint    = {2404.10198},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{xu2024knowledgeconflicts,
+  title     = {Knowledge Conflicts for {LLMs}: A Survey},
+  author    = {Xu, Rongwu and Qi, Zehan and Guo, Zhijiang and Wang, Cunxiang and Wang, Hongru and Zhang, Yue and Xu, Wei},
+  booktitle = {Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing},
+  pages     = {8541--8565},
+  address   = {Miami, Florida, USA},
+  publisher = {Association for Computational Linguistics},
+  year      = {2024},
+  doi       = {10.18653/v1/2024.emnlp-main.486},
+  url       = {https://aclanthology.org/2024.emnlp-main.486/}
+}
+
+% ---------------------------------------------------------------------------
+% C. RAG và đánh giá RAG
+% ---------------------------------------------------------------------------
+
+% TODO_VERIFY: số trang trong kỷ yếu NeurIPS 33 (chưa mở được trang BibTeX chính thức)
+@inproceedings{lewis2020rag,
+  title     = {Retrieval-Augmented Generation for Knowledge-Intensive {NLP} Tasks},
+  author    = {Lewis, Patrick and Perez, Ethan and Piktus, Aleksandra and Petroni, Fabio and Karpukhin, Vladimir and Goyal, Naman and K{\"u}ttler, Heinrich and Lewis, Mike and Yih, Wen-tau and Rockt{\"a}schel, Tim and Riedel, Sebastian and Kiela, Douwe},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {33},
+  year      = {2020},
+  url       = {https://papers.nips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html},
+  eprint    = {2005.11401},
+  archivePrefix = {arXiv}
+}
+
+@inproceedings{es2024ragas,
+  title     = {{RAGAs}: Automated Evaluation of Retrieval Augmented Generation},
+  author    = {Es, Shahul and James, Jithin and Espinosa Anke, Luis and Schockaert, Steven},
+  booktitle = {Proceedings of the 18th Conference of the {European} Chapter of the {Association} for {Computational} {Linguistics}: System Demonstrations},
+  pages     = {150--158},
+  address   = {St. Julians, Malta},
+  publisher = {Association for Computational Linguistics},
+  year      = {2024},
+  doi       = {10.18653/v1/2024.eacl-demo.16},
+  url       = {https://aclanthology.org/2024.eacl-demo.16/}
+}
+
+@inproceedings{saadfalcon2024ares,
+  title     = {{ARES}: An Automated Evaluation Framework for Retrieval-Augmented Generation Systems},
+  author    = {Saad-Falcon, Jon and Khattab, Omar and Potts, Christopher and Zaharia, Matei},
+  booktitle = {Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers)},
+  pages     = {338--354},
+  address   = {Mexico City, Mexico},
+  publisher = {Association for Computational Linguistics},
+  year      = {2024},
+  doi       = {10.18653/v1/2024.naacl-long.20},
+  url       = {https://aclanthology.org/2024.naacl-long.20/}
+}
+
+% ---------------------------------------------------------------------------
+% D. Ảo giác (hallucination)
+% ---------------------------------------------------------------------------
+
+% TODO_VERIFY: TV1 ghi "khảo sát về hallucination" mà không nêu tên bài.
+% Mục dưới là ứng viên phổ biến nhất (Huang và cs.); TV1 xác nhận đúng bài trước khi bỏ chú thích.
+@comment{TODO_VERIFY: TV1 xác nhận rồi đổi khối này thành mục article bình thường
+article{huang2025hallucination,
+  title   = {A Survey on Hallucination in Large Language Models: Principles, Taxonomy, Challenges, and Open Questions},
+  author  = {Huang, Lei and Yu, Weijiang and Ma, Weitao and Zhong, Weihong and Feng, Zhangyin and Wang, Haotian and Chen, Qianglong and Peng, Weihua and Feng, Xiaocheng and Qin, Bing and Liu, Ting},
+  journal = {{ACM} Transactions on Information Systems},
+  volume  = {43},
+  number  = {2},
+  pages   = {1--55},
+  year    = {2025},
+  doi     = {10.1145/3703155},
+  url     = {https://doi.org/10.1145/3703155}
+}
+}
+
+% ---------------------------------------------------------------------------
+% E. Ngoài danh mục 13: công trình liên quan trực tiếp, tìm thấy ngày 22/11/2026
+% ---------------------------------------------------------------------------
+
+% TODO_VERIFY: thứ tự họ/tên tác giả (arXiv ghi "Phan Binh Nguyen Lam, Nguyen Thai Anh"); chưa có nơi công bố chính thức
+@misc{phan2026viadminshift,
+  title         = {{ViAdminShift}: A {Vietnamese} Benchmark for Event-Level Knowledge Updates Built from the 2025 Administrative Reform},
+  author        = {{Phan Binh Nguyen Lam} and {Nguyen Thai Anh}},
+  year          = {2026},
+  eprint        = {2611.03171},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url           = {https://arxiv.org/abs/2611.03171},
+  note          = {Preprint, submitted 3 November 2026}
+}

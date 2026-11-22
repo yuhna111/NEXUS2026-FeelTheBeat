@@ -4,8 +4,10 @@ lowercase → Unicode NFC → strip unit prefixes → alias map.
 """
 from __future__ import annotations
 
+import csv
 import re
 import unicodedata
+from pathlib import Path
 
 # Longest first so "thành phố" wins over shorter overlaps.
 PREFIXES = sorted(
@@ -26,7 +28,10 @@ ALIASES: dict[str, str] = {
 }
 
 
-def normalize(s: str) -> str:
+ALIASES_CSV = Path(__file__).with_name("aliases.csv")
+
+
+def _base(s: str) -> str:
     s = unicodedata.normalize("NFC", s).lower()
     s = _PUNCT_RE.sub(" ", s)
     s = _DASH_RE.sub(" – ", s)
@@ -35,4 +40,25 @@ def normalize(s: str) -> str:
     while prev != s:  # strip stacked prefixes, e.g. "tp thành phố ..."
         prev = s
         s = _PREFIX_RE.sub("", s).strip()
+    return s
+
+
+def load_aliases(path: Path = ALIASES_CSV) -> dict[str, str]:
+    """`alias,canonical` rows (eval/aliases.csv, TV1 + TV3) keyed by their normalized form."""
+    if not path.is_file():
+        return {}
+    out: dict[str, str] = {}
+    with path.open(encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            alias, canon = (row.get("alias") or "").strip(), (row.get("canonical") or "").strip()
+            if alias and canon:
+                out[_base(alias)] = _base(canon)
+    return out
+
+
+ALIASES.update({k: v for k, v in load_aliases().items() if k not in ALIASES})
+
+
+def normalize(s: str) -> str:
+    s = _base(s)
     return ALIASES.get(s, s)

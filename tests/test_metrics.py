@@ -10,11 +10,14 @@ from eval.metrics import (
     answer_set_f1,
     auto_label,
     bootstrap_ci,
+    clause_coverage,
     cohen_kappa,
     evaluate,
     exact_match,
     extract_entities,
     extract_numbers,
+    fixed_chunk_hit,
+    fixed_hit_rank,
     holm_bonferroni,
     knowledge_override_rate,
     load_labels,
@@ -419,3 +422,35 @@ def test_cli(tmp_path, capsys):
     assert main([str(empty), "--bench", str(bench)]) == 2
     assert main([str(tmp_path / "missing.jsonl"), "--bench", str(bench)]) == 2
     assert main([str(preds), "--bench", str(empty)]) == 2
+
+
+CLAUSE = "Sắp xếp đơn vị hành chính cấp xã là việc thành lập, giải thể, nhập, chia đơn vị hành chính"
+GOLD_FIXED = {"NQ-76-2025-UBTVQH15#D1.K3": CLAUSE}
+
+
+def test_clause_coverage():
+    assert clause_coverage(CLAUSE, "Điều 1. " + CLAUSE + " cấp xã.") == 1.0
+    half = " ".join(CLAUSE.split()[:8])
+    assert clause_coverage(CLAUSE, "đầu đoạn " + half) == pytest.approx(8 / len(CLAUSE.split()))
+    assert clause_coverage(unicodedata.normalize("NFD", CLAUSE), CLAUSE.upper()) == 1.0
+    assert clause_coverage("", CLAUSE) == 0.0 and clause_coverage(CLAUSE, None) == 0.0
+
+
+def test_fixed_chunk_hit_rules():
+    words = CLAUSE.split()
+    assert fixed_chunk_hit("NQ-76-2025-UBTVQH15#fixed0", "abc " + CLAUSE, GOLD_FIXED)
+    assert fixed_chunk_hit("NQ-76-2025-UBTVQH15#fixed1", " ".join(words[:10]), GOLD_FIXED)
+    assert not fixed_chunk_hit("NQ-76-2025-UBTVQH15#fixed1", " ".join(words[:5]), GOLD_FIXED)
+    assert not fixed_chunk_hit("NQ-203-2025-QH15#fixed1", CLAUSE, GOLD_FIXED)
+    assert fixed_chunk_hit("NQ-76-2025-UBTVQH15#fixed0", CLAUSE,
+                           {"NQ-76-2025-UBTVQH15#D1.K3": ["khác hẳn", CLAUSE]})
+    assert not fixed_chunk_hit("NQ-76-2025-UBTVQH15#fixed0", CLAUSE, {})
+
+
+def test_fixed_hit_rank():
+    texts = {"NQ-202-2025-QH15#fixed0": "không liên quan",
+             "NQ-76-2025-UBTVQH15#fixed2": CLAUSE}
+    ids = ["NQ-202-2025-QH15#fixed0", "missing#fixed9", "NQ-76-2025-UBTVQH15#fixed2"]
+    assert fixed_hit_rank(ids, texts, GOLD_FIXED) == 3
+    assert fixed_hit_rank(ids, texts, GOLD_FIXED, k=2) is None
+    assert fixed_hit_rank([], texts, GOLD_FIXED) is None

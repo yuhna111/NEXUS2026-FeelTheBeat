@@ -1,6 +1,6 @@
 # Đặc tả độ đo — VN-Admin2025-QA
 
-> File: `eval/metrics_spec.md` · Phụ trách: Thành viên 3 · Phiên bản: v0.2 (Tuần 1, 15/11/2026)
+> File: `eval/metrics_spec.md` · Phụ trách: Thành viên 3 · Phiên bản: v0.3 (Tuần 2, 22/11/2026)
 >
 > Mục đích: định nghĩa **chính xác** cách chấm một câu trả lời và cách tính từng con số trong bài báo, để (1) cả nhóm chấm giống nhau, (2) code `eval/metrics.py` ở Tuần 2 làm đúng theo, (3) giám khảo đọc là tái lập được.
 
@@ -107,8 +107,22 @@ Một thực thể cũ **không** bị tính là lỗi thời nếu đi kèm d�
 | B — Bẫy huyện cũ | Đúng **chỉ khi** mô hình bác tiền giả định (nói rõ cấp huyện/thị xã/quận không còn). Trả lời như đơn vị vẫn tồn tại → `STALE`, **kể cả khi từ chối nêu đáp án** (ví dụ "tôi không có dữ liệu cập nhật về Chủ tịch UBND huyện Gia Lâm"): việc mặc nhiên chấp nhận đơn vị đã bị bỏ chính là khẳng định cấu trúc cũ. Bác tiền giả định nhưng vẫn nhắc "thị trấn" như còn tồn tại → `BLENDED`. Bác đúng tiền giả định nhưng không nêu thêm thay đổi khác (ví dụ không nhắc Hà Giang đã hợp nhất) → vẫn `CORRECT_CURRENT`. |
 | B — Câu đối chứng âm (B07) | Tiền giả định đúng. Mô hình bác bỏ (nói đơn vị không còn/đã sáp nhập) → `OTHER_ERROR`, đồng thời tính vào **Over-rejection** (mục 5.6). |
 | C — Nhiều bước | Chấm theo **kết luận cuối**. Dừng ở bước trung gian (ví dụ trả lời "Bình Định" cho câu Quy Nhơn) → `STALE`. |
-| D — Trước/sau | Phải đúng **cả hai** vế. Đúng vế "trước" nhưng nói "không thay đổi" → `STALE`. Đúng vế "sau" nhưng sai vế "trước" → `OTHER_ERROR`. |
+| D — Trước/sau | Phải đúng **cả hai** vế. Chấm vế "sau" trước, theo bảng con 4.4.1. |
 | Đối chứng (A06, C06) | Không có đáp án lỗi thời. Sai → `OTHER_ERROR`. |
+
+#### 4.4.1 Nhóm D (chốt 22/11 từ ca P-V-D01)
+
+| Vế "sau" (từ 01/07/2025) | Vế "trước" | Nhãn | Ghi chú |
+|---|---|---|---|
+| Đúng | Đúng | `CORRECT_CURRENT` | |
+| Đúng | Sai hoặc bỏ trống | `OTHER_ERROR` | |
+| Khẳng định cấu trúc cũ vẫn áp dụng ("không thay đổi", "vẫn 3 cấp") | bất kỳ | `STALE` | Có thêm thông tin mới đúng ở chỗ khác → `BLENDED` (Bước 3) |
+| Bỏ trống: chỉ mô tả vế "trước", có mốc quá khứ rõ ("Trước ngày 01/07/2025…"), không nói gì về hiện nay | Đúng | `OTHER_ERROR` | Ghi chú `thiếu vế sau`; đếm riêng trong báo cáo nhóm D |
+| Bỏ trống, và vế "trước" **không** có mốc quá khứ (mô tả bằng thì hiện tại) | Đúng | `STALE` | Theo 4.3: không có dấu hiệu quá khứ thì coi là khẳng định hiện hành |
+
+Lý do dòng 4: `STALE` đòi hỏi khẳng định thông tin cũ **như đang đúng** (4.1). Câu có mốc "Trước ngày 01/07/2025" là tường thuật quá khứ (4.3), nên chỉ là trả lời thiếu. Để không mất tín hiệu "mô hình không biết vế sau", số câu `thiếu vế sau` được báo cáo riêng cạnh SR của nhóm D.
+
+> Ca gốc: P-V-D01 – DeepSeek chỉ trả lời "Trước ngày 01/07/2025… 3 cấp", không nhắc tình trạng hiện nay. TV1 gán `STALE`, TV3 gán `OTHER_ERROR` (bất đồng duy nhất trong 20 câu đo κ). Theo 4.4.1: `OTHER_ERROR` + `thiếu vế sau`. **TV1 cần xác nhận** trước khi đóng ca.
 
 ### 4.5 Ca khó đã thống nhất
 
@@ -124,6 +138,8 @@ Một thực thể cũ **không** bị tính là lỗi thời nếu đi kèm d�
 | Mô tả tình trạng **đã không còn đúng từ trước 2025** (Gia Lai = Gia Lai + Kon Tum, vốn tách năm 1991) | `OTHER_ERROR` | Sai kiến thức, không phải lỗi thời của đợt 2025 |
 | Rào đón, không biết về đợt sắp xếp nhưng kết luận vẫn đúng ("không có thông tin chính thức nào về việc tỉnh X sẽ hợp nhất") | `CORRECT_CURRENT` | Ghi chú "đúng do may"; không gán `ABSTAIN` vì mô hình có đưa ra kết luận. Thường gặp ở câu đối chứng |
 | Tự mâu thuẫn (mở đầu "Không" nhưng giải thích lại cho thấy "Có"), không nêu thông tin cũ như hiện tại | `OTHER_ERROR` | Ghi chú "tự mâu thuẫn"; người dùng không biết tin vế nào |
+| Nhóm B: nêu số liệu/tên cũ **trong mệnh đề có mốc quá khứ** ("Trước khi thực hiện sắp xếp…, huyện X, tỉnh Y có…") và bác cấp huyện, nhưng không nhắc tỉnh đã hợp nhất | `CORRECT_CURRENT` | Chốt 22/11 từ pilot B05 – ChatGPT (trước là `BLENDED`). Tên cũ trong mệnh đề quá khứ không tính là khẳng định (4.3); thiếu thay đổi cấp tỉnh xử lý như dòng "không nêu thêm thay đổi khác" ở 4.4 |
+| Nhóm D: chỉ trả lời vế "trước" với mốc quá khứ rõ, bỏ trống vế "sau" | `OTHER_ERROR` | Ghi chú `thiếu vế sau` (4.4.1); chờ TV1 xác nhận |
 | Đáp án chính đúng nhưng kèm chi tiết phụ chưa có trong đáp án vàng (ví dụ tên các phường mới) | `CORRECT_CURRENT` | TV1 dò chi tiết phụ với nghị quyết; nếu chi tiết phụ sai thì chuyển `OTHER_ERROR` |
 
 ---
@@ -220,12 +236,32 @@ Mô hình có SR thấp nhưng Over-rejection cao nghĩa là nó "đúng" nhờ 
 AbstainRate = (số câu ABSTAIN) / (số câu đã gán nhãn)
 ```
 
-### 5.8 Độ đo truy xuất — dùng từ Tuần 3
+### 5.8 Độ đo truy xuất
 
 ```text
-Recall@k = (1/N) · Σᵢ 𝟙[ ít nhất một đoạn bằng chứng vàng nằm trong top-k kết quả truy xuất ]
-MRR      = (1/N) · Σᵢ 1 / (thứ hạng của đoạn bằng chứng vàng đầu tiên)    (bằng 0 nếu không có trong top-k)
+Recall@k = (1/N) · Σᵢ 𝟙[ ít nhất một đoạn đúng nằm trong top-k kết quả truy xuất ]
+MRR@k    = (1/N) · Σᵢ 1 / (thứ hạng của đoạn đúng đầu tiên)    (bằng 0 nếu không có trong top-k)
 ```
+
+- **Nhãn vàng:** khoản trong `gold_clause_ids` (`docs/qa_schema.md` mục 3). Câu có `["TODO_VERIFY_CLAUSE"]` bị loại khỏi N.
+- **Đoạn đúng — chia theo Điều–Khoản (C2+):** `chunk_id` trùng một khoản vàng (`<doc_id>#D<điều>.K<khoản>`). Hàm: `recall_at_k`, `mrr`.
+- **Đoạn đúng — chia cố định 512/64 (C1), chốt 22/11 (mục mở (3) của `qa_schema.md`):** đoạn `<doc_id>#fixed<i>` là đúng khi
+  1. cùng `doc_id` với một khoản vàng, **và**
+  2. chứa liên tục ít nhất **50%** số từ của khoản đó (so sau NFC, chữ thường, gộp khoảng trắng). Khoản nằm trọn trong đoạn thì tỷ lệ = 100%.
+
+  Hàm: `clause_coverage`, `fixed_chunk_hit`, `fixed_hit_rank` (`eval/metrics.py`, ngưỡng `FIXED_MIN_COVER = 0.5`).
+
+  Lý do: (a) đoạn chồng lấn 64 từ, nên khoản bị cắt ngang ranh giới đoạn vẫn có một đoạn chứa ≥ 50%; trên 34 khoản vàng của `pilot_80_v0.2` không khoản nào bị loại vì không đoạn nào đạt ngưỡng. (b) Quy tắc tạm "đoạn chứa 80 ký tự đầu của khoản" cho kết quả trúng giả khi văn bản khác trích lại cùng câu mở đầu: ở P-V-D01, đoạn `NQ-203-2025-QH15#fixed1` chứa 80 ký tự đầu của `LUAT-72-2025-QH15#D1.K1` nhưng chỉ chứa 15% khoản này.
+
+  Chấm lại log top-20 của TV2 (`outputs/retrieval_w2/*_fixed.jsonl`, k = 5):
+
+  | Truy xuất | Quy tắc tạm (80 ký tự đầu) | Quy tắc v0.3 |
+  |---|---|---|
+  | BM25 | 0,455 (25/55) | 0,455 (25/55) |
+  | Vector (BGE-M3) | 0,545 (30/55) | 0,545 (30/55) |
+  | Kết hợp (RRF) | 0,691 (38/55) | 0,673 (37/55) |
+
+  Khác nhau đúng 1 câu (P-V-D01, trúng giả nêu trên). Trên 33 câu theo cách đếm của TV1 hai quy tắc cho cùng kết quả (0,455 / 0,667 / 0,758). Số liệu pilot, bộ câu chưa kiểm (`verified = false`).
 
 ---
 
@@ -244,13 +280,14 @@ MRR      = (1/N) · Σᵢ 1 / (thứ hạng của đoạn bằng chứng vàng �
 - Đo **Cohen's κ** giữa hai người. Mục tiêu κ ≥ 0,75.
   - Cách hiểu nhanh: κ = 1 là trùng hoàn toàn; κ = 0 là trùng không hơn gì đoán ngẫu nhiên.
 - Câu bất đồng: hai người thảo luận, chốt nhãn, và **bổ sung quy tắc vào mục 4.5** nếu đó là ca mới.
+- **Kết quả đợt 1 (22/11/2026):** TV1 gán độc lập 20 câu trả lời chọn ngẫu nhiên trong 90 câu pilot (ẩn tên mô hình). Khớp 19/20, **κ = 0,912** (bootstrap 95%: 0,72–1,00; `scripts/kappa_tv1_tv3.py`). Bất đồng duy nhất: P-V-D01 – DeepSeek → quy tắc 4.4.1. Mẫu 20 câu còn nhỏ, khoảng tin cậy rộng; cần gán đủ 90 câu.
 - Bộ chấm tự động (luật + LLM) ở các tuần sau được kiểm tra bằng κ so với nhãn người trên 300 câu.
 
 ---
 
 ## 8. Bài học từ pilot 30 câu
 
-Pilot chạy ngày 14/11/2026 trên ChatGPT, DeepSeek (Search tắt) và Gemini Flash. Kết quả: SR = 0% / 40,0% / 80,0%; cả 3 mô hình đúng 3/3 câu đối chứng.
+Pilot chạy ngày 14/11/2026 trên ChatGPT, DeepSeek (Search tắt) và Gemini Flash. Kết quả: SR = 0% / 40,0% / 80,0%; cả 3 mô hình đúng 3/3 câu đối chứng. Sau khi chốt B05 (22/11): SR không đổi; SR⁺ = 0% (0/30) / 46,7% (14/30) / 83,3% (25/30).
 
 | Mã câu | Mô hình | Câu trả lời (rút gọn) | Vì sao khó gán nhãn | Nhãn đã chọn | Quy tắc rút ra |
 |---|---|---|---|---|---|
@@ -259,7 +296,8 @@ Pilot chạy ngày 14/11/2026 trên ChatGPT, DeepSeek (Search tắt) và Gemini 
 | A03 | Gemini Flash | Gia Lai hợp nhất từ Gia Lai và Kon Tum | Sai, nhưng cũng không phải tình trạng trước 2025 | `OTHER_ERROR` | Tình trạng đã hết hiệu lực từ trước 2025 → OTHER_ERROR (4.5) |
 | A06 | Gemini Flash | "Không có thông tin chính thức nào về việc Thanh Hóa sẽ hợp nhất" | Rào đón, thì tương lai, có thể xét ABSTAIN | `CORRECT_CURRENT` | Đúng do may (4.5) |
 | C04 | DeepSeek | Mở đầu "Không", giải thích lại là có giáp biển qua Bình Thuận cũ | Tự mâu thuẫn | `OTHER_ERROR` | Tự mâu thuẫn (4.5) |
-| B05 | ChatGPT | Số xã của huyện Mèo Vạc "trước khi sắp xếp", cấp huyện nay không còn; không nhắc Hà Giang hợp nhất | Có tên cũ nhưng trong ngữ cảnh quá khứ | `BLENDED` (đang xem lại) | Theo 4.3 và 4.4 nhóm B nên là `CORRECT_CURRENT` |
+| B05 | ChatGPT | Số xã của huyện Mèo Vạc "trước khi sắp xếp", cấp huyện nay không còn; không nhắc Hà Giang hợp nhất | Có tên cũ nhưng trong ngữ cảnh quá khứ | `CORRECT_CURRENT` (chốt 22/11; trước là `BLENDED`) | 4.3, 4.4 nhóm B, dòng mới ở 4.5 |
+| D01 | DeepSeek | "Trước ngày 01/07/2025… 3 cấp: tỉnh, huyện, xã", không nói gì về hiện nay | Thiếu vế sau, không khẳng định cũ là hiện hành | `OTHER_ERROR` + `thiếu vế sau` (TV1 gán `STALE`, chờ xác nhận) | 4.4.1 |
 | B03, B04, B06 | ChatGPT | Nêu tên các phường mới cụ thể | Chi tiết cấp xã chưa có trong đáp án vàng | `CORRECT_CURRENT` | Chờ TV1 dò với NQ cấp xã (4.5) |
 | C07 | DeepSeek | "Đặc khu hành chính (tương đương cấp huyện)" thuộc An Giang | Đặc khu hiện là ĐVHC cấp xã | `CORRECT_CURRENT` | Đáp án chính (loại đơn vị, tỉnh) đúng; chi tiết phụ sai ghi chú |
 
@@ -271,3 +309,4 @@ Pilot chạy ngày 14/11/2026 trên ChatGPT, DeepSeek (Search tắt) và Gemini 
 |---|---|---|---|
 | v0.1 | 15/11/2026 | TV3 | Bản đầu: ký hiệu, chuẩn hóa, 5 nhãn, độ đo, quy trình gán nhãn |
 | v0.2 | 15/11/2026 | TV3 | Thêm quy tắc từ pilot: từ chối nhưng chấp nhận tiền giả định ở nhóm B → STALE; mốc "ngay trước 01/07/2025"; đúng do may; tự mâu thuẫn; chi tiết phụ chưa kiểm chứng. Điền mục 8 |
+| v0.3 | 22/11/2026 | TV3 | Bảng con 4.4.1 cho nhóm D (ca P-V-D01, chờ TV1 xác nhận); chốt B05 – ChatGPT → `CORRECT_CURRENT`; quy tắc Recall@k cho đoạn cố định (cùng văn bản + phủ liên tục ≥ 50% khoản vàng) và số liệu chấm lại; ghi κ đợt 1 = 0,912 (n = 20) vào mục 7 |
