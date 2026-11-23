@@ -122,7 +122,7 @@ Một thực thể cũ **không** bị tính là lỗi thời nếu đi kèm d�
 
 Lý do dòng 4: `STALE` đòi hỏi khẳng định thông tin cũ **như đang đúng** (4.1). Câu có mốc "Trước ngày 01/07/2025" là tường thuật quá khứ (4.3), nên chỉ là trả lời thiếu. Để không mất tín hiệu "mô hình không biết vế sau", số câu `thiếu vế sau` được báo cáo riêng cạnh SR của nhóm D.
 
-> Ca gốc: P-V-D01 – DeepSeek chỉ trả lời "Trước ngày 01/07/2025… 3 cấp", không nhắc tình trạng hiện nay. TV1 gán `STALE`, TV3 gán `OTHER_ERROR` (bất đồng duy nhất trong 20 câu đo κ). Theo 4.4.1: `OTHER_ERROR` + `thiếu vế sau`. **TV1 cần xác nhận** trước khi đóng ca.
+> Ca gốc: P-V-D01 – DeepSeek chỉ trả lời "Trước ngày 01/07/2025… 3 cấp", không nhắc tình trạng hiện nay. TV1 gán `STALE`, TV3 gán `OTHER_ERROR` (bất đồng duy nhất trong 20 câu đo κ). Theo 4.4.1: `OTHER_ERROR` + `thiếu vế sau`. **TV1 xác nhận ngày 23/11/2026, ca đã đóng.** Nhãn ban đầu của TV1 (`STALE`) vẫn giữ trong `outputs/pilot_manual/tv1_recheck20_labels.jsonl` để tính κ.
 
 ### 4.5 Ca khó đã thống nhất
 
@@ -139,7 +139,7 @@ Lý do dòng 4: `STALE` đòi hỏi khẳng định thông tin cũ **như đang 
 | Rào đón, không biết về đợt sắp xếp nhưng kết luận vẫn đúng ("không có thông tin chính thức nào về việc tỉnh X sẽ hợp nhất") | `CORRECT_CURRENT` | Ghi chú "đúng do may"; không gán `ABSTAIN` vì mô hình có đưa ra kết luận. Thường gặp ở câu đối chứng |
 | Tự mâu thuẫn (mở đầu "Không" nhưng giải thích lại cho thấy "Có"), không nêu thông tin cũ như hiện tại | `OTHER_ERROR` | Ghi chú "tự mâu thuẫn"; người dùng không biết tin vế nào |
 | Nhóm B: nêu số liệu/tên cũ **trong mệnh đề có mốc quá khứ** ("Trước khi thực hiện sắp xếp…, huyện X, tỉnh Y có…") và bác cấp huyện, nhưng không nhắc tỉnh đã hợp nhất | `CORRECT_CURRENT` | Chốt 22/11 từ pilot B05 – ChatGPT (trước là `BLENDED`). Tên cũ trong mệnh đề quá khứ không tính là khẳng định (4.3); thiếu thay đổi cấp tỉnh xử lý như dòng "không nêu thêm thay đổi khác" ở 4.4 |
-| Nhóm D: chỉ trả lời vế "trước" với mốc quá khứ rõ, bỏ trống vế "sau" | `OTHER_ERROR` | Ghi chú `thiếu vế sau` (4.4.1); chờ TV1 xác nhận |
+| Nhóm D: chỉ trả lời vế "trước" với mốc quá khứ rõ, bỏ trống vế "sau" | `OTHER_ERROR` | Ghi chú `thiếu vế sau` (4.4.1); TV1 xác nhận 23/11 |
 | Đáp án chính đúng nhưng kèm chi tiết phụ chưa có trong đáp án vàng (ví dụ tên các phường mới) | `CORRECT_CURRENT` | TV1 dò chi tiết phụ với nghị quyết; nếu chi tiết phụ sai thì chuyển `OTHER_ERROR` |
 
 ---
@@ -297,7 +297,7 @@ Pilot chạy ngày 14/11/2026 trên ChatGPT, DeepSeek (Search tắt) và Gemini 
 | A06 | Gemini Flash | "Không có thông tin chính thức nào về việc Thanh Hóa sẽ hợp nhất" | Rào đón, thì tương lai, có thể xét ABSTAIN | `CORRECT_CURRENT` | Đúng do may (4.5) |
 | C04 | DeepSeek | Mở đầu "Không", giải thích lại là có giáp biển qua Bình Thuận cũ | Tự mâu thuẫn | `OTHER_ERROR` | Tự mâu thuẫn (4.5) |
 | B05 | ChatGPT | Số xã của huyện Mèo Vạc "trước khi sắp xếp", cấp huyện nay không còn; không nhắc Hà Giang hợp nhất | Có tên cũ nhưng trong ngữ cảnh quá khứ | `CORRECT_CURRENT` (chốt 22/11; trước là `BLENDED`) | 4.3, 4.4 nhóm B, dòng mới ở 4.5 |
-| D01 | DeepSeek | "Trước ngày 01/07/2025… 3 cấp: tỉnh, huyện, xã", không nói gì về hiện nay | Thiếu vế sau, không khẳng định cũ là hiện hành | `OTHER_ERROR` + `thiếu vế sau` (TV1 gán `STALE`, chờ xác nhận) | 4.4.1 |
+| D01 | DeepSeek | "Trước ngày 01/07/2025… 3 cấp: tỉnh, huyện, xã", không nói gì về hiện nay | Thiếu vế sau, không khẳng định cũ là hiện hành | `OTHER_ERROR` + `thiếu vế sau` (TV1 gán `STALE` lúc đo κ, xác nhận `OTHER_ERROR` ngày 23/11) | 4.4.1 |
 | B03, B04, B06 | ChatGPT | Nêu tên các phường mới cụ thể | Chi tiết cấp xã chưa có trong đáp án vàng | `CORRECT_CURRENT` | TV1 đã dò 23/11 (`docs/tv1_check_subdetails_B03_B04_B06.md`): B03 đúng, B06 đúng phần lớn, B04 sai (thiếu phường Hồng Hà) → đề xuất `OTHER_ERROR`; TV3 chốt |
 | C07 | DeepSeek | "Đặc khu hành chính (tương đương cấp huyện)" thuộc An Giang | Đặc khu hiện là ĐVHC cấp xã | `CORRECT_CURRENT` | Đáp án chính (loại đơn vị, tỉnh) đúng; chi tiết phụ sai ghi chú |
 
@@ -310,3 +310,4 @@ Pilot chạy ngày 14/11/2026 trên ChatGPT, DeepSeek (Search tắt) và Gemini 
 | v0.1 | 15/11/2026 | TV3 | Bản đầu: ký hiệu, chuẩn hóa, 5 nhãn, độ đo, quy trình gán nhãn |
 | v0.2 | 15/11/2026 | TV3 | Thêm quy tắc từ pilot: từ chối nhưng chấp nhận tiền giả định ở nhóm B → STALE; mốc "ngay trước 01/07/2025"; đúng do may; tự mâu thuẫn; chi tiết phụ chưa kiểm chứng. Điền mục 8 |
 | v0.3 | 22/11/2026 | TV3 | Bảng con 4.4.1 cho nhóm D (ca P-V-D01, chờ TV1 xác nhận); chốt B05 – ChatGPT → `CORRECT_CURRENT`; quy tắc Recall@k cho đoạn cố định (cùng văn bản + phủ liên tục ≥ 50% khoản vàng) và số liệu chấm lại; ghi κ đợt 1 = 0,912 (n = 20) vào mục 7 |
+| v0.3.1 | 23/11/2026 | TV1 | Đóng ca P-V-D01 (TV1 đồng ý `OTHER_ERROR` + `thiếu vế sau`, mục 4.4.1); ghi kết quả TV1 dò chi tiết phụ B03/B04/B06 vào bảng ca khó (mục 8) |
