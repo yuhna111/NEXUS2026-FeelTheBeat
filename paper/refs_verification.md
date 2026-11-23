@@ -18,7 +18,7 @@ TV3 đối chiếu ngày 22/11/2026. Kết quả ghi vào `paper/refs.bib`.
 | 10 | — (`lewis2020rag`) | Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks | Khớp | NeurIPS 2020 (Advances in NeurIPS 33), đủ 12 tác giả. **Số trang chưa đối chiếu** nên ghi `TODO_VERIFY`. `related_work.md` mục F.2 đang để bài này ở trạng thái [kiểm tra], nay đã xác nhận tác giả, năm và nơi công bố. | https://papers.nips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html |
 | 11 | — (`kasai2023realtimeqa`) | RealTime QA | Khớp | Bản chính thức là NeurIPS 2023 (Advances in NeurIPS 36) Datasets and Benchmarks Track, 10 tác giả. Bản arXiv có từ 2022: **trích năm 2023**, không dùng 2022. | https://papers.neurips.cc/paper_files/paper/2023/hash/9941624ef7f867a502732b5154d30cb7-Abstract-Datasets_and_Benchmarks.html |
 | 12 | — (`cheng2024dateddata`) | Dated Data: Tracing Knowledge Cutoffs in Large Language Models | Khớp | COLM 2024, đạt Outstanding Paper (PDF arXiv v2 ghi "Published as a conference paper at COLM 2024"). Không mở được OpenReview nên url tạm dùng arXiv, ghi `TODO_VERIFY`. | https://arxiv.org/abs/2403.12958 · https://www.cs.jhu.edu/news/hopkins-team-wins-colm-outstanding-paper-award/ |
-| 13 | — (`huang2025hallucination`) | "khảo sát về hallucination" (báo cáo tuần 1 của TV1, không nêu tên bài) | Chưa xác minh | Không biết TV1 dùng bài nào. Ứng viên: Huang và cs., *A Survey on Hallucination in Large Language Models…*, ACM TOIS 43(2), trang 1–55, 2025, DOI 10.1145/3703155. Metadata của ứng viên này đã đối chiếu qua Crossref. Nếu TV1 trích bản arXiv 2023 thì **sửa thành năm 2025**. Trong bib, mục này để trong khối `@comment` cho tới khi TV1 xác nhận. | https://api.crossref.org/works/10.1145/3703155 · https://arxiv.org/abs/2311.05232 |
+| 13 | — (`ji2023hallucination`) | "khảo sát về hallucination" (báo cáo tuần 1 của TV1) | Khớp | TV1 xác nhận ngày 23/11: bài trong bản tóm tắt tuần 1 (Phần 3, mục 5) là Ji và cs., *Survey of Hallucination in Natural Language Generation*, ACM Computing Surveys 55(12), bài 248, trang 1–38, 2023, DOI 10.1145/3571730; không phải Huang và cs. (ứng viên cũ, đã bỏ khỏi bib). Trích bản ACM 10 tác giả; arXiv 2202.03629 bản v6–v7 có thêm tác giả Wenliang Dai nên không dùng. | https://doi.org/10.1145/3571730 · https://arxiv.org/abs/2202.03629 |
 
 ## Phát hiện ngoài danh mục: ảnh hưởng tới tính mới của đề tài
 
@@ -26,5 +26,5 @@ Trên arXiv đã có bài **ViAdminShift** (arXiv:2611.03171, nộp ngày 03/11/
 
 ## Kiểm tra file
 
-- `bibtex` (style `plain`, `\citation{*}`) chạy không lỗi, ra 13 mục: 12 bài đã xác minh và ViAdminShift. Mục của Huang và cs. nằm trong khối `@comment` nên không được in.
+- `bibtex` (style `plain`, `\citation{*}`) chạy không lỗi, ra 14 mục: 13 bài đã xác minh và ViAdminShift (chạy lại ngày 23/11 sau khi TV1 xác nhận mục 13).
 - Cite key theo dạng `họ + năm + từ khoá`, viết thường. Tên riêng và từ viết tắt trong `title` được bọc ngoặc nhọn: `{RAGAs}`, `{ARES}`, `{LLMs}`, `{NLP}`, `{Vietnamese}`.
