@@ -298,7 +298,7 @@ Pilot chạy ngày 14/11/2026 trên ChatGPT, DeepSeek (Search tắt) và Gemini 
 | C04 | DeepSeek | Mở đầu "Không", giải thích lại là có giáp biển qua Bình Thuận cũ | Tự mâu thuẫn | `OTHER_ERROR` | Tự mâu thuẫn (4.5) |
 | B05 | ChatGPT | Số xã của huyện Mèo Vạc "trước khi sắp xếp", cấp huyện nay không còn; không nhắc Hà Giang hợp nhất | Có tên cũ nhưng trong ngữ cảnh quá khứ | `CORRECT_CURRENT` (chốt 22/11; trước là `BLENDED`) | 4.3, 4.4 nhóm B, dòng mới ở 4.5 |
 | D01 | DeepSeek | "Trước ngày 01/07/2025… 3 cấp: tỉnh, huyện, xã", không nói gì về hiện nay | Thiếu vế sau, không khẳng định cũ là hiện hành | `OTHER_ERROR` + `thiếu vế sau` (TV1 gán `STALE`, chờ xác nhận) | 4.4.1 |
-| B03, B04, B06 | ChatGPT | Nêu tên các phường mới cụ thể | Chi tiết cấp xã chưa có trong đáp án vàng | `CORRECT_CURRENT` | Chờ TV1 dò với NQ cấp xã (4.5) |
+| B03, B04, B06 | ChatGPT | Nêu tên các phường mới cụ thể | Chi tiết cấp xã chưa có trong đáp án vàng | `CORRECT_CURRENT` | TV1 đã dò 23/11 (`docs/tv1_check_subdetails_B03_B04_B06.md`): B03 đúng, B06 đúng phần lớn, B04 sai (thiếu phường Hồng Hà) → đề xuất `OTHER_ERROR`; TV3 chốt |
 | C07 | DeepSeek | "Đặc khu hành chính (tương đương cấp huyện)" thuộc An Giang | Đặc khu hiện là ĐVHC cấp xã | `CORRECT_CURRENT` | Đáp án chính (loại đơn vị, tỉnh) đúng; chi tiết phụ sai ghi chú |
 
 ---
