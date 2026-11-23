@@ -298,7 +298,7 @@ Pilot chạy ngày 14/11/2026 trên ChatGPT, DeepSeek (Search tắt) và Gemini 
 | C04 | DeepSeek | Mở đầu "Không", giải thích lại là có giáp biển qua Bình Thuận cũ | Tự mâu thuẫn | `OTHER_ERROR` | Tự mâu thuẫn (4.5) |
 | B05 | ChatGPT | Số xã của huyện Mèo Vạc "trước khi sắp xếp", cấp huyện nay không còn; không nhắc Hà Giang hợp nhất | Có tên cũ nhưng trong ngữ cảnh quá khứ | `CORRECT_CURRENT` (chốt 22/11; trước là `BLENDED`) | 4.3, 4.4 nhóm B, dòng mới ở 4.5 |
 | D01 | DeepSeek | "Trước ngày 01/07/2025… 3 cấp: tỉnh, huyện, xã", không nói gì về hiện nay | Thiếu vế sau, không khẳng định cũ là hiện hành | `OTHER_ERROR` + `thiếu vế sau` (TV1 gán `STALE` lúc đo κ, xác nhận `OTHER_ERROR` ngày 23/11) | 4.4.1 |
-| B03, B04, B06 | ChatGPT | Nêu tên các phường mới cụ thể | Chi tiết cấp xã chưa có trong đáp án vàng | `CORRECT_CURRENT` | TV1 đã dò 23/11 (`docs/tv1_check_subdetails_B03_B04_B06.md`): B03 đúng, B06 đúng phần lớn, B04 sai (thiếu phường Hồng Hà) → đề xuất `OTHER_ERROR`; TV3 chốt |
+| B03, B04, B06 | ChatGPT | Nêu tên các phường mới cụ thể | Chi tiết cấp xã chưa có trong đáp án vàng | `CORRECT_CURRENT` | TV1 đã dò 23/11 (`docs/tv1_check_subdetails_B03_B04_B06.md`): B03 đúng, B06 đúng phần lớn, B04 sai (thiếu phường Hồng Hà) → TV3 chốt `OTHER_ERROR` ngày 23/11 |
 | C07 | DeepSeek | "Đặc khu hành chính (tương đương cấp huyện)" thuộc An Giang | Đặc khu hiện là ĐVHC cấp xã | `CORRECT_CURRENT` | Đáp án chính (loại đơn vị, tỉnh) đúng; chi tiết phụ sai ghi chú |
 
 ---
@@ -310,4 +310,4 @@ Pilot chạy ngày 14/11/2026 trên ChatGPT, DeepSeek (Search tắt) và Gemini 
 | v0.1 | 15/11/2026 | TV3 | Bản đầu: ký hiệu, chuẩn hóa, 5 nhãn, độ đo, quy trình gán nhãn |
 | v0.2 | 15/11/2026 | TV3 | Thêm quy tắc từ pilot: từ chối nhưng chấp nhận tiền giả định ở nhóm B → STALE; mốc "ngay trước 01/07/2025"; đúng do may; tự mâu thuẫn; chi tiết phụ chưa kiểm chứng. Điền mục 8 |
 | v0.3 | 22/11/2026 | TV3 | Bảng con 4.4.1 cho nhóm D (ca P-V-D01, chờ TV1 xác nhận); chốt B05 – ChatGPT → `CORRECT_CURRENT`; quy tắc Recall@k cho đoạn cố định (cùng văn bản + phủ liên tục ≥ 50% khoản vàng) và số liệu chấm lại; ghi κ đợt 1 = 0,912 (n = 20) vào mục 7 |
-| v0.3.1 | 23/11/2026 | TV1 | Đóng ca P-V-D01 (TV1 đồng ý `OTHER_ERROR` + `thiếu vế sau`, mục 4.4.1); ghi kết quả TV1 dò chi tiết phụ B03/B04/B06 vào bảng ca khó (mục 8) |
+| v0.3.1 | 23/11/2026 | TV1 | Đóng ca P-V-D01 (TV1 đồng ý `OTHER_ERROR` + `thiếu vế sau`, mục 4.4.1); ghi kết quả TV1 dò chi tiết phụ B03/B04/B06 vào bảng ca khó (mục 8); TV3 chốt B04 – ChatGPT → `OTHER_ERROR` |

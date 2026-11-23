@@ -27,7 +27,7 @@ NQ 1656, Điều 1:
 
 Tên 2 phường ChatGPT nêu là có thật, nhưng câu "được tổ chức lại thành 2 phường mới" **sai**: 2 phường cũ Chương Dương và Phúc Tân sáp nhập trọn vào phường Hồng Hà, và một phần địa bàn thuộc phường Ba Đình và phường Văn Miếu - Quốc Tử Giám.
 
-**Kết luận: chi tiết phụ sai.** Theo mục 4.5, đề xuất chuyển `CORRECT_CURRENT` → `OTHER_ERROR`, ghi chú `chi tiết phụ sai: thiếu phường Hồng Hà`. TV3 chốt.
+**Kết luận: chi tiết phụ sai.** Theo mục 4.5, chuyển `CORRECT_CURRENT` → `OTHER_ERROR`, ghi chú `chi tiết phụ sai: thiếu phường Hồng Hà`. **TV3 chốt ngày 23/11/2026**; đã sửa `outputs/pilot_manual/chatgpt_labels.jsonl`.
 
 ## B06 – "Thị xã Sơn Tây hiện có bao nhiêu phường và xã?"
 
@@ -45,4 +45,4 @@ Ba đơn vị ChatGPT nêu đều đúng và chứa gần hết địa bàn Sơn
 
 ## Ảnh hưởng tới số liệu
 
-Chuyển B04 sang `OTHER_ERROR` không đổi SR của ChatGPT (SR chỉ đếm `STALE`), nhưng giảm tỷ lệ `CORRECT_CURRENT` của ChatGPT đi 1/30.
+Chuyển B04 sang `OTHER_ERROR` không đổi SR của ChatGPT (SR chỉ đếm `STALE`), nhưng giảm tỷ lệ `CORRECT_CURRENT` của ChatGPT đi 1/30. Câu B04 – ChatGPT không nằm trong mẫu 20 câu đo κ, nên κ = 0,912 không đổi.
