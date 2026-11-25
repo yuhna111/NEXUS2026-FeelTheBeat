@@ -1,0 +1,31 @@
+"""Các file câu hỏi v0.3 của TV1 phải hợp lệ theo docs/qa_schema.md và trỏ đúng khoản trong data/parsed."""
+from pathlib import Path
+
+import pytest
+
+from eval.qa_schema import load_clause_ids, read_jsonl, validate_records
+
+ROOT = Path(__file__).resolve().parents[1]
+FILES = ["data/benchmark/tv1_v0.3.jsonl", "data/benchmark/pilot_80_v0.3.jsonl"]
+
+
+@pytest.mark.parametrize("name", FILES)
+def test_v03_valid(name):
+    path = ROOT / name
+    if not path.exists():
+        pytest.skip(f"{name} chưa có")
+    recs = read_jsonl(path)
+    assert recs
+    assert validate_records(recs, load_clause_ids(ROOT / "data/parsed")) == {}
+
+
+def test_tv1_v03_shape():
+    path = ROOT / "data/benchmark/tv1_v0.3.jsonl"
+    if not path.exists():
+        pytest.skip("chưa có")
+    recs = read_jsonl(path)
+    b = [r for r in recs if r["category"] == "B_obsolete_trap"]
+    controls = sum(r["item_role"] == "control" for r in b)
+    assert 0.15 <= controls / len(b) <= 0.30
+    assert all(r["gold_clause_ids"] != ["TODO_VERIFY_CLAUSE"] for r in recs)
+    assert not any(r["verified"] for r in recs)
