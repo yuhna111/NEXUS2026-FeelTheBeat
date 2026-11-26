@@ -59,3 +59,36 @@ Mỗi tuần đúng 5 trường: **Đã làm gì · Kết quả · Khó khăn ·
 
 **Số giờ làm việc**
 - TV1: 40 giờ · TV2: 12 giờ · TV3: [số] giờ
+
+## Tuần 3 (23/11 – 29/11/2026)
+**Đã làm gì**
+- TV1: [điền]
+- TV2: Dựng lại 2 chỉ mục Qdrant trên đủ 39 văn bản (thêm NQ 76/2025/UBTVQH15). Thêm reranker `bge-reranker-v2-m3` vào cách kết hợp (C3) và đo lại Recall@5; chấm đoạn cố định bằng `fixed_hit_rank` của TV3. Viết `rag/retrieve_contexts.py` (truy xuất trước, lưu ngữ cảnh vào `outputs/contexts/`) và hoàn thiện `rag/run_inference.py` cho các cấu hình RAG (C2–C4; C4 dùng lại ngữ cảnh của C3), nhiều lần chạy (mỗi lần một file, seed = số lần), ghi `model_version`, `usage`. Soạn `notebooks/03_qwen_pilot_colab.ipynb` để chạy Qwen trên Colab chỉ với phần sinh câu trả lời. Chạy C0, C2, C3, C4 với Gemini và Qwen 7B trên bộ pilot 80 câu (`pilot_80_v0.3`) và trên 168 câu mới của TV1 (`tv1_v0.3`), temperature 0. Điền mốc cutoff Gemini vào `configs/models.yaml` theo model card chính thức.
+- TV3: [điền]
+
+**Kết quả**
+- TV1: [điền]
+- TV2: Chỉ mục 39 văn bản: 413 đoạn cố định, 3.891 đoạn Điều–Khoản, không đoạn nào bị cắt. Recall@5 trên 61 câu pilot có khoản nguồn (`results/retrieval_w3/recall.md`):
+
+  | Truy xuất | Chia cố định | Chia theo Điều–Khoản |
+  |---|---|---|
+  | BM25 | 0,443 (27/61) | 0,557 (34/61) |
+  | Vector (BGE-M3) | 0,557 (34/61) | 0,820 (50/61) |
+  | Kết hợp (RRF) | 0,689 (42/61) | 0,754 (46/61) |
+  | Kết hợp + reranker (C3) | 0,770 (47/61) | **0,853 (52/61)** |
+
+  Reranker nâng MRR@5 theo Điều–Khoản từ 0,626 lên 0,836. Đoạn cố định chấm bằng quy tắc v0.3 của TV3: kết hợp trên pilot v0.2 ra 0,673, trùng số TV3 chấm lại.
+- TV2: Đầu ra cho TV3 chấm (`outputs/<bộ>/<cấu hình>/<mô hình>.jsonl`): pilot 80 câu đủ C0, C2, C3, C4 cho cả Gemini (`gemini-3.5-flash-lite`) và Qwen (`Qwen2.5-7B-Instruct-AWQ`, thêm lần 2 và 3); 168 câu TV1 đủ C0–C4 cho Qwen, C0 cho Gemini. Không câu nào rỗng hay chạm giới hạn 512 token. Ở temperature 0, lần 2 và 3 của Qwen trùng lần 1 ở 74–80/80 câu mỗi cấu hình, nên chạy lặp ở temperature 0 gần như không đo được phương sai.
+- TV2: Mốc cutoff `gemini-flash` = 2026-03 theo model card Gemini 3.5 Flash-Lite (đăng 21/07/2026), có ghi chú một số mảng chỉ đến 01/2025. Qwen2.5 chưa tìm được mốc cutoff chính thức, để trống.
+
+**Khó khăn**
+- TV1: [điền]
+- TV2: Gói miễn phí Gemini giới hạn 500 lượt/ngày cho `gemini-3.5-flash-lite`; hết hạn mức lúc 23:30 ngày 26/11 khi đang chạy C2 trên bộ TV1. Gemini C2–C4 trên 168 câu TV1 chạy lại ngày 27/11. Không chạy lần 2 và 3 của Gemini trên pilot (cần thêm 640 lượt, và kết quả Qwen cho thấy chạy lặp ở temperature 0 gần như không đổi); đo phương sai nên theo đề cương (temperature 0,7, tập con). Chưa có key OpenAI và Anthropic: báo cáo 05/12 chỉ có 2 mô hình. Lần đầu chạy notebook Qwen bị lỗi cú pháp do TV2 sinh notebook sai (đã sửa, thêm bước kiểm tra cú pháp). Truy xuất C3 chậm trên GPU 6 GB (khoảng 15 giây/câu vì reranker).
+
+**Kế hoạch tuần tới**
+- TV1: [điền]
+- TV2: Chạy lại trên bộ v0.3 khi chốt (câu đã chạy lấy từ bộ đệm, chỉ câu mới gọi mô hình). Đo phương sai: Qwen 3 seed ở temperature 0,7 trên tập con. Thêm mô hình thứ 3 (key API hoặc mô hình mở tiếng Việt qua vLLM). Hỗ trợ TV3 lập bảng số liệu cho báo cáo 05/12.
+- TV3: [điền]
+
+**Số giờ làm việc**
+- TV1: [số] giờ · TV2: [số] giờ · TV3: [số] giờ
