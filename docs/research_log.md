@@ -91,4 +91,4 @@ Mỗi tuần đúng 5 trường: **Đã làm gì · Kết quả · Khó khăn ·
 - TV3: [điền]
 
 **Số giờ làm việc**
-- TV1: [số] giờ · TV2: [số] giờ · TV3: [số] giờ
+- TV1: [số] giờ · TV2: 15 giờ · TV3: [số] giờ
