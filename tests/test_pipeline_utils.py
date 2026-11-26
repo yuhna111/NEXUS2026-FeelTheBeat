@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from eval.staleness_rules import rule_verdict
-from rag.run_inference import done_ids, load_subset_ids, select_models
+from rag.run_inference import context_config, done_ids, load_subset_ids, select_models
 
 OBSOLETE = ["huyện Gia Lâm", "thị trấn Trâu Quỳ"]
 
@@ -56,3 +56,16 @@ def test_select_models():
         select_models(models, "")
     with pytest.raises(SystemExit, match="nope"):
         select_models(models, "nope")
+
+
+def test_context_config_follows_inherit(tmp_path):
+    cfg = tmp_path / "r.yaml"
+    cfg.write_text("\n".join([
+        "C3: {retrieval: hybrid, collection: x}",
+        "C4: {inherit: C3, prompt: temporal}",
+        "C6: {inherit: C4, distractors: d.jsonl}",
+        "C2: {retrieval: dense}",
+    ]), encoding="utf-8")
+    assert context_config("C4", cfg) == "C3"   # same retrieval, other prompt
+    assert context_config("C6", cfg) == "C6"   # adds distractors -> own contexts
+    assert context_config("C2", cfg) == "C2"

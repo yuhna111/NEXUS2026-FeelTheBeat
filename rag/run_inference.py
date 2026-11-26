@@ -82,6 +82,17 @@ def resolve_config(name: str, path: Path = Path("configs/retrieval.yaml")) -> di
     return cfg
 
 
+def context_config(name: str, path: Path = Path("configs/retrieval.yaml")) -> str:
+    """Config whose retrieved contexts `name` uses: C4 inherits C3 and only changes the
+    prompt, so it reads C3's contexts instead of retrieving again."""
+    raw = yaml.safe_load(path.read_text(encoding="utf-8"))[name]
+    own_retrieval = {"retrieval", "collection", "top_k", "candidates", "reranker", "rrf_k",
+                     "distractors", "oracle_file"} & set(raw)
+    if "inherit" in raw and not own_retrieval:
+        return context_config(raw["inherit"], path)
+    return name
+
+
 def build_prompt(cfg: dict, q: dict, context: str = "") -> str:
     tpl = (PROMPTS / f"{cfg['prompt']}.txt").read_text(encoding="utf-8")
     return tpl.format(question=q["question"], context=context,
@@ -120,7 +131,7 @@ def main() -> None:
     if cfg.get("retrieval", "none") != "none":
         from rag.retrieve_contexts import load_contexts
 
-        contexts = load_contexts(args.bench, args.config)
+        contexts = load_contexts(args.bench, context_config(args.config))
 
     for m in models:
         qs = questions

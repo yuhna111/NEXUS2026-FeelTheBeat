@@ -15,7 +15,8 @@ models:
     provider: gemini
     snapshot: "gemini-3.5-flash-lite"   # version 3.5-flash-lite-07-2026; no pinned id is callable,
                                         # each cached call records usage.model_version
-    cutoff: ""            # TODO: take from Google's model card, with source
+    cutoff: "2026-03"     # model card (published 21/07/2026): "knowledge cutoff ... March 2026", but some
+                          # domains "limited to January 2025". https://deepmind.google/models/model-cards/gemini-3-5-flash-lite/
     subset: stratified_600
   - id: claude-haiku
     provider: anthropic
@@ -27,7 +28,8 @@ models:
   - id: qwen-7b
     provider: vllm
     snapshot: "Qwen/Qwen2.5-7B-Instruct-AWQ"   # vLLM smoke test on Colab T4, 22/11/2026
-    cutoff: ""            # TODO: Qwen has not published a dated cutoff; find a citable source
+    cutoff: ""            # No official dated cutoff found (web search 26/11/2026; tech report arXiv:2412.15115
+                          # not fully checked). Third-party listings (OpenRouter) give 2024-06-30: not official, not used.
   - id: llama-3-8b-instruct
     provider: vllm
     snapshot: ""
