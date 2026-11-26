@@ -12,7 +12,7 @@ Validator: `python -m eval.qa_schema <file.jsonl> --parsed data/parsed` (test: `
 | Trường | Kiểu | Bắt buộc | Ràng buộc | Mô tả |
 |---|---|---|---|---|
 | `id` | str | ✔ | duy nhất trong file | Pilot: `P-T-<mã>` (TV1), `P-V-<mã>` (TV3). Bộ chính thức: `<nhóm>-<4 số>`, ví dụ `B-0142`. TV2 ghi lại thành `question_id` trong `outputs/<config>/*.jsonl` |
-| `category` | enum | ✔ | `A_direct` · `B_obsolete_trap` · `C_multihop_spatial` · `D_before_after` · `E_procedure` · `F_rumor` | Mỗi câu một nhóm. Câu vừa tra cứu vừa bẫy xếp vào nhóm bẫy. E, F đang chờ chốt (mục 5) |
+| `category` | enum | ✔ | `A_direct` · `B_obsolete_trap` · `C_multihop_spatial` · `D_before_after` · `E_procedure` · `F_rumor` | Mỗi câu một nhóm. Câu vừa tra cứu vừa bẫy xếp vào nhóm bẫy. E, F giữ thành hai nhóm riêng (chốt 23/11, mục 5) |
 | `item_role` | enum | ✔ | `trap` · `control` | `control`: đáp án không đổi sau 01/07/2025 (đối chứng/đối chứng âm) |
 | `question` | str | ✔ | không rỗng | Dán nguyên văn cho mô hình; `rag/run_inference.py` đọc trường này |
 | `reference_date` | str | ✔ | ISO `YYYY-MM-DD` | Ngày mà đáp án chuẩn đúng; điền vào `{reference_date}` của prompt |
@@ -73,5 +73,5 @@ Validator: `python -m eval.qa_schema <file.jsonl> --parsed data/parsed` (test: `
 - Câu `control`: `obsolete_answer` rỗng. Mục tiêu ~20% câu nhóm B là control (`qgen/templates.py`).
 - `obsolete_entities` chỉ chứa chuỗi khớp được; không ghi mô tả ("chỉ nêu…", "(nói như vẫn còn)").
 - Không bịa số hiệu, Điều, khoản. Thiếu → `null` + `[TODO_VERIFY]` trong `citation`, hoặc `TODO_VERIFY_CLAUSE` trong `gold_clause_ids`.
-- Mở: (1) giữ hay gộp `E_procedure`, `F_rumor` (TV1 + TV3); (4) `scripts/build_pilot_jsonl.py` của TV1 cần sinh thêm `gold_clause_ids`.
+- Đã đóng (23/11/2026): (1) giữ `E_procedure` và `F_rumor` là hai nhóm riêng, không gộp (TV1 chốt); (4) không cần sửa `scripts/build_pilot_jsonl.py` nữa: `scripts/merge_pilot_sets.py` (TV2) đã sinh `gold_clause_ids` cho cả 50/50 câu `P-T-*` trong `pilot_80_v0.2.jsonl`.
 - Đã đóng (22/11/2026): (2) TV2 đổi `chunk_id` sang dạng `#D…K…` (mục 3); (3) quy tắc Recall@k cho đoạn cố định C1: cùng văn bản và phủ liên tục ≥ 50% một khoản vàng (`eval/metrics_spec.md` v0.3, mục 5.8).

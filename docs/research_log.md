@@ -58,4 +58,4 @@ Mỗi tuần đúng 5 trường: **Đã làm gì · Kết quả · Khó khăn ·
 - TV3: Đọc toàn văn ViAdminShift, viết lại mục 3 để định vị so với bài này; xác nhận với TV1 bài khảo sát hallucination; đọc bài gốc để xoá nhãn [kiểm tra]. Cùng TV1 gán nhãn đủ 90 câu, tính lại Cohen's kappa, đóng ca P-V-D01. Bổ sung ví dụ nhóm D vào `eval/judge_prompt_v1.txt`. Chạy `eval/metrics.py` trên output C0 của TV2 (Gemini, Qwen). Cùng TV1 mở rộng `eval/aliases.csv` xuống cấp huyện/xã.
 
 **Số giờ làm việc**
-- TV1: [số] giờ · TV2: 12 giờ · TV3: [số] giờ
+- TV1: 40 giờ · TV2: 12 giờ · TV3: [số] giờ
