@@ -1,18 +1,16 @@
-"""Recall@5 of BM25 / dense / hybrid × fixed / legal chunking on the pilot set (Week 2, TV2).
+"""Recall@5 of BM25 / dense / hybrid / hybrid+rerank × fixed / legal chunking (Weeks 2–3, TV2).
 
     python -m rag.eval_retrieval                       # needs vnadmin_fixed / vnadmin_legal
     python -m rag.eval_retrieval --skip-dense          # BM25 only, no GPU / Qdrant
+    python -m rag.eval_retrieval --rerank              # + C3: RRF top-20 → bge-reranker-v2-m3
 
-Question sets
-- `v1.0` (main table): data/benchmark/pilot_80_v0.2.jsonl, gold = eval.qa_schema.recall_gold_ids
-  (`gold_clause_ids`; questions marked TODO_VERIFY_CLAUSE are excluded).
-- `tv1-33` (comparison with TV1's note of 20/11): data/benchmark/pilot_80.jsonl, gold =
-  evidence clause ids with in_corpus = true.
+Question sets (gold = eval.qa_schema.recall_gold_ids; TODO_VERIFY_CLAUSE questions excluded)
+- `pilot_v0.3` (main table): data/benchmark/pilot_80_v0.3.jsonl
+- `pilot_v0.2` (comparison with Week 2): data/benchmark/pilot_80_v0.2.jsonl
 
-Hit rule (one correct chunk in the top k is enough)
+Hit rule (one correct chunk in the top k is enough), metrics_spec v0.3 §5
 - legal chunks: chunk_id is a gold clause id (ids match data/parsed directly).
-- fixed chunks: chunk text contains the first 80 characters of a gold clause
-  (whitespace-collapsed, lowercased) — TV1's rule; to be confirmed by TV3 (qa_schema §5 (3)).
+- fixed chunks: eval.metrics.fixed_hit_rank (same doc, covers ≥ 50% of a gold clause).
 
 Outputs
 - results/retrieval_w2/recall.md + recall.json   (tables)
@@ -29,17 +27,17 @@ from collections import defaultdict
 from collections.abc import Sequence
 from pathlib import Path
 
+from eval.metrics import fixed_hit_rank
 from eval.qa_schema import read_jsonl, recall_gold_ids
 from rag.index_build import build_chunks
 from rag.retriever import BM25Retriever, Hit, HybridRetriever, VnTokenizer, place_names
 
 PARSED = Path("data/parsed")
 QSETS = {
-    "v1.0": Path("data/benchmark/pilot_80_v0.2.jsonl"),
-    "tv1-33": Path("data/benchmark/pilot_80.jsonl"),
+    "pilot_v0.3": Path("data/benchmark/pilot_80_v0.3.jsonl"),
+    "pilot_v0.2": Path("data/benchmark/pilot_80_v0.2.jsonl"),
 }
 COLLECTIONS = {"fixed": "vnadmin_fixed", "legal": "vnadmin_legal"}
-PREFIX_CHARS = 80
 CANDIDATES = 20
 
 
@@ -48,23 +46,19 @@ def norm(s: str) -> str:
 
 
 def clause_texts(parsed_dir: Path = PARSED) -> dict[str, list[str]]:
-    """clause id -> normalized texts (a list: a few ids repeat in data/parsed)."""
+    """clause id -> texts (a list: a few ids repeat in data/parsed)."""
     out: dict[str, list[str]] = defaultdict(list)
     for p in sorted(parsed_dir.glob("*.json")):
         for a in json.loads(p.read_text(encoding="utf-8"))["articles"]:
             for c in a.get("clauses") or []:
-                out[c["id"]].append(norm(c["text"]))
+                out[c["id"]].append(c["text"])
     return out
 
 
 def load_questions(qset: str) -> list[tuple[str, str, set[str]]]:
-    recs = read_jsonl(QSETS[qset])
     out = []
-    for r in recs:
-        if qset == "v1.0":
-            gold = recall_gold_ids(r)
-        else:
-            gold = {e["clause_id"] for e in r["evidence"] if e.get("in_corpus") and e.get("clause_id")}
+    for r in read_jsonl(QSETS[qset]):
+        gold = recall_gold_ids(r)
         if gold:
             out.append((r["id"], r["question"], set(gold)))
     return out
@@ -73,12 +67,11 @@ def load_questions(qset: str) -> list[tuple[str, str, set[str]]]:
 def hit_rank(hits: Sequence[Hit], gold: set[str], chunker: str, clauses: dict[str, list[str]],
              k: int) -> int | None:
     """1-based rank of the first correct chunk within the top k, else None."""
-    prefixes = [t[:PREFIX_CHARS] for g in gold for t in clauses.get(g, [])]
+    if chunker == "fixed":
+        return fixed_hit_rank([h.chunk_id for h in hits], {h.chunk_id: h.text for h in hits},
+                              {g: clauses.get(g, []) for g in gold}, k=k)
     for rank, h in enumerate(hits[:k], start=1):
-        if chunker == "legal":
-            if h.chunk_id in gold:
-                return rank
-        elif any(p and p in norm(h.text) for p in prefixes):
+        if h.chunk_id in gold:
             return rank
     return None
 
@@ -94,6 +87,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--k", type=int, default=5)
     ap.add_argument("--skip-dense", action="store_true")
+    ap.add_argument("--rerank", action="store_true", help="add hybrid_rerank (C3)")
     ap.add_argument("--out", type=Path, default=Path("results/retrieval_w2"))
     ap.add_argument("--log-dir", type=Path, default=Path("outputs/retrieval_w2"))
     args = ap.parse_args()
@@ -120,6 +114,7 @@ def main() -> None:
         from rag.vector_store import get_qdrant
 
         model, client = load_bge_m3(), get_qdrant()
+        reranker = None
         for c, coll in COLLECTIONS.items():
             dense = DenseRetriever(coll, model=model, client=client)
             hits = dense.search_many([all_q[q] for q in qids], CANDIDATES)
@@ -127,6 +122,12 @@ def main() -> None:
             hyb = HybridRetriever(bm25[c], dense, candidates=CANDIDATES)
             results[("hybrid", c)] = {q: hyb.fuse(results[("bm25", c)][q], results[("dense", c)][q],
                                                   CANDIDATES) for q in qids}
+            if args.rerank:
+                from rag.retriever import Reranker
+
+                reranker = reranker or Reranker()
+                results[("hybrid_rerank", c)] = {
+                    q: reranker.rerank(all_q[q], results[("hybrid", c)][q], CANDIDATES) for q in qids}
     timing["retrieval_s"] = round(time.time() - t0, 1)
 
     table: dict[str, dict[str, dict]] = {}
@@ -144,7 +145,7 @@ def main() -> None:
             table.setdefault(name, {})[f"{method}/{c}"] = score(ranks)
 
     args.out.mkdir(parents=True, exist_ok=True)
-    meta = {"k": args.k, "candidates": CANDIDATES, "rrf_k": 60, "prefix_chars": PREFIX_CHARS,
+    meta = {"k": args.k, "candidates": CANDIDATES, "rrf_k": 60, "fixed_rule": "fixed_hit_rank ≥ 0.5",
             "question_sets": {n: str(p) for n, p in QSETS.items()}, **timing}
     (args.out / "recall.json").write_text(
         json.dumps({"meta": meta, "results": table}, ensure_ascii=False, indent=2) + "\n",
@@ -154,12 +155,12 @@ def main() -> None:
 
 
 def render_md(table: dict, k: int, meta: dict) -> str:
-    lines = [f"# Recall@{k} trên bộ pilot (tuần 2, TV2)", ""]
+    lines = [f"# Recall@{k} trên bộ pilot (TV2)", ""]
     for name, cells in table.items():
         n = next(iter(cells.values()))["n"]
         lines += [f"## Bộ `{name}` ({n} câu)", "",
                   "| Truy xuất | Chia cố định | Chia theo Điều–Khoản |", "|---|---|---|"]
-        for method in ("bm25", "dense", "hybrid"):
+        for method in ("bm25", "dense", "hybrid", "hybrid_rerank"):
             row = [cells.get(f"{method}/{c}") for c in ("fixed", "legal")]
             if not any(row):
                 continue
