@@ -23,7 +23,7 @@ class LLMClient:
     model: str
     temperature: float = 0.0
     max_tokens: int = 512
-    max_retries: int = 5
+    max_retries: int = 8              # backoff 2, 4, 8, … capped at 60 s (API rate limits)
     cache_dir: Path = field(default_factory=lambda: Path(os.getenv("LLM_CACHE_DIR", ".llm_cache")))
 
     def __post_init__(self) -> None:
@@ -64,7 +64,7 @@ class LLMClient:
                 if attempt == self.max_retries - 1:
                     raise
                 time.sleep(delay)
-                delay *= 2
+                delay = min(delay * 2, 60.0)
 
         rec = {
             "key": key,
@@ -115,7 +115,8 @@ class LLMClient:
             r = client.models.generate_content(
                 model=self.model, contents=prompt,
                 config={"system_instruction": system, "temperature": self.temperature,
-                        "max_output_tokens": self.max_tokens},
+                        "max_output_tokens": self.max_tokens,
+                        **({"seed": seed} if seed is not None else {})},
             )
             usage = r.usage_metadata.model_dump(exclude_none=True) if r.usage_metadata else {}
             # Gemini aliases can be served by a newer model; record what actually answered.

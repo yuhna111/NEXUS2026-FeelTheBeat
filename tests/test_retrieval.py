@@ -33,18 +33,32 @@ def test_hybrid_fuse_rewards_agreement_and_keeps_duplicate_ids_apart():
     assert len(fused) == 3 and fused[2].text == "another clause with the same id"
 
 
-def test_hit_rank_legal_by_id_fixed_by_prefix():
-    clauses = {"NQ-1#D1.K2": [norm("Hợp nhất xã Tân Điền và xã Tân Phú thành xã Tân Điền.")]}
+def test_hit_rank_legal_by_id_fixed_by_coverage():
+    clauses = {"NQ-1#D1.K2": ["Hợp nhất xã Tân Điền và xã Tân Phú thành xã Tân Điền."]}
     legal = [Hit("NQ-1#D1.K1", "NQ-1", "", 1), Hit("NQ-1#D1.K2", "NQ-1", "", 1)]
     assert hit_rank(legal, {"NQ-1#D1.K2"}, "legal", clauses, k=5) == 2
     assert hit_rank(legal, {"NQ-1#D1.K2"}, "legal", clauses, k=1) is None
     fixed = [Hit("NQ-1#fixed0", "NQ-1", "... HỢP NHẤT xã Tân Điền  và xã Tân Phú thành xã Tân Điền. Điều 2 ...", 1)]
     assert hit_rank(fixed, {"NQ-1#D1.K2"}, "fixed", clauses, k=5) == 1
     assert hit_rank(fixed, {"NQ-1#D1.K1"}, "fixed", clauses, k=5) is None
+    other_doc = [Hit("NQ-9#fixed0", "NQ-9", fixed[0].text, 1)]  # same words, different document
+    assert hit_rank(other_doc, {"NQ-1#D1.K2"}, "fixed", clauses, k=5) is None
 
 
 def test_score():
     assert score([1, None, 2, None]) == {"n": 4, "hits": 2, "recall": 0.5, "mrr": 0.375}
+
+
+class _FakeCE:
+    def compute_score(self, pairs, normalize=True):
+        return [1.0 if "Tân Điền" in t else 0.1 for _, t in pairs]
+
+
+def test_reranker_reorders_and_truncates():
+    from rag.retriever import Reranker
+    hits = [Hit("a", "D", "khác", 3.0), Hit("b", "D", "xã Tân Điền", 2.0), Hit("c", "D", "khác nữa", 1.0)]
+    out = Reranker(model=_FakeCE()).rerank("Tân Điền", hits, k=2)
+    assert [h.chunk_id for h in out] == ["b", "a"] and out[0].score == 1.0
 
 
 def test_point_ids_unique_for_repeated_chunk_ids():

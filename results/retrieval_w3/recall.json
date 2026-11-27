@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "k": 5,
+    "candidates": 20,
+    "rrf_k": 60,
+    "fixed_rule": "fixed_hit_rank ≥ 0.5",
+    "question_sets": {
+      "pilot_v0.3": "data\\benchmark\\pilot_80_v0.3.jsonl",
+      "pilot_v0.2": "data\\benchmark\\pilot_80_v0.2.jsonl"
+    },
+    "bm25_build_s": 129.7,
+    "retrieval_s": 3003.9
+  },
+  "results": {
+    "pilot_v0.3": {
+      "bm25/fixed": {
+        "n": 61,
+        "hits": 27,
+        "recall": 0.4426,
+        "mrr": 0.3131
+      },
+      "bm25/legal": {
+        "n": 61,
+        "hits": 34,
+        "recall": 0.5574,
+        "mrr": 0.4199
+      },
+      "dense/fixed": {
+        "n": 61,
+        "hits": 34,
+        "recall": 0.5574,
+        "mrr": 0.4191
+      },
+      "hybrid/fixed": {
+        "n": 61,
+        "hits": 42,
+        "recall": 0.6885,
+        "mrr": 0.4765
+      },
+      "hybrid_rerank/fixed": {
+        "n": 61,
+        "hits": 47,
+        "recall": 0.7705,
+        "mrr": 0.6508
+      },
+      "dense/legal": {
+        "n": 61,
+        "hits": 50,
+        "recall": 0.8197,
+        "mrr": 0.741
+      },
+      "hybrid/legal": {
+        "n": 61,
+        "hits": 46,
+        "recall": 0.7541,
+        "mrr": 0.6257
+      },
+      "hybrid_rerank/legal": {
+        "n": 61,
+        "hits": 52,
+        "recall": 0.8525,
+        "mrr": 0.8361
+      }
+    },
+    "pilot_v0.2": {
+      "bm25/fixed": {
+        "n": 55,
+        "hits": 23,
+        "recall": 0.4182,
+        "mrr": 0.2836
+      },
+      "bm25/legal": {
+        "n": 55,
+        "hits": 32,
+        "recall": 0.5818,
+        "mrr": 0.4294
+      },
+      "dense/fixed": {
+        "n": 55,
+        "hits": 30,
+        "recall": 0.5455,
+        "mrr": 0.3921
+      },
+      "hybrid/fixed": {
+        "n": 55,
+        "hits": 37,
+        "recall": 0.6727,
+        "mrr": 0.4603
+      },
+      "hybrid_rerank/fixed": {
+        "n": 55,
+        "hits": 42,
+        "recall": 0.7636,
+        "mrr": 0.6309
+      },
+      "dense/legal": {
+        "n": 55,
+        "hits": 44,
+        "recall": 0.8,
+        "mrr": 0.7264
+      },
+      "hybrid/legal": {
+        "n": 55,
+        "hits": 42,
+        "recall": 0.7636,
+        "mrr": 0.6333
+      },
+      "hybrid_rerank/legal": {
+        "n": 55,
+        "hits": 46,
+        "recall": 0.8364,
+        "mrr": 0.8182
+      }
+    }
+  }
+}
