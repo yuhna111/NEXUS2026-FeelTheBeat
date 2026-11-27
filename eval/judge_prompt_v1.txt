@@ -1,18 +1,59 @@
 Bạn là giám khảo đánh giá câu trả lời về đơn vị hành chính Việt Nam tại ngày {reference_date}
-(sau cải cách 01/07/2025: 34 tỉnh/thành, chính quyền 2 cấp, không còn cấp huyện).
+(sau cải cách 01/07/2025: 34 tỉnh/thành phố trực thuộc trung ương, chính quyền địa phương 2 cấp tỉnh–xã, kết thúc hoạt động cấp huyện, cấp xã gồm xã/phường/đặc khu).
 
+## Hệ nhãn (gán ĐÚNG MỘT nhãn)
+- `CORRECT_CURRENT`: đúng theo quy định hiện hành sau 01/07/2025 (với câu hỏi "trước và sau 01/07/2025" phải đúng cả hai vế; nếu nêu thêm chi tiết phụ cụ thể như tên phường/xã mới thì chi tiết đó không được sai).
+- `STALE`: khẳng định thông tin ngay trước cải cách 01/07/2025 là hiện hành (ví dụ: 63 tỉnh, 3 cấp hành chính, còn cấp huyện/quận/thị xã/thị trấn, tỉnh đã hợp nhất vẫn là tỉnh riêng). Với câu hỏi bẫy có tiền giả định sai (hỏi về huyện/quận đã bỏ), nếu mô hình từ chối trả lời ("tôi không có dữ liệu cập nhật về Chủ tịch UBND huyện X") nhưng vẫn coi đơn vị cấp huyện đó đang tồn tại → gán `STALE`.
+- `BLENDED`: pha trộn cấu trúc cũ và mới trong cùng câu trả lời (ví dụ: biết có cải cách/đặc khu nhưng vẫn gắn với tỉnh cũ đã sáp nhập, hoặc thừa nhận hợp nhất tỉnh nhưng giữ nguyên cấu trúc cấp huyện/tỉnh cũ làm hiện hành).
+- `OTHER_ERROR`: sai nhưng KHÔNG phải do lặp lại tình trạng ngay trước 01/07/2025 (ví dụ: bịa ghép tỉnh sai, nêu mốc cũ hơn nhiều như 1975–1976, tự mâu thuẫn, thiếu hẳn vế "sau 01/07/2025" ở câu hỏi trước–sau mà không khẳng định cũ là hiện hành, hoặc nêu sai chi tiết phụ cụ thể).
+- `ABSTAIN`: từ chối trả lời trung lập ("không đủ thông tin", "không có trong tài liệu") mà KHÔNG chấp nhận tiền giả định sai.
+
+## Lưu ý bắt buộc
+1. Nhắc tới đơn vị cũ để MÔ TẢ việc sắp xếp ở thì quá khứ (ví dụ: "tỉnh Bình Thuận cũ đã hợp nhất vào tỉnh Lâm Đồng", "huyện X đã kết thúc hoạt động từ 01/07/2025") KHÔNG phải `STALE`.
+2. Với câu hỏi **nhóm D (so sánh trước và sau 01/07/2025)**:
+   - Trả lời đúng cả hai vế trước và sau → `CORRECT_CURRENT`.
+   - Khẳng định trạng thái trước 01/07/2025 vẫn giữ nguyên sau 01/07/2025 → `STALE`.
+   - Chỉ trả lời vế "trước 01/07/2025", bỏ trống vế "sau 01/07/2025" (không khẳng định trạng thái cũ là hiện hành) → `OTHER_ERROR`.
+   - Nêu có thay đổi sau 01/07/2025 nhưng vẫn trộn thực thể/cấu trúc cũ vào vế sau → `BLENDED`.
+
+## Ví dụ mẫu (đặc biệt nhóm D và các ca ranh giới)
+
+### Ví dụ 1 (Nhóm D — `CORRECT_CURRENT`)
+- Câu hỏi: Trước và sau ngày 01/07/2025, chính quyền địa phương ở Việt Nam được tổ chức thành mấy cấp?
+- Đáp án vàng: Trước: 3 cấp (tỉnh – huyện – xã). Sau: 2 cấp (tỉnh – xã/phường/đặc khu); cấp huyện bị bãi bỏ.
+- Câu trả lời: Trước ngày 01/07/2025, chính quyền địa phương gồm 3 cấp (tỉnh, huyện, xã). Từ ngày 01/07/2025, cấp huyện kết thúc hoạt động, chính quyền địa phương tổ chức thành 2 cấp gồm cấp tỉnh và cấp xã (xã, phường, đặc khu).
+- Kết quả: {{"label": "CORRECT_CURRENT", "rationale": "Đúng cả vế trước và vế sau 01/07/2025; nhắc cấp huyện ở ngữ cảnh quá khứ không phải lỗi thời."}}
+
+### Ví dụ 2 (Nhóm D — `OTHER_ERROR`, thiếu vế sau)
+- Câu hỏi: Trước và sau ngày 01/07/2025, chính quyền địa phương ở Việt Nam được tổ chức thành mấy cấp?
+- Đáp án vàng: Trước: 3 cấp (tỉnh – huyện – xã). Sau: 2 cấp (tỉnh – xã/phường/đặc khu); cấp huyện bị bãi bỏ.
+- Câu trả lời: Trước ngày 01/07/2025, chính quyền địa phương ở Việt Nam được tổ chức thành 3 cấp: cấp tỉnh, cấp huyện và cấp xã.
+- Kết quả: {{"label": "OTHER_ERROR", "rationale": "Chỉ nêu vế trước 01/07/2025 và bỏ trống vế sau, không khẳng định 3 cấp là hiện hành nên không phải STALE."}}
+
+### Ví dụ 3 (Nhóm D — `STALE`, khẳng định cũ vẫn giữ nguyên sau 01/07/2025)
+- Câu hỏi: Trước và sau ngày 01/07/2025, chính quyền địa phương ở Việt Nam được tổ chức thành mấy cấp?
+- Đáp án vàng: Trước: 3 cấp (tỉnh – huyện – xã). Sau: 2 cấp (tỉnh – xã/phường/đặc khu); cấp huyện bị bãi bỏ.
+- Câu trả lời: Trước ngày 01/07/2025 gồm 3 cấp (tỉnh, huyện, xã). Từ ngày 01/07/2025 trở đi, hệ thống vẫn duy trì 3 cấp theo Hiến pháp 2013.
+- Kết quả: {{"label": "STALE", "rationale": "Khẳng định mô hình 3 cấp trước cải cách vẫn giữ nguyên sau 01/07/2025."}}
+
+### Ví dụ 4 (Nhóm D — `BLENDED`, trộn cấu trúc cũ và mới ở vế sau)
+- Câu hỏi: Trung tâm hành chính của tỉnh Lào Cai trước và sau ngày 01/07/2025 đặt ở đâu?
+- Đáp án vàng: Trước: TP Lào Cai. Sau: tỉnh Lào Cai mới (hợp nhất Lào Cai và Yên Bái) đặt trung tâm hành chính tại khu vực TP Yên Bái cũ.
+- Câu trả lời: Trước 01/07/2025 đặt tại TP Lào Cai. Từ 01/07/2025, tỉnh Lào Cai và tỉnh Yên Bái hợp nhất thành tỉnh Lào Cai mới, trung tâm hành chính tiếp tục đặt tại TP Lào Cai cũ.
+- Kết quả: {{"label": "BLENDED", "rationale": "Biết sự kiện hợp nhất Lào Cai–Yên Bái nhưng ghép với vị trí trung tâm hành chính cũ là TP Lào Cai."}}
+
+### Ví dụ 5 (Nhóm B — `STALE`, từ chối nhưng chấp nhận tiền giả định sai)
+- Câu hỏi: Chủ tịch UBND huyện Gia Lâm (Hà Nội) hiện nay là ai?
+- Đáp án vàng: Không còn huyện Gia Lâm vì cấp huyện kết thúc hoạt động từ 01/07/2025.
+- Câu trả lời: Tôi không có dữ liệu cập nhật theo thời gian thực để xác nhận ai đang giữ chức Chủ tịch UBND huyện Gia Lâm hiện nay.
+- Kết quả: {{"label": "STALE", "rationale": "Từ chối nêu tên nhưng vẫn chấp nhận tiền giả định sai rằng UBND huyện Gia Lâm đang tồn tại."}}
+
+---
+
+## Trường hợp cần chấm
 Câu hỏi: {question}
 Đáp án vàng: {gold_answer}
 Thực thể lỗi thời (trước 01/07/2025): {obsolete_entities}
 Câu trả lời cần chấm: {prediction}
 
-Gán ĐÚNG MỘT nhãn:
-- CORRECT_CURRENT: đúng theo hiện hành.
-- STALE: khẳng định thông tin trước cải cách là hiện hành.
-- BLENDED: trộn cấu trúc cũ và mới.
-- OTHER_ERROR: sai nhưng không do lỗi thời (kể cả bịa đơn vị mới).
-- ABSTAIN: từ chối trả lời / "không đủ thông tin".
-
-Lưu ý: nhắc tới đơn vị cũ để MÔ TẢ việc sắp xếp (ví dụ "huyện X đã được sắp xếp thành...") KHÔNG phải STALE.
-
-Trả về JSON: {{"label": "...", "rationale": "<1 câu>"}}
+Chỉ trả về một object JSON duy nhất trên một dòng: {{"label": "...", "rationale": "<1 câu>"}}

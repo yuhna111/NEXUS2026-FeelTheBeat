@@ -59,3 +59,31 @@ Mỗi tuần đúng 5 trường: **Đã làm gì · Kết quả · Khó khăn ·
 
 **Số giờ làm việc**
 - TV1: 40 giờ · TV2: 12 giờ · TV3: [số] giờ
+
+## Tuần 3 (23/11 – 29/11/2026)
+**Đã làm gì**
+- TV1: [điền]
+- TV2: [điền]
+- TV3: Đồng bộ nhánh `vini` với `main` (PR #8, #9). Soạn 60 câu hỏi mới cho nhóm C (26 câu: 22 trap, 4 control), D (22 câu: 19 trap, 3 control) và F (12 câu tin đồn có văn bản/quy định bác bỏ chính thức) bằng `qgen/build_tv3_v03.py` → `data/benchmark/tv3_v0.3.jsonl`, bổ sung kiểm thử vào `tests/test_benchmark_v03.py`. Kiểm chéo toàn bộ 168 câu `data/benchmark/tv1_v0.3.jsonl` của TV1 đối chiếu 39 văn bản gốc trong `data/parsed/` và `commune_lineage.csv`, lập báo cáo chi tiết tại `docs/tv3_review_tv1_v03.md`. Viết `eval/run_w3_eval.py` chạy `eval/metrics.py` trên đầu ra C0, C2, C3, C4 của TV2 (`origin/an-huy`) trên cả `pilot_80_v0.3` (80 câu + tách riêng 30 câu `P-V-*`) và `tv1_v0.3` (168 câu), tính bootstrap CI 95% (1.000 lần), kiểm định McNemar chính xác + Holm–Bonferroni và độ ổn định 3 lần chạy Qwen 7B → xuất bảng số liệu nháp phục vụ báo cáo 05/12 vào `results/w3_eval/`. Cập nhật `eval/judge_prompt_v1.txt` (thêm quy tắc nhóm D/B và 5 ví dụ mẫu), viết `eval/judge.py` (kèm chốt chặn không tự chấm cùng họ mô hình và tính κ với nhãn người) + `tests/test_judge.py`. Chạy `eval/compute_iaa.py` kiểm chéo κ trên đủ 90 câu pilot (= 0,675) và lập đề xuất chốt 14 ca bất đồng còn lại (`docs/tv3_proposals_disagreements_90.md`). Viết lại mục 3 (`paper/related_work.md` v0.3) để định vị 4 điểm khác biệt so với ViAdminShift (`arXiv:2611.03171`), xóa toàn bộ nhãn `[kiểm tra]`, bổ sung số trang Lewis và cs. (2020) (9459–9474) và URL OpenReview Cheng và cs. (2024) vào `paper/refs.bib` và `paper/refs_verification.md`. Có dùng AI hỗ trợ soạn script, kiểm chéo và viết nháp tài liệu, sẽ khai báo.
+
+**Kết quả**
+- TV1: [điền]
+- TV2: [điền]
+- TV3: `data/benchmark/tv3_v0.3.jsonl`: 60 câu hợp lệ `eval.qa_schema`, 58/60 có `gold_clause_ids` trong kho (2 câu F ngoài kho dùng văn bản 2025–2026 để `TODO_VERIFY_CLAUSE`), nâng tổng bộ v0.3 lên 308 câu (80 pilot + 168 TV1 + 60 TV3). Kiểm chéo 168 câu TV1: 161/168 đạt pháp lý; phát hiện 7 câu cần sửa trước khi đặt `verified = true` (3 câu đối chứng nhóm B trùng tên xã trong cùng tỉnh mới `B-0039`, `B-0041`, `B-0043`; 2 câu thiếu "phần còn lại" `A-0091`, `A-0112`; `A-0101` hỏi "xã, phường" nhưng đáp án là `đặc khu Vân Đồn`; `E-0012` thiếu dẫn chiếu `NQ-190#D15.K3`), cùng 1 lỗi 2 dấu cách (`B-0029`) và 82 câu `trap` trống `obsolete_entities`.
+- TV3 (số liệu nháp C0–C4 từ đầu ra TV2 trên `origin/an-huy`, chấm tự động `auto_label`, tập chưa `verified`, chi tiết ở `results/w3_eval/w3_eval_report_draft.md`):
+  - `pilot_80_v0.3` (n = 80; 61 câu có khoản vàng): `Recall@5` tăng từ 82,0% (C2, MRR 0,741) lên 85,2% (C3/C4, MRR 0,836). `SR` cận dưới (toàn bộ 80 câu) giảm có ý nghĩa thống kê từ C0 xuống C4 ở cả Gemini (`25,0% → 1,2%`, McNemar p_Holm = 3,82×10⁻⁵) và Qwen 7B (`23,8% → 1,2%`, p_Holm = 6,87×10⁻⁵); `C4` tăng mạnh `AbstainRate` (35,0% ở Gemini, 28,7% ở Qwen) chủ yếu trên các câu ngoài kho. Qwen 7B ở temperature 0 trùng nhãn tự động 79–80/80 câu cả 3 lần chạy.
+  - `tv1_v0.3` (n = 168; 168/168 có khoản vàng): `Recall@5` của C3/C4 đạt **82,7% (139/168)** so với 63,1% (106/168) của C2 (+19,6 điểm %, McNemar p_Holm = 4,19×10⁻⁹). Với Qwen 7B, `EM` tăng từ **12,2% (C0)** lên **62,3% (C2)**, **68,4% (C3)** và **71,4% (C4)** (p_Holm < 10⁻²⁰); `PBER` chỉ 1,2%–2,0%; `C4` chỉ từ chối 2,4%.
+- TV3 (IAA & bài báo): `eval/compute_iaa.py` xác nhận trên 90 câu pilot: khớp 73/90 (81,1%), κ = 0,675 (nhị phân `STALE vs rest` = 0,737; `STALE|BLENDED` = 0,744; `CORRECT_CURRENT` = 0,866); đề xuất chốt 14 ca bất đồng kèm 3 quy tắc cho `metrics_spec.md` v0.4. `paper/related_work.md` v0.3 còn 0 nhãn `[kiểm tra]`, định vị 4 điểm khác biệt so với ViAdminShift. Toàn bộ bộ kiểm thử `pytest` đạt xanh (gồm `tests/test_judge.py` và `tests/test_benchmark_v03.py`).
+
+**Khó khăn**
+- TV1: [điền]
+- TV2: [điền]
+- TV3: Chưa có API key mô hình đóng độc lập (Anthropic/OpenAI) hoặc máy chủ vLLM cục bộ cho mô hình thứ 3 (như Llama-3.1-8B) nên chưa chạy được `eval/judge.py` trực tiếp trên 90 câu pilot để đo κ giữa giám khảo LLM và người (đã sẵn sàng `eval/judge.py`, prompt có ví dụ nhóm D, và kiểm thử tự động). Trong `pilot_80_v0.3` (50 câu `P-T-*`) và `tv1_v0.3` (70 câu `A_direct`), `obsolete_entities` còn trống nên bộ chấm luật `auto_label` để nhiều câu `NEEDS_JUDGE` hoặc xếp `OTHER_ERROR` ở C0; số liệu C0–C4 hiện tại phải ghi rõ là số liệu nháp luật tự động, chờ chạy LLM judge và chốt `verified = true`.
+
+**Kế hoạch tuần tới**
+- TV1: [điền]
+- TV2: [điền]
+- TV3: Chốt 14 ca bất đồng nhãn pilot cùng TV1, nâng `eval/metrics_spec.md` lên v0.4. Chạy `eval/judge.py` với mô hình giám khảo không trùng (Claude Haiku / GPT-mini / Llama-3.1-8B qua Colab vLLM) để hiệu chuẩn với 90 nhãn người và chấm toàn bộ ca `NEEDS_JUDGE` của bộ v0.3 chốt. Chạy lại `eval/run_w3_eval.py` khi TV2 có đủ Gemini C2–C4 trên bộ v0.3 chốt (308 câu), lập bảng và biểu đồ đầu tiên (`figures/`) cho báo cáo giữa kỳ 05/12.
+
+**Số giờ làm việc**
+- TV1: [số] giờ · TV2: [số] giờ · TV3: [số] giờ
