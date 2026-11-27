@@ -144,16 +144,40 @@ def hybrid_fuse(rankings: Iterable[Sequence[Hit]], k: int = 60, top_n: int = 20)
     return out
 
 
-class HybridRetriever:
-    """BM25 + dense, each top-`candidates`, fused with RRF. Reranker: Week 3."""
+class Reranker:
+    """Cross-encoder reranker (bge-reranker-v2-m3 for C3/C4)."""
 
-    def __init__(self, bm25: BM25Retriever, dense: DenseRetriever,
-                 rrf_k: int = 60, candidates: int = 20) -> None:
+    def __init__(self, name: str = "BAAI/bge-reranker-v2-m3", model=None) -> None:
+        if model is None:
+            import torch
+            from FlagEmbedding import FlagReranker
+
+            model = FlagReranker(name, use_fp16=torch.cuda.is_available())
+        self.model = model
+
+    def rerank(self, query: str, hits: Sequence[Hit], k: int) -> list[Hit]:
+        if not hits:
+            return []
+        scores = self.model.compute_score([[query, h.text] for h in hits], normalize=True)
+        scores = [scores] if isinstance(scores, float) else list(scores)
+        order = sorted(range(len(hits)), key=lambda i: -scores[i])[:k]
+        return [Hit(hits[i].chunk_id, hits[i].doc_id, hits[i].text, float(scores[i])) for i in order]
+
+
+class HybridRetriever:
+    """BM25 + dense, each top-`candidates`, fused with RRF; optional reranker on the fused
+    candidates (C3: rrf top-20 → bge-reranker-v2-m3 → top-k)."""
+
+    def __init__(self, bm25: BM25Retriever, dense: DenseRetriever, rrf_k: int = 60,
+                 candidates: int = 20, reranker: Reranker | str | None = None) -> None:
         self.bm25, self.dense, self.rrf_k, self.candidates = bm25, dense, rrf_k, candidates
+        self.reranker = Reranker(reranker) if isinstance(reranker, str) else reranker
 
     def search(self, query: str, k: int = 20) -> list[Hit]:
-        return self.fuse(self.bm25.search(query, self.candidates),
-                         self.dense.search(query, self.candidates), k)
+        fused = self.fuse(self.bm25.search(query, self.candidates),
+                          self.dense.search(query, self.candidates),
+                          self.candidates if self.reranker else k)
+        return self.reranker.rerank(query, fused, k) if self.reranker else fused
 
     def fuse(self, bm25_hits: Sequence[Hit], dense_hits: Sequence[Hit], k: int = 20) -> list[Hit]:
         return hybrid_fuse([bm25_hits, dense_hits], k=self.rrf_k, top_n=k)

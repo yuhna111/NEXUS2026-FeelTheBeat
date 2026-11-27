@@ -63,27 +63,38 @@ Mỗi tuần đúng 5 trường: **Đã làm gì · Kết quả · Khó khăn ·
 ## Tuần 3 (23/11 – 29/11/2026)
 **Đã làm gì**
 - TV1: [điền]
-- TV2: [điền]
+- TV2: Dựng lại 2 chỉ mục Qdrant trên đủ 39 văn bản (thêm NQ 76/2025/UBTVQH15). Thêm reranker `bge-reranker-v2-m3` vào cách kết hợp (C3) và đo lại Recall@5; chấm đoạn cố định bằng `fixed_hit_rank` của TV3. Viết `rag/retrieve_contexts.py` (truy xuất trước, lưu ngữ cảnh vào `outputs/contexts/`) và hoàn thiện `rag/run_inference.py` cho các cấu hình RAG (C2–C4; C4 dùng lại ngữ cảnh của C3), nhiều lần chạy (mỗi lần một file, seed = số lần), ghi `model_version`, `usage`. Soạn `notebooks/03_qwen_pilot_colab.ipynb` để chạy Qwen trên Colab chỉ với phần sinh câu trả lời. Chạy C0, C2, C3, C4 với Gemini và Qwen 7B trên bộ pilot 80 câu (`pilot_80_v0.3`) và trên 168 câu mới của TV1 (`tv1_v0.3`), temperature 0. Điền mốc cutoff Gemini vào `configs/models.yaml` theo model card chính thức.
 - TV3: Đồng bộ nhánh `vini` với `main` (PR #8, #9). Soạn 60 câu hỏi mới cho nhóm C (26 câu: 22 trap, 4 control), D (22 câu: 19 trap, 3 control) và F (12 câu tin đồn có văn bản/quy định bác bỏ chính thức) bằng `qgen/build_tv3_v03.py` → `data/benchmark/tv3_v0.3.jsonl`, bổ sung kiểm thử vào `tests/test_benchmark_v03.py`. Kiểm chéo toàn bộ 168 câu `data/benchmark/tv1_v0.3.jsonl` của TV1 đối chiếu 39 văn bản gốc trong `data/parsed/` và `commune_lineage.csv`, lập báo cáo chi tiết tại `docs/tv3_review_tv1_v03.md`. Viết `eval/run_w3_eval.py` chạy `eval/metrics.py` trên đầu ra C0, C2, C3, C4 của TV2 (`origin/an-huy`) trên cả `pilot_80_v0.3` (80 câu + tách riêng 30 câu `P-V-*`) và `tv1_v0.3` (168 câu), tính bootstrap CI 95% (1.000 lần), kiểm định McNemar chính xác + Holm–Bonferroni và độ ổn định 3 lần chạy Qwen 7B → xuất bảng số liệu nháp phục vụ báo cáo 05/12 vào `results/w3_eval/`. Cập nhật `eval/judge_prompt_v1.txt` (thêm quy tắc nhóm D/B và 5 ví dụ mẫu), viết `eval/judge.py` (kèm chốt chặn không tự chấm cùng họ mô hình và tính κ với nhãn người) + `tests/test_judge.py`. Chạy `eval/compute_iaa.py` kiểm chéo κ trên đủ 90 câu pilot (= 0,675) và lập đề xuất chốt 14 ca bất đồng còn lại (`docs/tv3_proposals_disagreements_90.md`). Viết lại mục 3 (`paper/related_work.md` v0.3) để định vị 4 điểm khác biệt so với ViAdminShift (`arXiv:2611.03171`), xóa toàn bộ nhãn `[kiểm tra]`, bổ sung số trang Lewis và cs. (2020) (9459–9474) và URL OpenReview Cheng và cs. (2024) vào `paper/refs.bib` và `paper/refs_verification.md`. Có dùng AI hỗ trợ soạn script, kiểm chéo và viết nháp tài liệu, sẽ khai báo.
 
 **Kết quả**
 - TV1: [điền]
-- TV2: [điền]
+- TV2: Chỉ mục 39 văn bản: 413 đoạn cố định, 3.891 đoạn Điều–Khoản, không đoạn nào bị cắt. Recall@5 trên 61 câu pilot có khoản nguồn (`results/retrieval_w3/recall.md`):
+
+  | Truy xuất | Chia cố định | Chia theo Điều–Khoản |
+  |---|---|---|
+  | BM25 | 0,443 (27/61) | 0,557 (34/61) |
+  | Vector (BGE-M3) | 0,557 (34/61) | 0,820 (50/61) |
+  | Kết hợp (RRF) | 0,689 (42/61) | 0,754 (46/61) |
+  | Kết hợp + reranker (C3) | 0,770 (47/61) | **0,853 (52/61)** |
+
+  Reranker nâng MRR@5 theo Điều–Khoản từ 0,626 lên 0,836. Đoạn cố định chấm bằng quy tắc v0.3 của TV3: kết hợp trên pilot v0.2 ra 0,673, trùng số TV3 chấm lại.
+- TV2: Đầu ra cho TV3 chấm (`outputs/<bộ>/<cấu hình>/<mô hình>.jsonl`): pilot 80 câu đủ C0, C2, C3, C4 cho cả Gemini (`gemini-3.5-flash-lite`) và Qwen (`Qwen2.5-7B-Instruct-AWQ`, thêm lần 2 và 3); 168 câu TV1 đủ C0–C4 cho Qwen, C0 cho Gemini. Không câu nào rỗng hay chạm giới hạn 512 token. Ở temperature 0, lần 2 và 3 của Qwen trùng lần 1 ở 74–80/80 câu mỗi cấu hình, nên chạy lặp ở temperature 0 gần như không đo được phương sai.
+- TV2: Mốc cutoff `gemini-flash` = 2026-03 theo model card Gemini 3.5 Flash-Lite (đăng 21/07/2026), có ghi chú một số mảng chỉ đến 01/2025. Qwen2.5 chưa tìm được mốc cutoff chính thức, để trống.
 - TV3: `data/benchmark/tv3_v0.3.jsonl`: 60 câu hợp lệ `eval.qa_schema`, 58/60 có `gold_clause_ids` trong kho (2 câu F ngoài kho dùng văn bản 2025–2026 để `TODO_VERIFY_CLAUSE`), nâng tổng bộ v0.3 lên 308 câu (80 pilot + 168 TV1 + 60 TV3). Kiểm chéo 168 câu TV1: 161/168 đạt pháp lý; phát hiện 7 câu cần sửa trước khi đặt `verified = true` (3 câu đối chứng nhóm B trùng tên xã trong cùng tỉnh mới `B-0039`, `B-0041`, `B-0043`; 2 câu thiếu "phần còn lại" `A-0091`, `A-0112`; `A-0101` hỏi "xã, phường" nhưng đáp án là `đặc khu Vân Đồn`; `E-0012` thiếu dẫn chiếu `NQ-190#D15.K3`), cùng 1 lỗi 2 dấu cách (`B-0029`) và 82 câu `trap` trống `obsolete_entities`.
-- TV3 (số liệu nháp C0–C4 từ đầu ra TV2 trên `origin/an-huy`, chấm tự động `auto_label`, tập chưa `verified`, chi tiết ở `results/w3_eval/w3_eval_report_draft.md`):
+- TV3 (số liệu nháp C0–C4 từ đầu ra TV2 trên `outputs/`, chấm tự động `auto_label`, tập chưa `verified`, chi tiết ở `results/w3_eval/w3_eval_report_draft.md`):
   - `pilot_80_v0.3` (n = 80; 61 câu có khoản vàng): `Recall@5` tăng từ 82,0% (C2, MRR 0,741) lên 85,2% (C3/C4, MRR 0,836). `SR` cận dưới (toàn bộ 80 câu) giảm có ý nghĩa thống kê từ C0 xuống C4 ở cả Gemini (`25,0% → 1,2%`, McNemar p_Holm = 3,82×10⁻⁵) và Qwen 7B (`23,8% → 1,2%`, p_Holm = 6,87×10⁻⁵); `C4` tăng mạnh `AbstainRate` (35,0% ở Gemini, 28,7% ở Qwen) chủ yếu trên các câu ngoài kho. Qwen 7B ở temperature 0 trùng nhãn tự động 79–80/80 câu cả 3 lần chạy.
   - `tv1_v0.3` (n = 168; 168/168 có khoản vàng): `Recall@5` của C3/C4 đạt **82,7% (139/168)** so với 63,1% (106/168) của C2 (+19,6 điểm %, McNemar p_Holm = 4,19×10⁻⁹). Với Qwen 7B, `EM` tăng từ **12,2% (C0)** lên **62,3% (C2)**, **68,4% (C3)** và **71,4% (C4)** (p_Holm < 10⁻²⁰); `PBER` chỉ 1,2%–2,0%; `C4` chỉ từ chối 2,4%.
 - TV3 (IAA & bài báo): `eval/compute_iaa.py` xác nhận trên 90 câu pilot: khớp 73/90 (81,1%), κ = 0,675 (nhị phân `STALE vs rest` = 0,737; `STALE|BLENDED` = 0,744; `CORRECT_CURRENT` = 0,866); đề xuất chốt 14 ca bất đồng kèm 3 quy tắc cho `metrics_spec.md` v0.4. `paper/related_work.md` v0.3 còn 0 nhãn `[kiểm tra]`, định vị 4 điểm khác biệt so với ViAdminShift. Toàn bộ bộ kiểm thử `pytest` đạt xanh (gồm `tests/test_judge.py` và `tests/test_benchmark_v03.py`).
 
 **Khó khăn**
 - TV1: [điền]
-- TV2: [điền]
+- TV2: Gói miễn phí Gemini giới hạn 500 lượt/ngày cho `gemini-3.5-flash-lite`; hết hạn mức lúc 23:30 ngày 26/11 khi đang chạy C2 trên bộ TV1. Gemini C2–C4 trên 168 câu TV1 chạy lại ngày 27/11. Không chạy lần 2 và 3 của Gemini trên pilot (cần thêm 640 lượt, và kết quả Qwen cho thấy chạy lặp ở temperature 0 gần như không đổi); đo phương sai nên theo đề cương (temperature 0,7, tập con). Chưa có key OpenAI và Anthropic: báo cáo 05/12 chỉ có 2 mô hình. Lần đầu chạy notebook Qwen bị lỗi cú pháp do TV2 sinh notebook sai (đã sửa, thêm bước kiểm tra cú pháp). Truy xuất C3 chậm trên GPU 6 GB (khoảng 15 giây/câu vì reranker).
 - TV3: Chưa có API key mô hình đóng độc lập (Anthropic/OpenAI) hoặc máy chủ vLLM cục bộ cho mô hình thứ 3 (như Llama-3.1-8B) nên chưa chạy được `eval/judge.py` trực tiếp trên 90 câu pilot để đo κ giữa giám khảo LLM và người (đã sẵn sàng `eval/judge.py`, prompt có ví dụ nhóm D, và kiểm thử tự động). Trong `pilot_80_v0.3` (50 câu `P-T-*`) và `tv1_v0.3` (70 câu `A_direct`), `obsolete_entities` còn trống nên bộ chấm luật `auto_label` để nhiều câu `NEEDS_JUDGE` hoặc xếp `OTHER_ERROR` ở C0; số liệu C0–C4 hiện tại phải ghi rõ là số liệu nháp luật tự động, chờ chạy LLM judge và chốt `verified = true`.
 
 **Kế hoạch tuần tới**
 - TV1: [điền]
-- TV2: [điền]
+- TV2: Chạy lại trên bộ v0.3 khi chốt (câu đã chạy lấy từ bộ đệm, chỉ câu mới gọi mô hình). Đo phương sai: Qwen 3 seed ở temperature 0,7 trên tập con. Thêm mô hình thứ 3 (key API hoặc mô hình mở tiếng Việt qua vLLM). Hỗ trợ TV3 lập bảng số liệu cho báo cáo 05/12.
 - TV3: Chốt 14 ca bất đồng nhãn pilot cùng TV1, nâng `eval/metrics_spec.md` lên v0.4. Chạy `eval/judge.py` với mô hình giám khảo không trùng (Claude Haiku / GPT-mini / Llama-3.1-8B qua Colab vLLM) để hiệu chuẩn với 90 nhãn người và chấm toàn bộ ca `NEEDS_JUDGE` của bộ v0.3 chốt. Chạy lại `eval/run_w3_eval.py` khi TV2 có đủ Gemini C2–C4 trên bộ v0.3 chốt (308 câu), lập bảng và biểu đồ đầu tiên (`figures/`) cho báo cáo giữa kỳ 05/12.
 
 **Số giờ làm việc**
-- TV1: [số] giờ · TV2: [số] giờ · TV3: [số] giờ
+- TV1: [số] giờ · TV2: 15 giờ · TV3: [số] giờ
