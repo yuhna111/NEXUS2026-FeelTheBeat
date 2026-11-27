@@ -78,12 +78,12 @@ Mỗi tuần đúng 5 trường: **Đã làm gì · Kết quả · Khó khăn ·
   | Kết hợp + reranker (C3) | 0,770 (47/61) | **0,853 (52/61)** |
 
   Reranker nâng MRR@5 theo Điều–Khoản từ 0,626 lên 0,836. Đoạn cố định chấm bằng quy tắc v0.3 của TV3: kết hợp trên pilot v0.2 ra 0,673, trùng số TV3 chấm lại.
-- TV2: Đầu ra cho TV3 chấm (`outputs/<bộ>/<cấu hình>/<mô hình>.jsonl`): pilot 80 câu đủ C0, C2, C3, C4 cho cả Gemini (`gemini-3.5-flash-lite`) và Qwen (`Qwen2.5-7B-Instruct-AWQ`, thêm lần 2 và 3); 168 câu TV1 đủ C0–C4 cho Qwen, C0 cho Gemini. Không câu nào rỗng hay chạm giới hạn 512 token. Ở temperature 0, lần 2 và 3 của Qwen trùng lần 1 ở 74–80/80 câu mỗi cấu hình, nên chạy lặp ở temperature 0 gần như không đo được phương sai.
+- TV2: Đầu ra cho TV3 chấm (`outputs/<bộ>/<cấu hình>/<mô hình>.jsonl`): pilot 80 câu đủ C0, C2, C3, C4 cho cả Gemini (`gemini-3.5-flash-lite`) và Qwen (`Qwen2.5-7B-Instruct-AWQ`, thêm lần 2 và 3); 168 câu TV1 đủ C0, C2, C3, C4 cho cả Gemini và Qwen. Không câu nào rỗng hay chạm giới hạn 512 token. Ở temperature 0, lần 2 và 3 của Qwen trùng lần 1 ở 74–80/80 câu mỗi cấu hình, nên chạy lặp ở temperature 0 gần như không đo được phương sai.
 - TV2: Mốc cutoff `gemini-flash` = 2026-03 theo model card Gemini 3.5 Flash-Lite (đăng 21/07/2026), có ghi chú một số mảng chỉ đến 01/2025. Qwen2.5 chưa tìm được mốc cutoff chính thức, để trống.
 
 **Khó khăn**
 - TV1: [điền]
-- TV2: Gói miễn phí Gemini giới hạn 500 lượt/ngày cho `gemini-3.5-flash-lite`; hết hạn mức lúc 23:30 ngày 26/11 khi đang chạy C2 trên bộ TV1. Gemini C2–C4 trên 168 câu TV1 chạy lại ngày 27/11. Không chạy lần 2 và 3 của Gemini trên pilot (cần thêm 640 lượt, và kết quả Qwen cho thấy chạy lặp ở temperature 0 gần như không đổi); đo phương sai nên theo đề cương (temperature 0,7, tập con). Chưa có key OpenAI và Anthropic: báo cáo 05/12 chỉ có 2 mô hình. Lần đầu chạy notebook Qwen bị lỗi cú pháp do TV2 sinh notebook sai (đã sửa, thêm bước kiểm tra cú pháp). Truy xuất C3 chậm trên GPU 6 GB (khoảng 15 giây/câu vì reranker).
+- TV2: Gói miễn phí Gemini giới hạn 500 lượt/ngày cho `gemini-3.5-flash-lite`; hết hạn mức lúc 23:30 ngày 26/11 khi đang chạy C2 trên bộ TV1. Gemini C2–C4 trên 168 câu TV1 chạy xong chiều 27/11 khi hạn mức mở lại. Không chạy lần 2 và 3 của Gemini trên pilot (cần thêm 640 lượt, và kết quả Qwen cho thấy chạy lặp ở temperature 0 gần như không đổi); đo phương sai nên theo đề cương (temperature 0,7, tập con). Chưa có key OpenAI và Anthropic: báo cáo 05/12 chỉ có 2 mô hình. Lần đầu chạy notebook Qwen bị lỗi cú pháp do TV2 sinh notebook sai (đã sửa, thêm bước kiểm tra cú pháp). Truy xuất C3 chậm trên GPU 6 GB (khoảng 15 giây/câu vì reranker).
 
 **Kế hoạch tuần tới**
 - TV1: [điền]
