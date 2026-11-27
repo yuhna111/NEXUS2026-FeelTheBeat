@@ -1,0 +1,5 @@
+﻿config,n,exact_match_run1_run2,exact_match_run1_run3,exact_match_all3,auto_label_same_all3,sr_lb_run1,sr_lb_run2,sr_lb_run3
+C0,80,80,76,76,79,0.2375,0.2375,0.225
+C2,80,80,80,80,80,0.025,0.025,0.025
+C3,80,76,74,73,80,0.0125,0.0125,0.0125
+C4,80,80,80,80,80,0.0125,0.0125,0.0125

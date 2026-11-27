@@ -1,17 +1,17 @@
 # 3. Tổng quan tài liệu — VN-Admin2025-QA
 
-> File: `paper/related_work.md` · Phụ trách: Thành viên 3 · Phiên bản: v0.2 (Tuần 1, 14/11/2026)
+> File: `paper/related_work.md` · Phụ trách: Thành viên 3 · Phiên bản: v0.3 (Tuần 3, 27/11/2026)
 >
 > **Cách dùng file này**
 > - **Phần A** — bảng tổng hợp 9 bài (đúng 5 cột theo yêu cầu tuần 1).
 > - **Phần B** — "thẻ đọc" chi tiết từng bài: thông tin trích dẫn, vấn đề, phương pháp, kết quả chính, hạn chế, liên quan tới đề tài, và *việc cần tự kiểm tra khi đọc*.
-> - **Phần C** — bảng định vị và 3 khoảng trống nghiên cứu.
-> - **Phần D** — bản nháp văn xuôi mục 3 để đưa vào bài.
+> - **Phần C** — bảng định vị (đã bổ sung cột **ViAdminShift**) và 3 khoảng trống nghiên cứu.
+> - **Phần D** — bản nháp văn xuôi mục 3 để đưa vào bài (đã viết lại định vị so với ViAdminShift, bỏ cách viết "đầu tiên").
 > - **Phần E** — câu hỏi giám khảo có thể hỏi và cách trả lời.
 > - **Phần F** — danh mục tài liệu tham khảo (định dạng ACL) + link BibTeX chính thức.
 > - **Phần G** — checklist khi đọc lại.
 >
-> **Mức độ kiểm chứng:** tác giả, năm, nơi công bố và số trang của cả 9 bài đã được đối chiếu với trang chính thức (ACL Anthology, PMLR, NeurIPS, ICLR, arXiv) ngày 14/11/2026. Nội dung tóm tắt dựa trên abstract và phần giới thiệu/phương pháp. Những chỗ đánh dấu **[kiểm tra]** là chi tiết lấy từ nguồn thứ cấp hoặc cần đọc bài gốc để xác nhận, **chưa được đưa vào bài nộp** trước khi kiểm tra.
+> **Mức độ kiểm chứng:** Tác giả, năm, nơi công bố, số trang và URL chính thức của toàn bộ 13 bài nền (`paper/refs.bib`, `paper/refs_verification.md`) và bài liên quan trực tiếp **ViAdminShift** (`arXiv:2611.03171`, 03/11/2026) đã được đối chiếu tính đến ngày 27/11/2026. Toàn bộ nhãn chờ xác minh trước đây đã được kiểm tra và xử lý ở bản v0.3.
 
 ---
 
@@ -80,7 +80,7 @@
   - Mọi mô hình, bất kể kích thước, đều gặp khó với câu đổi nhanh và câu tiền giả định sai.
   - FreshPrompt vượt các phương pháp tìm kiếm-tăng cường khác (Self-Ask) và hệ thống thương mại như Perplexity.AI.
   - Số lượng và **thứ tự** bằng chứng truy xuất ảnh hưởng rõ tới độ đúng; yêu cầu trả lời ngắn gọn giúp giảm ảo giác.
-- **Hạn chế:** tiếng Anh; câu hỏi trải rộng nhiều chủ đề, không có cấu trúc liên kết giữa các sự thật; không có câu đối chứng âm riêng cho nhóm tiền giả định sai **[kiểm tra]**; không tách lỗi truy xuất và lỗi không tin tài liệu.
+- **Hạn chế:** tiếng Anh; câu hỏi trải rộng nhiều chủ đề, không có cấu trúc liên kết giữa các sự thật; không có bộ câu đối chứng âm ghép cặp cho nhóm tiền giả định sai (đã xác nhận từ bản gốc Vu và cs., 2024: bộ gốc chỉ có 4 phân loại `never-changing`, `slow-changing`, `fast-changing`, `false-premise`; các nghiên cứu sau như FreshQAParallel mới phải bổ sung cặp tiền đề đúng–sai); không tách lỗi truy xuất và lỗi không tin tài liệu.
 - **Liên quan tới đề tài:**
   - *Giống:* (1) nhóm *false-premise* ↔ **nhóm B** ("Chủ tịch UBND huyện Gia Lâm là ai?"); (2) chế độ *strict* ↔ quy tắc "lời rào đón/thông tin phụ cũ không cứu được câu trả lời" và nhãn `BLENDED`; (3) câu *fast/slow-changing* ↔ toàn bộ benchmark của mình (thay đổi một lần nhưng diện rộng).
   - *Khác:* mình có **câu đối chứng âm** (B07) để đo Over-rejection — mô hình "thấy gì cũng bác". Mình tách lỗi trộn thành nhãn riêng thay vì gộp vào strict=sai.
@@ -224,50 +224,51 @@
 
 ### C.1 Bảng so sánh
 
-| Tiêu chí | TimeQA | StreamingQA | FreshQA | Longpre / Xie | ClashEval | RAGAS / ARES | **VN-Admin2025-QA** |
-|---|---|---|---|---|---|---|---|
-| Đối tượng chính | Suy luận thời gian | Thích nghi kiến thức mới | Tính cập nhật của LLM | Xung đột trí nhớ–ngữ cảnh | Xung đột trong RAG | Chất lượng RAG | **Lỗi thời sau cải cách hành chính** |
-| Tiếng Việt | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | **✓** |
-| Thời gian ngầm (câu không chứa mốc thời gian) | ✗ | ✓ | ✓ | — | — | — | **✓** |
-| Một mốc thay đổi áp dụng cho cả hệ thống | ✗ | ✗ | ✗ | ✗ | ✗ | — | **✓** (01/07/2025) |
-| Xung đột tự nhiên (không do người tạo) | — | ✓ | ✓ | ✗ | ✗ | — | **✓** |
-| Câu tiền giả định sai | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | **✓** (nhóm B) |
-| Câu đối chứng âm cho tiền giả định | ✗ | ✗ | ✗ [kiểm tra] | ✗ | ✗ | ✗ | **✓** (B07, Over-rejection) |
-| Nhãn trộn cũ–mới | ✗ | ✗ | một phần (strict) | ✗ | ✗ | ✗ | **✓** (`BLENDED`) |
-| Tách lỗi truy xuất vs lỗi không tin tài liệu | ✗ | một phần | ✗ | — | ✗ | một phần | **✓** (Recall@k vs PBER) |
-| Suy luận nhiều bước sau thay đổi | ✓ (thời gian) | ✗ | ✗ | ✗ | ✗ | ✗ | **✓** (nhóm C) |
+| Tiêu chí | TimeQA | StreamingQA | FreshQA | Longpre / Xie | ClashEval | RAGAS / ARES | ViAdminShift (2026) | **VN-Admin2025-QA** |
+|---|---|---|---|---|---|---|---|---|
+| Đối tượng chính | Suy luận thời gian | Thích nghi kiến thức mới | Tính cập nhật của LLM | Xung đột trí nhớ–ngữ cảnh | Xung đột trong RAG | Chất lượng RAG | Cập nhật tri thức sự kiện ĐVHC 2025 | **Lỗi thời & RAG pháp lý sau cải cách 2025** |
+| Tiếng Việt | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | **✓** |
+| Nguồn tri thức gốc cho truy xuất | Wikipedia / WikiData | Tin tức | Web search | Đoạn văn sửa tay | Tài liệu làm nhiễu | Ngữ cảnh đầu vào | **Wikipedia revisions & bảng quy đổi** (2.281 đoạn) | **39 văn bản pháp lý gốc tách tới Điều–Khoản (`#D…K…`)** |
+| Một mốc thay đổi diện rộng | ✗ | ✗ | ✗ | ✗ | ✗ | — | ✓ (01/07/2025) | **✓** (01/07/2025) |
+| Xung đột tự nhiên (không tạo nhân tạo) | — | ✓ | ✓ | ✗ | ✗ | — | ✓ | **✓** |
+| Câu tiền giả định sai + đối chứng âm | ✗ | ✗ | chỉ tiền giả định sai (✗ đối chứng âm) | ✗ | ✗ | ✗ | không tách bộ đối chứng `Over-rejection` | **✓** (nhóm B + `control` đo `Over-rejection`) |
+| Nhãn pha trộn cũ–mới | ✗ | ✗ | một phần (strict) | ✗ | ✗ | ✗ | không tách nhãn `BLENDED` | **✓** (`BLENDED`, 5 nhãn) |
+| Tách lỗi truy xuất vs bám trí nhớ | ✗ | một phần | ✗ | — | ✗ | một phần | không tách `Recall@k` vs `PBER` | **✓** (`Recall@k` vs `PBER`, `KOR`) |
+| Thủ tục hành chính & tin đồn bác bỏ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | **✓** (nhóm E, F) |
 
-### C.2 Ba khoảng trống
+### C.2 Ba khoảng trống (định vị lại so với ViAdminShift, arXiv:2611.03171)
 
-1. **Thiếu benchmark về một thay đổi cấu trúc diện rộng, có mốc hiệu lực rõ ràng.** Các benchmark thời gian hiện có (TimeQA, StreamingQA, FreshQA) gồm những sự thật/sự kiện rời rạc, chủ yếu tiếng Anh. Cải cách hành chính Việt Nam 01/07/2025 (63 → 34 tỉnh, bỏ cấp huyện) làm **hàng trăm sự thật liên kết với nhau đổi cùng lúc**, kéo theo câu tiền giả định sai (đơn vị cấp huyện không còn) và câu suy luận nhiều bước.
-2. **Xung đột tri thức chủ yếu được nghiên cứu bằng dữ liệu nhân tạo.** Longpre và cs., Xie và cs., ClashEval đều tạo xung đột bằng cách thay thế thực thể, sinh phản-trí nhớ hoặc làm nhiễu tài liệu. Trong các thiết lập đó, phía sai thường là tài liệu. Trường hợp ngược lại — **tài liệu đúng nhưng trí nhớ lỗi thời thật** — chưa được đo trực tiếp trên dữ liệu tự nhiên.
-3. **Các khung đánh giá RAG không đo tính hiện hành.** RAGAS và ARES đo mức bám ngữ cảnh; nếu hệ thống truy xuất trúng văn bản đã hết hiệu lực, câu trả lời vẫn được chấm cao. Đồng thời, các nghiên cứu RAG thường gộp hai nguyên nhân thất bại: **không tìm được** tài liệu đúng và **tìm được nhưng không tin**.
+1. **Thiếu chuẩn đánh giá neo trực tiếp vào văn bản pháp lý sơ cấp cấp Điều–Khoản và bao phủ câu bẫy/thủ tục thực tiễn.** Các benchmark thời gian tiếng Anh (TimeQA, StreamingQA, FreshQA) gồm sự kiện rời rạc. Cùng hướng với đề tài này, công trình gần đây **ViAdminShift** (Phan & Nguyen, 2026; arXiv:2611.03171, nộp 03/11/2026) đã xây dựng benchmark tiếng Việt quy mô lớn (7.995 mục, 2.281 đoạn truy xuất) từ cải cách hành chính 2025, nhưng sử dụng **lịch sử sửa đổi Wikipedia và bảng quy đổi** làm nguồn tri thức. Nguồn thứ cấp như Wikipedia không cho phép đánh giá bài toán truy xuất trên văn bản quy phạm pháp luật gốc (chia đoạn cố định vs chia đoạn theo cấu trúc Điều–Khoản) cũng như chưa bao phủ câu hỏi tiền giả định sai cấp huyện có đối chứng âm, thủ tục giấy tờ (NQ 190/2025/QH15, Luật 72/2025/QH15) và tin đồn có văn bản bác bỏ chính thức.
+2. **Xung đột tri thức chủ yếu được nghiên cứu trên dữ liệu nhân tạo hoặc chưa tách bạch lỗi truy xuất với lỗi bám trí nhớ.** Longpre và cs., Xie và cs., ClashEval tạo xung đột bằng cách thay thế thực thể hoặc làm nhiễu tài liệu (phía sai là tài liệu). Trong tình huống ngược lại — tài liệu pháp lý hiện hành đúng nhưng trí nhớ tham số lỗi thời thật — cần tách rõ hai nguyên nhân thất bại của RAG: *truy xuất trượt văn bản* (`Recall@k`) và *tìm đúng khoản luật nhưng mô hình vẫn bám trí nhớ cũ hoặc trộn cũ–mới* (`PBER`, `KOR`).
+3. **Các khung đánh giá RAG không đo tính hiện hành và hiện tượng trộn cũ–mới.** RAGAS và ARES đo độ trung thực với ngữ cảnh bất kể ngữ cảnh đã hết hiệu lực hay chưa, còn các bộ chấm đúng/sai nhị phân không tách được lỗi thời thuần (`STALE`), pha trộn cấu trúc cũ–mới (`BLENDED`), từ chối trung lập (`ABSTAIN`) và sai thông thường (`OTHER_ERROR`).
 
 ### C.3 Đóng góp tương ứng (để nối sang mục Giới thiệu/Phương pháp)
 
 | Khoảng trống | Đóng góp của đề tài |
 |---|---|
-| 1 | Bộ VN-Admin2025-QA: 4 nhóm câu (A tra cứu, B bẫy tiền giả định, C nhiều bước, D trước/sau) + câu đối chứng |
-| 2 | Đo xung đột tự nhiên bằng **KOR** và **PBER** trên chuỗi cấu hình C0–C5 |
-| 3 | Hệ nhãn 5 lớp có ngữ nghĩa thời gian (`STALE`, `BLENDED`…), độ đo **SR/SR⁺**, tách **Recall@k** với **PBER** |
+| 1 | Bộ `VN-Admin2025-QA` neo 100% căn cứ vào **39 văn bản pháp lý gốc** tách tới mã khoản `<doc_id>#D<điều>.K<khoản>`, gồm 4 nhóm chính A–D (+ E thủ tục, F tin đồn bác bỏ) và bộ câu đối chứng âm (`control`) đo `Over-rejection` |
+| 2 | Chuỗi thực nghiệm RAG có kiểm soát **C0–C5** (so sánh chia đoạn cố định 512/64 với chia đoạn Điều–Khoản, dense vs hybrid+reranker, prompt thường vs prompt thời gian) cùng cặp độ đo **KOR** và **PBER** tách bạch khỏi **Recall@k** |
+| 3 | Hệ nhãn 5 lớp có ngữ nghĩa thời gian (`CORRECT_CURRENT`, `STALE`, `BLENDED`, `OTHER_ERROR`, `ABSTAIN`) kèm cây quyết định, quy tắc kiểm định đồng thuận người–người (Cohen's κ) và kiểm định thống kê McNemar + Holm–Bonferroni |
 
 ---
 
 ## D. Bản nháp văn xuôi mục 3
 
-> Độ dài khoảng 1,5 trang. Văn phong học thuật, ngôi "chúng tôi". Sửa xong thì xóa các ghi chú trong ngoặc vuông.
+> Độ dài khoảng 1,5 trang. Văn phong học thuật, ngôi "chúng tôi". Đã cập nhật v0.3 ngày 27/11/2026: định vị rõ 4 điểm khác biệt so với ViAdminShift (arXiv:2611.03171), bỏ hoàn toàn cách viết "đầu tiên".
 
 ### 3. Tổng quan tài liệu
 
-Nghiên cứu của chúng tôi liên quan tới ba hướng: hỏi đáp có yếu tố thời gian, xung đột giữa tri thức tham số và ngữ cảnh, và đánh giá hệ thống sinh văn bản tăng cường truy xuất (RAG).
+Nghiên cứu của chúng tôi giao thoa với ba hướng chính: hỏi đáp có yếu tố thời gian và cập nhật tri thức sự kiện, xung đột giữa tri thức tham số và ngữ cảnh, và đánh giá hệ thống sinh văn bản tăng cường truy xuất (RAG).
 
-**3.1 Hỏi đáp có yếu tố thời gian.** Tri thức của mô hình ngôn ngữ dừng lại tại thời điểm cắt dữ liệu huấn luyện, trong khi nhiều sự thật thay đổi theo thời gian. Chen và cs. (2021) xây dựng TimeQA từ các sự thật biến đổi trong WikiData và định nghĩa câu hỏi nhạy thời gian là câu chứa cụm chỉ thời gian mà khi thay đổi cụm này thì đáp án thay đổi; mô hình đọc hiểu tốt nhất khi đó chỉ đạt khoảng 46% so với 87% của con người. Liška và cs. (2022) đề xuất StreamingQA, trong đó mỗi câu hỏi gắn với ngày đặt câu hỏi và được trả lời từ kho tin tức có dấu thời gian; kết quả cho thấy cập nhật chỉ mục truy xuất giúp mô hình thích nghi nhanh, nhưng mô hình có mô hình ngôn ngữ nền lỗi thời vẫn kém hơn mô hình được huấn luyện lại. Với các mô hình ngôn ngữ lớn (LLM), Vu và cs. (2024) giới thiệu FreshQA gồm câu hỏi có đáp án không đổi, đổi chậm, đổi nhanh và câu chứa tiền giả định sai, chấm theo hai chế độ nới lỏng và nghiêm ngặt; mọi mô hình, bất kể kích thước, đều gặp khó với câu đổi nhanh và câu có tiền giả định sai. Các bộ dữ liệu này chủ yếu bằng tiếng Anh và gồm các sự kiện độc lập. Khác với chúng, chúng tôi nghiên cứu một *thay đổi cấu trúc diện rộng có mốc hiệu lực xác định* — đợt sắp xếp đơn vị hành chính của Việt Nam có hiệu lực từ ngày 01/07/2025 — khiến hàng trăm sự thật có liên kết với nhau thay đổi đồng thời, và phần lớn câu hỏi không chứa mốc thời gian tường minh.
+**3.1 Hỏi đáp có yếu tố thời gian và cập nhật tri thức sự kiện.** Tri thức của mô hình ngôn ngữ dừng lại tại thời điểm cắt dữ liệu huấn luyện (Cheng và cs., 2024), trong khi nhiều sự thật thực tế thay đổi theo thời gian. Chen và cs. (2021) xây dựng TimeQA từ các sự thật biến đổi trong WikiData và định nghĩa câu hỏi nhạy thời gian là câu chứa cụm chỉ thời gian làm thay đổi đáp án; mô hình đọc hiểu tốt nhất khi đó chỉ đạt khoảng 46% so với 87% của con người. Liška và cs. (2022) đề xuất StreamingQA, trong đó mỗi câu hỏi gắn với ngày đặt câu hỏi và được trả lời từ kho tin tức có dấu thời gian; kết quả cho thấy cập nhật chỉ mục truy xuất giúp mô hình thích nghi nhanh hơn, nhưng mô hình có mô hình ngôn ngữ nền lỗi thời vẫn kém hơn mô hình được huấn luyện lại. Với các LLM hiện đại, Vu và cs. (2024) giới thiệu FreshQA gồm các câu không đổi, đổi chậm, đổi nhanh và tiền giả định sai, chấm theo hai chế độ nới lỏng và nghiêm ngặt; mọi mô hình, bất kể kích thước, đều suy giảm rõ rệt trên câu đổi nhanh và câu tiền giả định sai. Tuy nhiên, các bộ dữ liệu trên đều bằng tiếng Anh, gồm các sự kiện rời rạc và không có tập câu đối chứng âm ghép cặp cho nhóm tiền giả định sai.
 
-**3.2 Xung đột giữa tri thức tham số và ngữ cảnh.** Xu và cs. (2024) phân loại xung đột tri thức của LLM thành ba dạng: giữa ngữ cảnh và trí nhớ (context–memory), giữa các ngữ cảnh với nhau (inter-context) và bên trong trí nhớ (intra-memory). Longpre và cs. (2021) tạo xung đột ngữ cảnh–trí nhớ bằng cách thay thực thể đáp án trong đoạn văn và cho thấy các mô hình hỏi đáp có xu hướng dựa quá mức vào thông tin đã ghi nhớ, dẫn tới ảo giác. Xie và cs. (2024) phát hiện LLM có thể tiếp nhận bằng chứng trái với trí nhớ nếu bằng chứng đủ mạch lạc, nhưng lại thể hiện thiên kiến xác nhận rõ rệt khi bằng chứng có một phần trùng với trí nhớ. Gần với chúng tôi nhất, ClashEval (Wu và cs., 2024) làm nhiễu đáp án trong tài liệu ở nhiều mức độ và đo hai xu hướng: thiên về trí nhớ (*prior bias*) và thiên về ngữ cảnh (*context bias*); các LLM được thử nghiệm bỏ trí nhớ đúng để theo tài liệu sai trong hơn 60% trường hợp. Điểm chung của các công trình trên là xung đột được *tạo nhân tạo*, và phía sai thường là tài liệu. Trong nghiên cứu này, xung đột là *tự nhiên*: tài liệu phản ánh đúng quy định hiện hành, còn trí nhớ của mô hình đã lỗi thời. Độ đo PBER của chúng tôi gần với *prior bias* của ClashEval nhưng chỉ được tính trên các câu mà bằng chứng đúng đã có trong ngữ cảnh, nhờ đó tách biệt lỗi "không tìm được tài liệu" (đo bằng Recall@k) với lỗi "tìm được nhưng không tin tài liệu". Theo cách phân loại của Xu và cs. (2024), cấu hình có tài liệu đúng thuộc dạng context–memory, còn kho tài liệu chứa cả văn bản trước và sau cải cách tạo thêm xung đột inter-context — tình huống mà phát hiện của Xie và cs. (2024) dự báo có thể kéo mô hình về đáp án cũ.
+Gần nhất với đề tài của chúng tôi là **ViAdminShift** (Phan và Nguyen, 2026; arXiv:2611.03171), một benchmark tiếng Việt xây dựng trực tiếp từ đợt sắp xếp đơn vị hành chính Việt Nam năm 2025 gồm 7.995 mục kiểm thử và 2.281 đoạn truy xuất trích từ các phiên bản Wikipedia trước–sau cải cách cùng bảng quy đổi. Kết quả của ViAdminShift xác nhận rằng các LLM mặc định vẫn giữ tri thức hành chính cũ khi không có bối cảnh thời gian phù hợp. Khác với ViAdminShift, nghiên cứu của chúng tôi không hướng tới việc thay thế một bộ kiểm thử địa danh quy mô lớn trên nguồn thứ cấp mà bổ sung bốn khía cạnh có kiểm chứng thực nghiệm: (1) **nguồn tri thức pháp lý sơ cấp cấp Điều–Khoản** — toàn bộ kho truy xuất và bằng chứng vàng được phân tách từ 39 văn bản quy phạm pháp luật gốc (NQ 202/2025/QH15, NQ 203/2025/QH15, Luật 72/2025/QH15, NQ 190/2025/QH15, NQ 76/2025/UBTVQH15 và 34 nghị quyết UBTVQH cấp xã) tới mã khoản `<doc_id>#D<điều>.K<khoản>`, cho phép đánh giá trực tiếp tác động của chiến lược chia đoạn theo cấu trúc pháp lý so với chia đoạn cố định; (2) **hệ nhãn lỗi thời 5 lớp có tách nhãn pha trộn (`BLENDED`)** nhằm phân biệt trường hợp lặp lại hoàn toàn bản đồ cũ (`STALE`) với trường hợp trộn cấu trúc cũ–mới; (3) **thiết kế câu bẫy tiền giả định cấp huyện đi kèm câu đối chứng âm (`control`)** để đo đồng thời khả năng bác bỏ tiền giả định sai và tỷ lệ từ chối quá mức (`Over-rejection`); và (4) **mở rộng độ phủ sang bài toán thực tiễn của người dân** gồm suy luận không gian đa bước (nhóm C), đối chiếu trước–sau có quy tắc riêng cho lỗi thiếu vế (nhóm D), thủ tục giấy tờ–thẩm quyền (nhóm E) và tin đồn có văn bản bác bỏ chính thức (nhóm F).
 
-**3.3 Đánh giá hệ thống RAG.** RAGAs (Es và cs., 2024) đề xuất bộ độ đo không cần đáp án vàng, dùng LLM để ước lượng mức trung thực của câu trả lời với ngữ cảnh, mức liên quan của câu trả lời và của ngữ cảnh. ARES (Saad-Falcon và cs., 2024) huấn luyện các bộ chấm nhỏ cho từng thành phần và kết hợp một tập nhãn người nhỏ với suy luận có hỗ trợ dự đoán (prediction-powered inference) để đưa ra khoảng tin cậy. Cả hai đo việc câu trả lời có *bám sát ngữ cảnh* hay không, nhưng không đo câu trả lời có *đúng tại thời điểm hiện tại* hay không: nếu hệ thống truy xuất trúng một văn bản trước năm 2025 ghi "Hội An thuộc tỉnh Quảng Nam" và mô hình lặp lại thông tin này, câu trả lời vẫn được đánh giá là trung thực. Vì vậy, chúng tôi xây dựng hệ nhãn năm lớp có ngữ nghĩa thời gian (`CORRECT_CURRENT`, `STALE`, `BLENDED`, `OTHER_ERROR`, `ABSTAIN`) cùng các độ đo Staleness Rate, Knowledge Override Rate và Prior Bias Error Rate. Tương tự ARES, bộ chấm tự động của chúng tôi được kiểm định với nhãn người, ở đây bằng hệ số đồng thuận Cohen's κ trên 300 câu.
+**3.2 Xung đột giữa tri thức tham số và ngữ cảnh.** Xu và cs. (2024) phân loại xung đột tri thức của LLM thành ba dạng: giữa ngữ cảnh và trí nhớ (context–memory), giữa các ngữ cảnh với nhau (inter-context) và bên trong trí nhớ (intra-memory). Longpre và cs. (2021) tạo xung đột ngữ cảnh–trí nhớ bằng cách thay thực thể đáp án trong đoạn văn và cho thấy mô hình hỏi đáp có xu hướng dựa quá mức vào thông tin đã ghi nhớ, dẫn tới ảo giác (xem thêm khảo sát của Ji và cs., 2023). Xie và cs. (2024) phát hiện LLM có thể tiếp nhận bằng chứng trái với trí nhớ nếu bằng chứng đủ mạch lạc, nhưng bộc lộ thiên kiến xác nhận mạnh khi bằng chứng trùng một phần với trí nhớ. Gần với thiết lập của chúng tôi nhất, ClashEval (Wu và cs., 2024) làm nhiễu đáp án trong tài liệu ở nhiều mức độ để đo *prior bias* và *context bias*, cho thấy các LLM thường bỏ trí nhớ đúng để theo tài liệu sai trong hơn 60% trường hợp. Điểm chung của các nghiên cứu trên là xung đột được tạo *nhân tạo* và phía sai là tài liệu. Ngược lại, trong bối cảnh cải cách hành chính 2025, xung đột là *tự nhiên*: văn bản pháp lý hiện hành đúng, còn trí nhớ tham số của mô hình đã lỗi thời. Độ đo **PBER** của chúng tôi kế thừa ý tưởng *prior bias* của ClashEval nhưng chỉ tính trên các câu mà khoản luật vàng thực sự nằm trong top-k ngữ cảnh truy xuất, từ đó tách bạch lỗi truy xuất (`Recall@k`) khỏi lỗi không tin tài liệu dù đã tìm đúng bằng chứng.
 
-**3.4 Vị trí của nghiên cứu.** Bảng 1 so sánh VN-Admin2025-QA với các công trình liên quan. [Chèn bảng C.1, có thể rút gọn còn 5–6 tiêu chí.] Theo hiểu biết của chúng tôi, đây là benchmark đầu tiên đo tính lỗi thời của LLM đối với một thay đổi hành chính diện rộng bằng tiếng Việt, đồng thời tách biệt lỗi truy xuất với lỗi bám trí nhớ trong RAG trên xung đột tri thức tự nhiên. [Trước khi viết câu "đầu tiên", nhóm tìm thêm trên Google Scholar / arXiv với từ khóa "Vietnam administrative 2025 LLM", "Vietnamese temporal QA" để chắc chắn.]
+**3.3 Đánh giá hệ thống RAG.** RAG (Lewis và cs., 2020) cho phép bổ sung tri thức ngoài tham số nhưng việc đánh giá chất lượng câu trả lời vẫn đặt ra nhiều thách thức. RAGAs (Es và cs., 2024) đề xuất bộ độ đo không cần đáp án vàng dùng LLM ước lượng mức trung thực với ngữ cảnh và mức liên quan. ARES (Saad-Falcon và cs., 2024) huấn luyện các bộ chấm nhẹ và kết hợp tập nhãn người nhỏ với suy luận có hỗ trợ dự đoán để cung cấp khoảng tin cậy. Tuy vậy, cả hai khung đều chỉ đo mức *bám sát ngữ cảnh* mà không kiểm tra tính *hiện hành*: nếu bộ truy xuất lấy nhầm văn bản trước 01/07/2025 ghi "Hội An thuộc tỉnh Quảng Nam" và mô hình lặp lại, câu trả lời vẫn đạt điểm trung thực cao. Vì vậy, chúng tôi xây dựng bộ độ đo gắn ngữ nghĩa thời gian (`SR`, `SR⁺`, `KOR`, `PBER`, `Over-rejection`) trên hệ nhãn 5 lớp, áp dụng kiểm định ghép cặp McNemar kèm hiệu chỉnh Holm–Bonferroni và hiệu chuẩn bộ chấm tự động bằng hệ số đồng thuận Cohen's κ với nhãn người.
+
+**3.4 Vị trí của nghiên cứu.** Bảng 1 (mục C.1) tổng hợp vị trí của **VN-Admin2025-QA** so với các công trình quốc tế về hỏi đáp thời gian, xung đột tri thức, đánh giá RAG và công trình cùng chủ đề **ViAdminShift** (Phan và Nguyen, 2026). Thay vì cạnh tranh về quy mô câu hỏi trích từ Wikipedia, đóng góp trọng tâm của nghiên cứu là một **khung đánh giá pháp lý–thực nghiệm tái lập được** cho cải cách hành chính Việt Nam 2025: neo bằng chứng ở cấp Điều–Khoản từ văn bản luật gốc, tách bạch lỗi truy xuất (`Recall@k`) với lỗi bám trí nhớ (`PBER`), phân loại lỗi trộn cũ–mới (`BLENDED`) và kiểm soát rủi ro từ chối quá mức (`Over-rejection`) trên cả câu hỏi tra cứu, câu bẫy cấp huyện, suy luận không gian và thủ tục thực tiễn.
 
 ---
 
@@ -275,11 +276,12 @@ Nghiên cứu của chúng tôi liên quan tới ba hướng: hỏi đáp có y�
 
 | Câu hỏi | Gợi ý trả lời |
 |---|---|
+| **"Đã có ViAdminShift (arXiv:2611.03171) về chính cải cách hành chính 2025, đề tài của nhóm khác gì?"** | Chúng tôi thừa nhận rõ ViAdminShift (không dùng chữ "đầu tiên") và chỉ ra **4 khác biệt có bằng chứng**: (1) **Nguồn pháp lý sơ cấp cấp Điều–Khoản**: kho của chúng tôi là 39 văn bản quy phạm pháp luật gốc tách tới `<doc_id>#D<điều>.K<khoản>` (cho phép kiểm chứng thực nghiệm chia đoạn Điều–Khoản hơn chia cố định: Recall@5 đạt 85,2% vs 77,0% trên pilot), thay vì Wikipedia revisions/bảng quy đổi; (2) **Hệ nhãn 5 lớp tách `BLENDED`** và quy tắc nhóm D (thiếu vế sau); (3) **Câu bẫy cấp huyện + đối chứng âm** đo đồng thời `SR/SR⁺` và `Over-rejection`; (4) **Tách lỗi truy xuất (`Recall@k`) với lỗi bám trí nhớ (`PBER`, `KOR`)** và bổ sung nhóm thủ tục (E) + tin đồn có văn bản bác bỏ (F). |
 | "PBER khác gì prior bias của ClashEval?" | Cùng ý tưởng "có tài liệu đúng mà vẫn bám trí nhớ", nhưng (1) trí nhớ sai do lỗi thời thật, không do làm nhiễu; (2) PBER chỉ tính khi bằng chứng vàng có trong ngữ cảnh, nên tách được lỗi truy xuất; (3) PBER tính cả `BLENDED`. |
 | "FreshQA đã có câu tiền giả định sai rồi, nhóm B có gì mới?" | Nhóm B gắn với **một thay đổi cấu trúc cụ thể** (bỏ cấp huyện) và có **câu đối chứng âm** để đo Over-rejection — mô hình có thể "đúng" vì bác mọi thứ. Có quy tắc chấm riêng cho trường hợp từ chối nhưng vẫn chấp nhận tiền giả định (→ STALE). |
 | "Sao không dùng RAGAS cho nhanh?" | RAGAS không có đáp án vàng nên không phân biệt được "trung thành với văn bản cũ" và "đúng hiện hành"; ví dụ C03. Có thể dùng RAGAS faithfulness làm độ đo phụ để chẩn đoán. |
 | "Xung đột tự nhiên thì có gì khác nhân tạo?" | Văn bản nhân tạo có thể lộ dấu hiệu bất thường; Xie và cs. cho thấy mức độ mạch lạc ảnh hưởng mạnh tới việc mô hình tin; ClashEval cho thấy mức lệch càng lớn mô hình càng ít tin. Xung đột tự nhiên (nghị quyết thật, thay đổi hợp lý) có thể cho hành vi khác — đó là câu hỏi thực nghiệm. |
-| "Tại sao chỉ 9 bài?" | 9 bài nền theo 3 hướng; bổ sung thêm các bài ở mục F.2 khi viết bản cuối (RAG gốc của Lewis và cs., các bài QA tiếng Việt). |
+| "Tại sao chỉ 9 bài nền chính?" | 9 bài nền đại diện cho 3 hướng chính, đã bổ sung đầy đủ 4 bài nền của TV1 (Lewis 2020, RealTime QA 2023, Dated Data 2024, Ji 2023) và bài cùng chủ đề ViAdminShift (2026) thành 14 mục đã đối chiếu trong `paper/refs.bib`. |
 
 ---
 
@@ -287,10 +289,10 @@ Nghiên cứu của chúng tôi liên quan tới ba hướng: hỏi đáp có y�
 
 ### F.1 Chín bài nền (đã đối chiếu)
 
-> Lấy BibTeX chính thức từ link, không gõ tay.
+> Lấy BibTeX chính thức từ link, không gõ tay. Toàn bộ 14 mục (9 bài nền + 4 bài TV1 + ViAdminShift) nằm trong `paper/refs.bib`.
 
 1. Wenhu Chen, Xinyi Wang, and William Yang Wang. 2021. A Dataset for Answering Time-Sensitive Questions. In *Proceedings of the Neural Information Processing Systems Track on Datasets and Benchmarks*. — BibTeX: https://dblp.org/rec/conf/nips/ChenWWW21
-2. Shahul Es, Jithin James, Luis Espinosa Anke, and Steven Schockaert. 2024. RAGAs: Automated Evaluation of Retrieval Augmented Generation. In *Proceedings of the 18th Conference of the European Chapter of the ACL: System Demonstrations*, pages 150–158, St. Julian's, Malta. — https://aclanthology.org/2024.eacl-demo.16
+2. Shahul Es, Jithin James, Luis Espinosa Anke, and Steven Schockaert. 2024. RAGAs: Automated Evaluation of Retrieval Augmented Generation. In *Proceedings of the 18th Conference of the European Chapter of the ACL: System Demonstrations*, pages 150–158, St. Julians, Malta. — https://aclanthology.org/2024.eacl-demo.16
 3. Adam Liška, Tomáš Kočiský, Elena Gribovskaya, Tayfun Terzi, Eren Sezener, Devang Agrawal, Cyprien de Masson d'Autume, Tim Scholtes, Manzil Zaheer, Susannah Young, Ellen Gilsenan-McMahon, Sophia Austin, Phil Blunsom, and Angeliki Lazaridou. 2022. StreamingQA: A Benchmark for Adaptation to New Knowledge over Time in Question Answering Models. In *Proceedings of the 39th International Conference on Machine Learning*, PMLR 162:13604–13622. — https://proceedings.mlr.press/v162/liska22a.html
 4. Shayne Longpre, Kartik Perisetla, Anthony Chen, Nikhil Ramesh, Chris DuBois, and Sameer Singh. 2021. Entity-Based Knowledge Conflicts in Question Answering. In *Proceedings of EMNLP 2021*, pages 7052–7063, Online and Punta Cana, Dominican Republic. — https://aclanthology.org/2021.emnlp-main.565
 5. Jon Saad-Falcon, Omar Khattab, Christopher Potts, and Matei Zaharia. 2024. ARES: An Automated Evaluation Framework for Retrieval-Augmented Generation Systems. In *Proceedings of NAACL 2024 (Volume 1: Long Papers)*, pages 338–354, Mexico City, Mexico. — https://aclanthology.org/2024.naacl-long.20
@@ -299,28 +301,25 @@ Nghiên cứu của chúng tôi liên quan tới ba hướng: hỏi đáp có y�
 8. Jian Xie, Kai Zhang, Jiangjie Chen, Renze Lou, and Yu Su. 2024. Adaptive Chameleon or Stubborn Sloth: Revealing the Behavior of Large Language Models in Knowledge Conflicts. In *The Twelfth International Conference on Learning Representations (ICLR)*. — https://openreview.net/forum?id=auKAUJZMO6
 9. Rongwu Xu, Zehan Qi, Zhijiang Guo, Cunxiang Wang, Hongru Wang, Yue Zhang, and Wei Xu. 2024. Knowledge Conflicts for LLMs: A Survey. In *Proceedings of EMNLP 2024*, pages 8541–8565, Miami, Florida, USA. — https://aclanthology.org/2024.emnlp-main.486
 
-### F.2 Đọc thêm khi viết bản cuối [kiểm tra toàn bộ thông tin trước khi dùng]
+### F.2 Đọc thêm khi viết bản cuối (những bài đã xác minh đã đưa vào `paper/refs.bib`)
 
 | Bài | Dùng cho |
 |---|---|
-| Lewis và cs. (2020) — Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks, NeurIPS | Trích dẫn gốc của RAG (bắt buộc có). Đã đối chiếu 22/11: `lewis2020rag` trong `refs.bib` (số trang còn TODO_VERIFY) |
-| Dhingra và cs. (2022) — Time-Aware Language Models as Temporal Knowledge Bases (TempLAMA), TACL | Tri thức tham số gắn thời điểm |
-| Zhang & Choi (2021) — SituatedQA, EMNLP | Đáp án phụ thuộc ngữ cảnh thời gian/địa lý |
-| Yu và cs. (2023) — CREPE; Kim và cs. (2023) — (QA)² | Câu hỏi tiền giả định sai (nhóm B) |
-| Zhong và cs. (2023) — MQuAKE, EMNLP | Cập nhật tri thức nhiều bước (nhóm C) |
-| Bui và cs. (2025) — VMLU Benchmarks, ACL (đã thấy trên ACL Anthology) | Benchmark LLM tiếng Việt |
+| Lewis và cs. (2020) — Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks, NeurIPS 33, trang 9459–9474 | Trích dẫn gốc của RAG (`lewis2020rag` trong `refs.bib`, đã đối chiếu đầy đủ ngày 27/11/2026) |
+| Phan Binh Nguyen Lam & Nguyen Thai Anh (2026) — ViAdminShift, arXiv:2611.03171 | Công trình tiếng Việt cùng chủ đề cải cách 2025 (`phan2026viadminshift` trong `refs.bib`) |
+| Kasai và cs. (2023) — RealTime QA, NeurIPS 36; Cheng và cs. (2024) — Dated Data, COLM 2024; Ji và cs. (2023) — Survey of Hallucination, ACM CSUR | Đã đối chiếu đầy đủ trong `paper/refs.bib` (`kasai2023realtimeqa`, `cheng2024dateddata`, `ji2023hallucination`) |
+| Dhingra và cs. (2022) — TempLAMA (TACL); Zhang & Choi (2021) — SituatedQA (EMNLP); Zhong và cs. (2023) — MQuAKE (EMNLP) | Tham khảo bổ sung cho bản cuối (nếu cần trích dẫn thêm, đối chiếu BibTeX trước khi đưa vào `refs.bib`) |
 | Cohen (1960); Efron & Tibshirani (1993); McNemar (1947); Holm (1979) | Phương pháp thống kê trong `metrics_spec.md` (đưa vào mục Phương pháp, không phải mục 3) |
 
 ---
 
 ## G. Checklist khi đọc lại
 
-- [ ] Đọc B6 (ClashEval) đầu tiên; đặt định nghĩa prior bias cạnh công thức PBER và sửa câu phân biệt ở phần D nếu cần.
-- [ ] Với mỗi thẻ B1–B9: làm mục "Tự kiểm tra khi đọc", xóa nhãn **[kiểm tra]** khi đã xác nhận.
-- [ ] Kiểm tra các ô "✗ [kiểm tra]" trong bảng C.1, đặc biệt FreshQA có câu đối chứng âm hay không.
-- [x] Tìm kiếm xem đã có bài nào về LLM và cải cách hành chính Việt Nam 2025 chưa, trước khi viết "đầu tiên". → **Đã có: ViAdminShift (arXiv:2611.03171, 03/11/2026)**, benchmark tiếng Việt về chính đợt sắp xếp 2025. Không dùng chữ "đầu tiên"; định vị lại mục 3 (xem `paper/refs_verification.md`).
-- [x] Tải BibTeX chính thức của 9 bài vào `paper/refs.bib` (22/11/2026; cùng 4 bài nền của TV1, đối chiếu ở `paper/refs_verification.md`).
-- [ ] Viết lại phần D bằng lời của mình, rút gọn theo giới hạn trang.
+- [x] Xác nhận FreshQA (Vu và cs., 2024) không có bộ đối chứng âm ghép cặp cho nhóm tiền giả định sai; xóa toàn bộ nhãn chờ kiểm tra trong bảng C.1 và thẻ B3.
+- [x] Đối chiếu số trang Lewis và cs. (2020) (NeurIPS 33, trang 9459–9474) và URL COLM 2024 OpenReview của Cheng và cs. (2024) trong `paper/refs.bib`.
+- [x] Tìm kiếm và đối chiếu **ViAdminShift** (`arXiv:2611.03171`, 03/11/2026); bỏ hoàn toàn chữ "đầu tiên", viết lại mục 3 (C.1, C.2, D, E) nêu rõ 4 điểm khác biệt có bằng chứng.
+- [x] Tải BibTeX chính thức của 14 bài vào `paper/refs.bib` (đối chiếu ở `paper/refs_verification.md`).
+- [ ] Tinh chỉnh độ dài mục 3 theo đúng giới hạn trang khi ghép bản thảo đầy đủ ở Tuần 6–7.
 
 ---
 
@@ -330,3 +329,4 @@ Nghiên cứu của chúng tôi liên quan tới ba hướng: hỏi đáp có y�
 |---|---|---|---|
 | v0.1 | 14/11/2026 | TV3 (Claude hỗ trợ) | Bảng 9 bài, bảng định vị, bản nháp văn xuôi ngắn |
 | v0.2 | 14/11/2026 | TV3 (Claude hỗ trợ) | Thêm thẻ đọc chi tiết từng bài, so sánh ClashEval–PBER, ánh xạ thuật ngữ Xu và cs., câu hỏi giám khảo, danh mục tham khảo đã đối chiếu, checklist |
+| v0.3 | 27/11/2026 | TV3 | Viết lại mục C, D, E để định vị rõ 4 điểm khác biệt so với ViAdminShift (`arXiv:2611.03171`), xóa toàn bộ cách viết "đầu tiên" và 5 nhãn chờ xác minh; cập nhật số trang Lewis và cs. (2020) (9459–9474) và URL OpenReview Cheng và cs. (2024) |
