@@ -150,7 +150,7 @@ def gen_province(em, corpus, rng):
                             gold_answer=ga(f"{oname[:1].upper() + oname[1:]} không còn là đơn vị hành chính cấp tỉnh riêng: từ 01/07/2025 đã hợp nhất với "
                                            f"{join_vi(others)} thành {prov_name(newp)}.", "entity",
                                            aliases=[newp, prov_name(newp)]),
-                            obsolete_answer={"text": f"Coi {oname} vẫn là một tỉnh riêng.", "obsolete_entities": []},
+                            obsolete_answer={"text": f"Coi {oname} vẫn là một tỉnh riêng.", "obsolete_entities": [oname]},
                             evidence=[corpus.ev(cid, cite(cid))], gold_clause_ids=[cid],
                             province_new=newp, province_is_control=False, hops=1, difficulty="easy"))
 
@@ -166,8 +166,9 @@ def gen_province(em, corpus, rng):
                         question=rng.choice(q2).format(N=prov_name(newp, cap=True)),
                         gold_answer=ga(f"{prov_name(newp, cap=True)} được hình thành từ {join_vi(olds)}.", "entity_list",
                                        entities=olds),
-                        obsolete_answer={"text": f"Chỉ nêu {prov_name(newp)} cũ hoặc thiếu đơn vị hợp nhất.",
-                                         "obsolete_entities": []},
+                        obsolete_answer={"text": f"Nói {prov_name(newp)} không sáp nhập, vẫn giữ nguyên như trước 2025.",
+                                         "obsolete_entities": ["không sáp nhập", "không hợp nhất", "giữ nguyên",
+                                                               "không được hình thành từ"]},
                         evidence=[corpus.ev(cid, cite(cid))], gold_clause_ids=[cid],
                         province_new=newp, province_is_control=False, hops=1, difficulty="medium"))
 
@@ -209,7 +210,7 @@ def gen_counts(lineage, em, corpus, rng):
                         question=rng.choice(q).format(n=prov_name(newp), N=prov_name(newp, cap=True), dk=dk),
                         gold_answer=ga(f"{total} đơn vị hành chính cấp xã, gồm {parts}.", "number", aliases=[total]),
                         obsolete_answer={"text": "Nêu số xã, phường, thị trấn trước 01/07/2025, hoặc vẫn tính thị trấn và cấp huyện.",
-                                         "obsolete_entities": []},
+                                         "obsolete_entities": ["thị trấn"]},
                         evidence=[corpus.ev(cid, cite(cid))], gold_clause_ids=[cid],
                         province_new=newp, province_is_control=ctrl[newp], hops=1, difficulty="medium"))
     return out
@@ -255,21 +256,29 @@ def gen_commune_lookup(lineage, em, corpus, dvc, rng):
             if len(dists) != 1:
                 continue
             cands[r["new_province"]].append((r, rows, dists[0]))
-    q = ["{Old} ({dist}, {prov}) sau sắp xếp năm 2025 nay thuộc đơn vị hành chính cấp xã nào?",
-         "Sau ngày 01/07/2025, {old} thuộc {dist}, {prov} trước đây nay là xã, phường nào?",
+    q = ["{Old} ({dist}, {prov}) sau sắp xếp năm 2025 nay thuộc đơn vị hành chính cấp xã nào?",  # noqa: E501
+         "Sau ngày 01/07/2025, {old} thuộc {dist}, {prov_tr} nay là {kind_q} nào?",
          "Tôi ở {old}, {dist}, {prov}. Sau sắp xếp năm 2025, tên đơn vị hành chính cấp xã mới nơi tôi ở là gì?"]
     for newp in sorted(cands):
         r, rows, dist = rng.choice(sorted(cands[newp], key=lambda x: (x[0]["new_commune_code"], x[0]["old_commune"])))
         oldp = r["old_province"]
         prov = f"{prov_name(oldp)}{' cũ' if oldp != newp else ''}"
-        dist_l = lower_first(dist)
+        dist_l = lower_first(re.sub(r"\s+", " ", dist))
         old = N(r["old_commune"])
         new_full = f"{r['new_type']} {r['new_commune']}"
         cid = "NQ-" + re.match(r"NQ (\d+)/", r["legal_basis"]).group(1) + "-2025-UBTVQH15#D1.K" + \
               re.search(r"khoản (\d+)", r["legal_basis"]).group(1)
-        others = [N(x["old_commune"]) for x in rows if x is not r]
+        ctext = corpus.text[cid]
+        def part(x):
+            o = N(x["old_commune"])
+            if x["partial"] != "True":
+                return o
+            return ("phần còn lại của " if f"phần còn lại của {o}" in ctext else "một phần ") + o
+        others = [part(x) for x in rows if x is not r]
         out.append(item(category="A_direct", subtype="commune",
-                        question=rng.choice(q).format(Old=old[:1].upper() + old[1:], old=old, dist=dist_l, prov=prov),
+                        question=rng.choice(q).format(Old=old[:1].upper() + old[1:], old=old, dist=dist_l, prov=prov,
+                                                      prov_tr=prov if prov.endswith(" cũ") else prov + " trước đây",
+                                                      kind_q="đặc khu, xã, phường" if r["new_type"] == "đặc khu" else "xã, phường"),
                         gold_answer=ga(f"{old[:1].upper() + old[1:]} ({dist_l}, {prov_name(oldp)}) đã được sắp xếp cùng {join_vi(others)} "
                                        f"thành {new_full}, {prov_name(newp)}.", "entity",
                                        aliases=[new_full, r["new_commune"]]),
@@ -300,7 +309,7 @@ def gen_district_traps(em, corpus, dvd, rng):
         oldp = r["old_province"]
         pool = [d for d in dvd[oldp]
                 if toneless(re.sub(r"^(Huyện|Quận|Thị xã|Thành phố)\s+", "", d)) not in {toneless(x) for x in PILOT_DISTRICTS}]
-        d = rng.choice(sorted(pool))
+        d = re.sub(r"\s+", " ", rng.choice(sorted(pool)))
         kind = re.match(r"^(Huyện|Quận|Thị xã|Thành phố)", d).group(1).lower()
         d_l = lower_first(d)
         p = prov_name(oldp)
@@ -335,15 +344,36 @@ def gen_unchanged_controls(lineage, em, corpus, rng, n=9):
     provs = rng.sample(sorted(us), n)
     q = ["{U} ({p}) có thuộc diện sắp xếp đơn vị hành chính cấp xã năm 2025 không?",
          "Sau đợt sắp xếp năm 2025, {u} của {p} có bị nhập với xã, phường khác không?"]
+    q2 = ["{U} có thuộc diện sắp xếp đơn vị hành chính cấp xã năm 2025 không?",
+          "Sau đợt sắp xếp năm 2025, {u} có bị nhập với xã, phường khác không?"]
+    names = collections.defaultdict(collections.Counter)  # tên (bỏ loại) -> số mã xã mới khác nhau
+    for x in lineage:
+        for nm in (x["new_commune"], re.sub(r"^(xã|phường|thị trấn|đặc khu)\s+", "", N(x["old_commune"]))):
+            names[x["new_province"]][(toneless(nm), x["new_commune_code"])] += 1
+
+    def ambiguous(x):
+        key = toneless(x["new_commune"])
+        return len({code for (nm, code) in names[x["new_province"]] if nm == key}) > 1
+
     out = []
     for newp in sorted(provs):
-        r = rng.choice(sorted(us[newp], key=lambda x: x["new_commune_code"]))
+        pool = sorted(us[newp], key=lambda x: x["new_commune_code"])
+        r = rng.choice(pool)
+        where = ""
+        if ambiguous(r):  # kiểm chéo TV3 27/11: trùng tên với xã khác trong tỉnh mới
+            if r["old_district"]:  # ghi kèm huyện cũ như nghị quyết tự ghi trong ngoặc
+                old_p = r["old_province"]
+                where = f", {r['old_district']}, {prov_name(old_p)}{' cũ' if old_p != newp else ''}"
+            else:
+                r = next(x for x in pool if not ambiguous(x))
         u = f"{r['new_type']} {r['new_commune']}"
+        u_q = (f"{u} ({where[2:]}" + (f", nay thuộc {prov_name(newp)})" if where.endswith(" cũ") else ")")) if where else u
         num = re.match(r"NQ (\d+)/", r["legal_basis"]).group(1)
         cid, _ = corpus.summary(f"NQ-{num}-2025-UBTVQH15")
         out.append(item(category="B_obsolete_trap", subtype="commune", item_role="control",
-                        question=rng.choice(q).format(U=u[:1].upper() + u[1:], u=u, p=prov_name(newp)),
-                        gold_answer=ga(f"Không. {u[:1].upper() + u[1:]} thuộc nhóm đơn vị hành chính cấp xã không thực hiện sắp xếp, "
+                        question=(rng.choice(q).format(U=u_q[:1].upper() + u_q[1:], u=u_q, p=prov_name(newp)) if not where else
+                                  rng.choice(q2).format(U=u_q[:1].upper() + u_q[1:], u=u_q)),
+                        gold_answer=ga(f"Không. {u[:1].upper() + u[1:]}{' (' + where[2:] + ')' if where else ''} thuộc nhóm đơn vị hành chính cấp xã không thực hiện sắp xếp, "
                                        f"giữ nguyên và trực thuộc {prov_name(newp)}.", "yes_no",
                                        aliases=["không thực hiện sắp xếp", "giữ nguyên"]),
                         evidence=[corpus.ev(cid, cite(cid))], gold_clause_ids=[cid],
@@ -388,7 +418,7 @@ E_ITEMS = [
      "free_text", ["LUAT-72-2025-QH15#D28.K1"], "Nói đặc khu có HĐND và UBND như huyện đảo trước đây."),
     ("Nghị quyết 190/2025/QH15 về xử lý các vấn đề khi sắp xếp bộ máy được thực hiện đến thời điểm nào?",
      "Đến hết ngày 28/02/2027 (trừ một số quy định), và Quốc hội có thể xem xét kéo dài nếu cần.",
-     "date", ["NQ-190-2025-QH15#D15.K2"], ""),
+     "date", ["NQ-190-2025-QH15#D15.K2", "NQ-190-2025-QH15#D15.K3"], ""),
 ]
 
 # Bổ sung khoản căn cứ cho câu pilot của TV1 trước đây để TODO_VERIFY_CLAUSE
@@ -402,11 +432,25 @@ PILOT_FIX = {
 }
 
 
+# Bổ sung sau kiểm chéo TV3 27/11 (theo thứ tự E_ITEMS, 0-based): aliases, đáp án lỗi thời, obsolete_entities
+E_EXTRA = {
+    3: {"obsolete_entities": ["UBND huyện"]},
+    4: {"obsolete_entities": ["UBND huyện"]},
+    6: {"obs": "Nói thủ tục vẫn công bố theo cơ quan, chức danh cũ (cấp huyện)."},
+    7: {"obs": "Hướng dẫn xem trên Cổng thông tin điện tử của UBND cấp huyện."},
+    9: {"obsolete_entities": ["UBND huyện"]},
+    11: {"aliases": ["28/02/2027", "28 tháng 02 năm 2027", "28/2/2027"],
+         "obs": "Nêu thời hạn khác hoặc nói nghị quyết đã hết hiệu lực."},
+}
+
+
 def gen_procedures(corpus):
     out = []
-    for q, a, at, cids, obs in E_ITEMS:
+    for k, (q, a, at, cids, obs) in enumerate(E_ITEMS):
+        x = E_EXTRA.get(k, {})
         out.append(item(category="E_procedure", subtype="procedure", question=q,
-                        gold_answer=ga(a, at), obsolete_answer={"text": obs, "obsolete_entities": []},
+                        gold_answer=ga(a, at, aliases=x.get("aliases", ())),
+                        obsolete_answer={"text": x.get("obs", obs), "obsolete_entities": x.get("obsolete_entities", [])},
                         evidence=[corpus.ev(c, cite(c)) for c in cids], gold_clause_ids=list(cids),
                         hops=1, difficulty="medium",
                         verification_note="Soạn tay từ văn bản gốc (TV1); chờ người thứ hai kiểm."))

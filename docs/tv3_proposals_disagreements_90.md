@@ -27,3 +27,9 @@
 1. **Ranh giới `STALE` vs `OTHER_ERROR` ở câu hỏi nguồn gốc hợp nhất (ca #1, #2, #3):** Khi câu hỏi hỏi *"tỉnh X hiện nay được hợp nhất từ những tỉnh nào?"*, nếu mô hình trả lời bằng đợt sáp nhập lịch sử 1975–1976 (tạo ra ranh giới tỉnh X kéo dài đến 30/06/2025) hoặc khẳng định tỉnh X không sáp nhập → **`STALE`**. Ngược lại, nếu mô hình bịa ra đơn vị/cặp ghép chưa từng tồn tại (như `A03`: *"Gia Lai + Kon Tum"*, `D07`: *"huyện mới Bình Yên"*) → **`OTHER_ERROR`**.
 2. **Mức độ ưu tiên tiền giả định nhóm B (ca #4, #10):** Ở câu hỏi bẫy cấp huyện, chỉ cần câu trả lời hành xử như thể huyện/UBND huyện vẫn đang tồn tại (nêu tên lãnh đạo kể cả sai tên/giới tính, hoặc từ chối nêu tên vì không có dữ liệu cập nhật) → **`STALE`**.
 3. **Ranh giới `BLENDED` (ca #12, #14, #15, #17):** Chỉ gán `BLENDED` khi câu trả lời chứa **cả yếu tố cấu trúc mới** (tên tỉnh mới, "đặc khu", "2 cấp", sự kiện hợp nhất 2025) **lẫn yếu tố cũ đang được dùng như hiện hành** (tỉnh cũ, tỉnh lỵ cũ, cấp huyện cũ). Lặp lại mốc ngày `01/07/2025` từ câu hỏi rồi khẳng định giữ nguyên cấu trúc cũ là **`STALE`**, không phải `BLENDED`.
+
+## 3. Xác nhận của TV1
+
+- **28/11/2026:** TV1 đồng ý cả 14 nhãn chốt ở mục 1 và 3 quy tắc ở mục 2. Cùng với 3 ca đã chốt trước (#6, #10, #11), đủ 17/17 ca bất đồng trên 90 câu pilot đã có nhãn chốt.
+- Hai điểm ghi lại khi đưa vào spec v0.4: ca #7 (P-V-D03, gemini-flash) chốt `STALE` dù câu trả lời dẫn mốc 01/01/2025; ca #15 (P-V-D04, deepseek) chốt `BLENDED` dựa vào trung tâm hành chính theo NQ 60-NQ/TW, văn bản này chưa có trong kho `data/raw/`, cần ghi nguồn.
+- Nhãn độc lập ban đầu của TV1 (`tv1_labels_90.jsonl`) và TV3 giữ nguyên để báo κ = 0,675.
