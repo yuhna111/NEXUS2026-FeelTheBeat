@@ -97,4 +97,4 @@ Mỗi tuần đúng 5 trường: **Đã làm gì · Kết quả · Khó khăn ·
 - TV3: Chốt 14 ca bất đồng nhãn pilot cùng TV1, nâng `eval/metrics_spec.md` lên v0.4. Chạy `eval/judge.py` với mô hình giám khảo không trùng (Claude Haiku / GPT-mini / Llama-3.1-8B qua Colab vLLM) để hiệu chuẩn với 90 nhãn người và chấm toàn bộ ca `NEEDS_JUDGE` của bộ v0.3 chốt. Chạy lại `eval/run_w3_eval.py` khi TV2 có đủ Gemini C2–C4 trên bộ v0.3 chốt (308 câu), lập bảng và biểu đồ đầu tiên (`figures/`) cho báo cáo giữa kỳ 05/12.
 
 **Số giờ làm việc**
-- TV1: [số] giờ · TV2: 15 giờ · TV3: [số] giờ
+- TV1: 10 giờ · TV2: 15 giờ · TV3: [số] giờ
