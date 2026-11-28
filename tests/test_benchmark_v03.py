@@ -44,7 +44,11 @@ def test_tv3_v03_shape():
     assert len(recs) == 60
     cats = {r["category"] for r in recs}
     assert cats == {"C_multihop_spatial", "D_before_after", "F_rumor"}
-    assert not any(r["verified"] for r in recs)
+    # TV1 kiểm chéo 28/11/2026: chỉ 5 câu TV1 sửa nội dung còn chờ TV3 xem lại
+    pending = {"C-0001", "C-0004", "C-0012", "F-0001", "F-0002"}
+    assert {r["id"] for r in recs if not r["verified"]} <= pending
+    # Nhóm F chấm theo có/không: premise_rejection không nhận câu bác tin đồn "Không đúng"
+    assert all(r["gold_answer"]["answer_type"] == "yes_no" for r in recs if r["category"] == "F_rumor")
     # IDs must not collide with pilot_80_v0.3 or tv1_v0.3
     other_ids = set()
     for other in ("data/benchmark/pilot_80_v0.3.jsonl", "data/benchmark/tv1_v0.3.jsonl"):

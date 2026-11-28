@@ -43,3 +43,19 @@
 - C-0021 (`obsolete_entities` "Bình Thuận"), C-0022 ("Tiền Giang"): tên này cũng xuất hiện trong đáp án vàng ở mệnh đề quá khứ; đã chạy `auto_label` trên đáp án vàng, không bị chấm `STALE`.
 
 Sau khi TV3 sửa mục 2–4, TV1 kiểm lại các câu đã sửa và đồng ý đặt `verified = true` cho 60 câu.
+
+## 6. Đã sửa (TV1, 28/11/2026, Vinh bận nên TV1 sửa thay)
+
+Sửa trong `qgen/build_tv3_v03.py` rồi chạy lại, gộp bằng `scripts/merge_benchmark_v03.py`, chấm lại bằng `eval/run_w3_eval.py`.
+
+| Mục | Đã làm |
+|---|---|
+| F-0002 | Đổi tin đồn sang "34 tỉnh còn 16 tỉnh"; đáp án theo CV 10988/BNV-CQĐP; ghi lý do (CV 6218/BNV-CQĐP) trong `verification_note` |
+| F-0001 | Bỏ Thông tư 31/2026/TT-BNV; giữ NĐ 185/2026/NĐ-CP ngày 26/5/2026, thêm `source_url` |
+| C-0012 | "Hồ thủy điện Hòa Bình" → "Nhà máy thủy điện Hòa Bình" (câu hỏi và đáp án lỗi thời) |
+| C-0001, C-0004 | Ghi đủ đơn vị mới của TP Vũng Tàu cũ (thêm xã Long Sơn) và TP Rạch Giá cũ (thêm phường Vĩnh Thông) |
+| Nhóm F (12 câu) | `answer_type`: `premise_rejection` → `yes_no`; 12/12 đáp án vàng chấm `CORRECT_CURRENT` |
+| Alias | Bỏ tên tỉnh cũ ở C-0013..C-0017 và "63" ở D-0001 |
+| `verified` | 55/60 câu `true` (TV1 kiểm chéo); 5 câu TV1 đổi nội dung (C-0001, C-0004, C-0012, F-0001, F-0002) chờ TV3 xem lại. Bộ v0.3: 223/308 câu `verified` |
+| Chấm lại | `eval/run_w3_eval.py` bỏ đầu ra cũ của C-0012, F-0002 (16 đầu ra) vì câu hỏi đã đổi nghĩa, chờ TV2 chạy lại. Trên 308 câu, SR gần như không đổi (lệch dưới 1,5 điểm %); EM trên 60 câu tăng mạnh vì nhóm F được chấm đúng (ví dụ Qwen C3: 54,8% → 88,0%) |
+| Test | `tests/test_benchmark_v03.py`: thay kiểm "60 câu chưa verified" bằng kiểm 5 câu chờ và nhóm F dùng `yes_no`; 147 test đạt |

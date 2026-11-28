@@ -72,6 +72,28 @@ def _load_preds_many(paths: list[Path]) -> list[dict[str, Any]]:
     return out
 
 
+STALE_OUTPUTS: set[tuple[str, str, str]] = set()
+# Câu đổi nghĩa sau khi đã chạy (TV1 sửa 28/11/2026): đầu ra cũ trả lời câu khác, bỏ cho tới khi TV2 chạy lại.
+# Các câu chỉ sửa câu chữ (A-0084, A-0101, B-0029, B-0039...) giữ nguyên đầu ra cũ.
+OUTDATED_QIDS = {"C-0012", "F-0002"}
+
+
+def _drop_outdated(preds: list[dict[str, Any]], bench: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    """Bỏ đầu ra sinh cho câu hỏi đã sửa sau khi chạy (prompt không chứa câu hỏi hiện tại).
+
+    Ví dụ F-0002, C-0012 đổi câu hỏi ngày 28/11/2026 sau kiểm chéo của TV1: đầu ra cũ trả lời câu khác,
+    nên không chấm cho tới khi TV2 chạy lại.
+    """
+    keep = []
+    for p in preds:
+        q = bench.get(p["question_id"])
+        if p["question_id"] in OUTDATED_QIDS and q is not None and p.get("prompt") and q["question"] not in p["prompt"]:
+            STALE_OUTPUTS.add((p["question_id"], p.get("model_id", "?"), p.get("config", "?")))
+            continue
+        keep.append(p)
+    return keep
+
+
 def _recall_with_ci(
     preds: list[dict[str, Any]], bench: dict[str, dict[str, Any]], k: int, n_boot: int, seed: int
 ) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -401,8 +423,9 @@ def _write_markdown_report(
         "  1. Chấm lại `tv1_v0.3.jsonl` (168 câu) sau khi TV1 bổ sung `obsolete_entities` cho 73 câu và sửa 15 câu (`verified = true`): ở C0, số câu bắt được `STALE` tăng gần gấp đôi (`37 → 71` ở Gemini, `37 → 69` ở Qwen).",
         "  2. Bổ sung đầy đủ **Gemini C2–C4 trên 168 câu `tv1_v0.3`** và **cả Gemini lẫn Qwen C0–C4 trên 60 câu `tv3_v0.3`** (nhóm C, D, F).",
         "  3. Bổ sung bảng tổng hợp toàn bộ **`benchmark_v0.3.jsonl` (308 câu)** cho cả hai mô hình.",
+        "  4. Sau kiểm chéo của TV1 (28/11, `docs/tv1_review_tv3_v03.md`): 12 câu nhóm F chấm theo `yes_no` thay vì `premise_rejection` (bộ nhận diện cũ không nhận câu bác tin đồn \"Không đúng\", làm 12/12 đáp án vàng bị chấm `OTHER_ERROR`); sửa 5 câu C/F; bỏ alias tên cũ ở C-0013..C-0017 và \"63\" ở D-0001. Đầu ra cũ của C-0012 và F-0002 (đổi nghĩa câu hỏi) không được chấm cho tới khi TV2 chạy lại.",
         "- **Lưu ý phương pháp luận (quy tắc báo cáo):**",
-        "  1. Trong 308 câu `benchmark_v0.3.jsonl`, 168 câu `tv1_v0.3` đã đặt `verified = true` (TV1 + TV3 kiểm chéo 28/11); 60 câu `tv3_v0.3` đang chờ TV1 kiểm chéo và 80 câu `pilot_80_v0.3` vẫn giữ nhãn pilot (`verified = false`). Riêng 15 câu TV1 vừa sửa văn phong/địa danh trên `tv1_v0.3`, TV2 sẽ chạy lại ở đầu Tuần 4 (153/168 câu giữ nguyên nguyên văn).",
+        "  1. Trong 308 câu `benchmark_v0.3.jsonl`, 168 câu `tv1_v0.3` đã đặt `verified = true` (TV1 + TV3 kiểm chéo 28/11); 60 câu `tv3_v0.3` TV1 đã kiểm chéo 28/11: 55 câu `verified = true`, 5 câu TV1 sửa nội dung chờ TV3 xem lại và 80 câu `pilot_80_v0.3` vẫn giữ nhãn pilot (`verified = false`). Riêng 15 câu TV1 vừa sửa văn phong/địa danh trên `tv1_v0.3`, TV2 sẽ chạy lại ở đầu Tuần 4 (153/168 câu giữ nguyên nguyên văn).",
         "  2. Bộ chấm luật tự động (`auto_label`) chưa qua LLM-as-a-Judge nên chưa sinh nhãn `BLENDED` (`SR⁺ = SR`) và còn một tỷ lệ câu `NEEDS_JUDGE`. Do đó bảng luôn báo song song **SR trên tập con luật chấm được** và **SR cận dưới trên toàn bộ mẫu** (coi `NEEDS_JUDGE` là không lỗi thời, tránh sai lệch chọn mẫu).",
         "  3. Hiện có **2 mô hình** (`gemini-3.5-flash-lite` và `Qwen2.5-7B-Instruct-AWQ`, temperature 0); chưa có key OpenAI/Anthropic.",
         "",
@@ -420,7 +443,7 @@ def _write_markdown_report(
         "",
         "---",
         "",
-        "## 3. Bộ `tv3_v0.3` — Nhóm C, D, F (n = 60; 58/60 có khoản vàng; chờ TV1 kiểm chéo)",
+        "## 3. Bộ `tv3_v0.3` — Nhóm C, D, F (n = 60; 58/60 có khoản vàng; TV1 đã kiểm chéo, 55/60 `verified`)",
         "",
         *table_from_summary(tv3_rows),
         "",
@@ -542,7 +565,7 @@ def main() -> int:
                 for cfg in ("C0", "C2", "C3", "C4"):
                     paths = [outputs_dir / sd / cfg / f"{model}.jsonl" for sd in subdirs]
                     if all(p.exists() for p in paths):
-                        preds_by_cfg[cfg] = _load_preds_many(paths)
+                        preds_by_cfg[cfg] = _drop_outdated(_load_preds_many(paths), bench)
                 base_preds = preds_by_cfg.get("C0")
                 for cfg in ("C0", "C2", "C3", "C4"):
                     if cfg not in preds_by_cfg:
@@ -565,6 +588,9 @@ def main() -> int:
         eval_dataset("tv3_v0.3", ["tv3_v0.3"], tv3_bench, tv3_vocab, tv3_rows)
         eval_dataset("benchmark_v0.3", ["pilot_80_v0.3", "tv1_v0.3", "tv3_v0.3"], bench308, all_vocab, bench308_rows)
 
+        if STALE_OUTPUTS:
+            qids = sorted({q for q, _, _ in STALE_OUTPUTS})
+            print(f"Bỏ {len(STALE_OUTPUTS)} đầu ra của câu đã đổi nội dung, chờ chạy lại: {', '.join(qids)}")
         _apply_holm(mcnemar_rows)
         stability_rows = _qwen_stability(outputs_dir, pilot_bench, pilot_vocab)
 
