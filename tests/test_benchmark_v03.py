@@ -10,6 +10,7 @@ FILES = [
     "data/benchmark/tv1_v0.3.jsonl",
     "data/benchmark/tv3_v0.3.jsonl",
     "data/benchmark/pilot_80_v0.3.jsonl",
+    "data/benchmark/benchmark_v0.3.jsonl",
 ]
 
 
@@ -32,7 +33,7 @@ def test_tv1_v03_shape():
     controls = sum(r["item_role"] == "control" for r in b)
     assert 0.15 <= controls / len(b) <= 0.30
     assert all(r["gold_clause_ids"] != ["TODO_VERIFY_CLAUSE"] for r in recs)
-    assert not any(r["verified"] for r in recs)
+    assert all(r["verified"] for r in recs)
 
 
 def test_tv3_v03_shape():
@@ -51,3 +52,13 @@ def test_tv3_v03_shape():
         if p.exists():
             other_ids.update(r["id"] for r in read_jsonl(p))
     assert not (other_ids & {r["id"] for r in recs})
+
+
+def test_benchmark_v03_merged_shape():
+    path = ROOT / "data/benchmark/benchmark_v0.3.jsonl"
+    if not path.exists():
+        pytest.skip("chưa có")
+    recs = read_jsonl(path)
+    assert len(recs) == 308
+    assert len({r["id"] for r in recs}) == 308
+    assert sum(r["verified"] for r in recs) >= 168

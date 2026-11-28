@@ -1,6 +1,6 @@
 # Đặc tả độ đo — VN-Admin2025-QA
 
-> File: `eval/metrics_spec.md` · Phụ trách: Thành viên 3 · Phiên bản: v0.3 (Tuần 2, 22/11/2026)
+> File: `eval/metrics_spec.md` · Phụ trách: Thành viên 3 · Phiên bản: v0.4 (Tuần 3, 28/11/2026)
 >
 > Mục đích: định nghĩa **chính xác** cách chấm một câu trả lời và cách tính từng con số trong bài báo, để (1) cả nhóm chấm giống nhau, (2) code `eval/metrics.py` ở Tuần 2 làm đúng theo, (3) giám khảo đọc là tái lập được.
 
@@ -134,11 +134,14 @@ Lý do dòng 4: `STALE` đòi hỏi khẳng định thông tin cũ **như đang 
 | Trả lời bằng tiếng Anh nhưng nội dung đúng | Chấm theo nội dung | Ghi chú "trả lời tiếng Anh"; thống kê riêng |
 | Câu trả lời có dùng tìm kiếm web (có link, nguồn) | Vẫn gán nhãn, đánh dấu `web_used = true` | Loại khỏi số liệu closed-book |
 | Từ chối nêu đáp án nhưng nói về đơn vị đã bị bỏ như đang tồn tại (nhóm B) | `STALE` | Chốt 14/11 từ pilot B01 – DeepSeek |
-| Mô tả **đúng tình trạng ngay trước 01/07/2025**, dù giải thích bằng sự kiện cũ hơn (Lâm Đồng hợp nhất từ năm 1975; TP HCM từ Sài Gòn – Gia Định) | `STALE` | Mốc so sánh là tình trạng ngay trước cải cách, không phải năm của sự kiện được nhắc |
-| Mô tả tình trạng **đã không còn đúng từ trước 2025** (Gia Lai = Gia Lai + Kon Tum, vốn tách năm 1991) | `OTHER_ERROR` | Sai kiến thức, không phải lỗi thời của đợt 2025 |
+| Mô tả **đúng tình trạng ngay trước 01/07/2025**, dù giải thích bằng sự kiện cũ hơn (Lâm Đồng hợp nhất từ năm 1975–1976; TP HCM từ Sài Gòn – Gia Định; Quảng Bình dẫn đợt sắp xếp xã 01/01/2025 nhưng khẳng định đến hiện tại vẫn là tỉnh riêng) | `STALE` | Mốc so sánh là tình trạng ngay trước cải cách 01/07/2025, không phải năm của sự kiện được nhắc. Chốt 28/11 từ ca #1 (`A02`–DeepSeek), #2 (`A02`–Gemini), #3 (`A04`–Gemini), #7 (`D03`–Gemini) |
+| Mô tả tình trạng **đã không còn đúng từ trước 2025** hoặc **bịa đặt đơn vị hành chính chưa từng tồn tại** (Gia Lai = Gia Lai + Kon Tum vốn tách năm 1991; Nam Định bịa *"huyện mới Bình Yên"* và gắn nhầm NQ 1213 vào 01/07/2025) | `OTHER_ERROR` | Sai kiến thức / bịa thực thể (hallucination), tách khỏi lỗi thời lặp lại bản đồ cũ thực tế. Chốt 28/11 từ ca `A03`–Gemini và ca #8 (`D07`–Gemini) |
+| Nhóm B: nêu tên người giữ chức vụ cấp huyện (kể cả sai tên hoặc sai danh xưng) hoặc từ chối nêu tên vì không có dữ liệu cập nhật nhưng vẫn coi huyện đang tồn tại | `STALE` | Chốt 28/11 từ ca #4 (`B01`–Gemini) và ca #10 (`B01`–DeepSeek): chỉ cần chấp nhận tiền giả định sai rằng cấp huyện vẫn hoạt động → ưu tiên `STALE` |
+| Ranh giới `BLENDED` vs `STALE`: chỉ gán `BLENDED` khi câu trả lời chứa **cả yếu tố cấu trúc mới** (tên tỉnh mới, "đặc khu", "2 cấp", sự kiện hợp nhất 2025) **lẫn yếu tố cũ đang được dùng như hiện hành** (tỉnh cũ, tỉnh lỵ cũ, cấp huyện cũ). Lặp lại mốc ngày `01/07/2025` từ câu hỏi rồi khẳng định giữ nguyên cấu trúc cũ là `STALE`, không phải `BLENDED` | `BLENDED` / `STALE` | Chốt 28/11 từ ca #12 (`B08`–DeepSeek: đặc khu + Bà Rịa–Vũng Tàu), #14 (`D01`–Gemini: `STALE`), #15 (`D04`–DeepSeek: tỉnh Lào Cai mới + tỉnh lỵ TP Lào Cai cũ; căn cứ TTHC theo NQ 60-NQ/TW, văn bản ngoài kho `data/raw/`), #17 (`D06`–Gemini: *"TP Huế và tỉnh Thừa Thiên Huế"*) |
 | Rào đón, không biết về đợt sắp xếp nhưng kết luận vẫn đúng ("không có thông tin chính thức nào về việc tỉnh X sẽ hợp nhất") | `CORRECT_CURRENT` | Ghi chú "đúng do may"; không gán `ABSTAIN` vì mô hình có đưa ra kết luận. Thường gặp ở câu đối chứng |
-| Tự mâu thuẫn (mở đầu "Không" nhưng giải thích lại cho thấy "Có"), không nêu thông tin cũ như hiện tại | `OTHER_ERROR` | Ghi chú "tự mâu thuẫn"; người dùng không biết tin vế nào |
+| Tự mâu thuẫn (mở đầu "Không" nhưng giải thích lại cho thấy "Có"), không nêu thông tin cũ như hiện tại | `OTHER_ERROR` | Ghi chú "tự mâu thuẫn"; người dùng không biết tin vế nào. Chốt lại 28/11 ở ca #13 (`C04`–DeepSeek) |
 | Nhóm B: nêu số liệu/tên cũ **trong mệnh đề có mốc quá khứ** ("Trước khi thực hiện sắp xếp…, huyện X, tỉnh Y có…") và bác cấp huyện, nhưng không nhắc tỉnh đã hợp nhất | `CORRECT_CURRENT` | Chốt 22/11 từ pilot B05 – ChatGPT (trước là `BLENDED`). Tên cũ trong mệnh đề quá khứ không tính là khẳng định (4.3); thiếu thay đổi cấp tỉnh xử lý như dòng "không nêu thêm thay đổi khác" ở 4.4 |
+| Diễn đạt lặp từ hoặc ghi kèm nhãn `(cũ)` rõ ràng để chỉ vị trí địa lý trước sắp xếp (như *"TP Yên Bái, tỉnh Yên Bái (cũ)"* tương đương *"khu vực tỉnh Yên Bái cũ"* trong NQ 60-NQ/TW) | `CORRECT_CURRENT` | Chốt 28/11 từ ca #9 (`A05`–ChatGPT) và ca #16 (`D04`–ChatGPT): không sai sự thật hành chính |
 | Nhóm D: chỉ trả lời vế "trước" với mốc quá khứ rõ, bỏ trống vế "sau" | `OTHER_ERROR` | Ghi chú `thiếu vế sau` (4.4.1); TV1 xác nhận 23/11 |
 | Đáp án chính đúng nhưng kèm chi tiết phụ chưa có trong đáp án vàng (ví dụ tên các phường mới) | `CORRECT_CURRENT` | TV1 dò chi tiết phụ với nghị quyết; nếu chi tiết phụ sai thì chuyển `OTHER_ERROR` |
 
@@ -280,7 +283,8 @@ MRR@k    = (1/N) · Σᵢ 1 / (thứ hạng của đoạn đúng đầu tiên)  
 - Đo **Cohen's κ** giữa hai người. Mục tiêu κ ≥ 0,75.
   - Cách hiểu nhanh: κ = 1 là trùng hoàn toàn; κ = 0 là trùng không hơn gì đoán ngẫu nhiên.
 - Câu bất đồng: hai người thảo luận, chốt nhãn, và **bổ sung quy tắc vào mục 4.5** nếu đó là ca mới.
-- **Kết quả đợt 1 (22/11/2026):** TV1 gán độc lập 20 câu trả lời chọn ngẫu nhiên trong 90 câu pilot (ẩn tên mô hình). Khớp 19/20, **κ = 0,912** (bootstrap 95%: 0,72–1,00; `scripts/kappa_tv1_tv3.py`). Bất đồng duy nhất: P-V-D01 – DeepSeek → quy tắc 4.4.1. Mẫu 20 câu còn nhỏ, khoảng tin cậy rộng; cần gán đủ 90 câu.
+- **Kết quả đợt 1 (22/11/2026):** TV1 gán độc lập 20 câu trả lời chọn ngẫu nhiên trong 90 câu pilot (ẩn tên mô hình). Khớp 19/20, **κ = 0,912** (bootstrap 95%: 0,72–1,00; `scripts/kappa_tv1_tv3.py`). Bất đồng duy nhất: P-V-D01 – DeepSeek → quy tắc 4.4.1.
+- **Kết quả đủ 90 câu pilot (26–28/11/2026):** TV1 gán độc lập thêm 70 câu còn lại (`outputs/pilot_manual/tv1_labels_90.jsonl`). Trên đủ 90 câu (`eval/compute_iaa.py`, `scripts/kappa_tv1_tv3.py`): khớp **73/90 (81,1%)**, **Cohen's κ = 0,675** (bootstrap 95%: 0,56–0,79), dưới ngưỡng mục tiêu 0,75; riêng κ nhị phân `STALE vs rest` = **0,737**, `STALE|BLENDED vs rest` = **0,744**, `CORRECT_CURRENT vs rest` = **0,866**. Có 17 ca bất đồng (`outputs/pilot_manual/tv1_tv3_disagreements_90.md`): 3 ca (#6, #10, #11) đã chốt trước, 14 ca còn lại đã được TV3 đề xuất và TV1 xác nhận thống nhất ngày 28/11/2026 (`docs/tv3_proposals_disagreements_90.md`), đồng thời bổ sung 3 quy tắc làm rõ ranh giới `STALE`/`OTHER_ERROR`, ưu tiên tiền giả định nhóm B và ranh giới `BLENDED` vào mục 4.5 (v0.4). **Nhãn độc lập ban đầu của TV1 và TV3 được giữ nguyên không sửa** để báo cáo κ trung thực; nhóm sẽ đo lại κ trên mẫu mới (đầu ra C0 v0.3) theo quy tắc v0.4.
 - Bộ chấm tự động (luật + LLM) ở các tuần sau được kiểm tra bằng κ so với nhãn người trên 300 câu.
 
 ---
@@ -311,3 +315,4 @@ Pilot chạy ngày 14/11/2026 trên ChatGPT, DeepSeek (Search tắt) và Gemini 
 | v0.2 | 15/11/2026 | TV3 | Thêm quy tắc từ pilot: từ chối nhưng chấp nhận tiền giả định ở nhóm B → STALE; mốc "ngay trước 01/07/2025"; đúng do may; tự mâu thuẫn; chi tiết phụ chưa kiểm chứng. Điền mục 8 |
 | v0.3 | 22/11/2026 | TV3 | Bảng con 4.4.1 cho nhóm D (ca P-V-D01, chờ TV1 xác nhận); chốt B05 – ChatGPT → `CORRECT_CURRENT`; quy tắc Recall@k cho đoạn cố định (cùng văn bản + phủ liên tục ≥ 50% khoản vàng) và số liệu chấm lại; ghi κ đợt 1 = 0,912 (n = 20) vào mục 7 |
 | v0.3.1 | 23/11/2026 | TV1 | Đóng ca P-V-D01 (TV1 đồng ý `OTHER_ERROR` + `thiếu vế sau`, mục 4.4.1); ghi kết quả TV1 dò chi tiết phụ B03/B04/B06 vào bảng ca khó (mục 8); TV3 chốt B04 – ChatGPT → `OTHER_ERROR` |
+| v0.4 | 28/11/2026 | TV3 | Đưa 3 quy tắc mới sau khi TV1 và TV3 thống nhất đủ 17/17 ca bất đồng trên 90 câu pilot (`docs/tv3_proposals_disagreements_90.md`) vào mục 4.5 (ranh giới `STALE`/`OTHER_ERROR` với mốc lịch sử & bịa thực thể, ưu tiên tiền giả định nhóm B, ranh giới `BLENDED`, ghi chú ca #7 mốc 01/01/2025 và ca #15 NQ 60-NQ/TW); cập nhật kết quả κ đủ 90 câu = 0,675 vào mục 7 |
