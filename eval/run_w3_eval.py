@@ -1,13 +1,16 @@
 """Week 3 evaluation runner (TV3): score TV2's C0–C4 outputs with bootstrap CI and McNemar tests.
 
-Reads prediction JSONLs from `--outputs-dir` (default: `outputs`), or directly from a git ref
-such as `--git-ref origin/an-huy` when TV2's branch has not yet been merged into the current branch.
+Scores all Week 3 benchmark subsets (`pilot_80_v0.3`, `pilot_30_vinh`, `tv1_v0.3`, `tv3_v0.3`,
+and combined `benchmark_v0.3` 308 questions) for both `gemini-flash` and `qwen-7b` across C0–C4.
+
+Reads prediction JSONLs from `--outputs-dir` (default: `outputs`), or optionally from a git ref
+via `--git-ref <ref>`.
 
 Outputs CSV summaries, McNemar + Holm-Bonferroni tables, Qwen 3-run stability check, and a
 draft markdown report for the 05/12 midterm milestone under `--out-dir` (default: `results/w3_eval`).
 
 Usage:
-    python -m eval.run_w3_eval --git-ref origin/an-huy
+    python -m eval.run_w3_eval
     python -m eval.run_w3_eval --outputs-dir outputs
 """
 from __future__ import annotations
@@ -17,15 +20,12 @@ import csv
 import json
 import subprocess
 import tempfile
-from collections import Counter
 from pathlib import Path
 from typing import Any
 
 from eval.metrics import (
     DEFAULT_ENTITY_MAPS,
     LABELS,
-    NEEDS_JUDGE,
-    STALE_LABELS,
     answer_match,
     auto_label,
     bootstrap_ci,
@@ -34,7 +34,6 @@ from eval.metrics import (
     load_predictions,
     load_vocab,
     mcnemar_exact,
-    mrr,
     paired_bootstrap,
     ratio,
     _to_clause_id,
@@ -52,7 +51,7 @@ def _load_bench(path: Path, prefix: str | None = None) -> dict[str, dict[str, An
 
 
 def _extract_git_outputs(git_ref: str, dest: Path) -> Path:
-    subpaths = ["outputs/pilot_80_v0.3", "outputs/tv1_v0.3"]
+    subpaths = ["outputs/pilot_80_v0.3", "outputs/tv1_v0.3", "outputs/tv3_v0.3"]
     files = subprocess.check_output(
         ["git", "ls-tree", "-r", "--name-only", git_ref, *subpaths],
         text=True,
@@ -63,6 +62,14 @@ def _extract_git_outputs(git_ref: str, dest: Path) -> Path:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(subprocess.check_output(["git", "show", f"{git_ref}:{rel}"], cwd=ROOT))
     return dest / "outputs"
+
+
+def _load_preds_many(paths: list[Path]) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for p in paths:
+        if p.exists():
+            out.extend(load_predictions(p))
+    return out
 
 
 def _recall_with_ci(
@@ -98,30 +105,9 @@ def _pct(v: float | None) -> str:
     return "n/a" if v is None else f"{v:.1%}"
 
 
-def _ci_str(ci: list[float] | tuple[float, float] | None) -> str:
-    if not ci:
-        return ""
-    return f"[{ci[0]:.1%}–{ci[1]:.1%}]"
-
-
-def _fmt_ratio_md(d: dict[str, Any]) -> str:
-    if not d or not d.get("den"):
-        return "—"
-    ci = _ci_str(d.get("ci95"))
-    return f"{d['value']:.1%} ({d['num']}/{d['den']}) {ci}".strip()
-
-
-def _fmt_mrr_md(d: dict[str, Any]) -> str:
-    if not d or not d.get("n") or d.get("value") is None:
-        return "—"
-    ci = d.get("ci95")
-    ci_s = f"[{ci[0]:.3f}–{ci[1]:.3f}]" if ci else ""
-    return f"{d['value']:.3f} {ci_s}".strip()
-
-
-def _score_config(
-    pred_path: Path,
-    base_path: Path | None,
+def _score_preds(
+    preds: list[dict[str, Any]],
+    base_preds: list[dict[str, Any]] | None,
     bench: dict[str, dict[str, Any]],
     vocab: set[str],
     dataset_name: str,
@@ -132,17 +118,21 @@ def _score_config(
     n_boot: int = N_BOOT,
     seed: int = SEED,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    preds = load_predictions(pred_path)
-    base_preds = load_predictions(base_path) if (base_path and config != "C0") else None
-    rep = evaluate(preds, bench, baseline=base_preds, k=k, vocab=vocab, n_boot=n_boot, seed=seed)
+    rep = evaluate(
+        preds,
+        bench,
+        baseline=base_preds if (base_preds and config != "C0") else None,
+        k=k,
+        vocab=vocab,
+        n_boot=n_boot,
+        seed=seed,
+    )
     rec_ci, mrr_ci = _recall_with_ci(preds, bench, k=k, n_boot=n_boot, seed=seed)
 
-    # Conservative lower bound of SR across ALL scored items (treating NEEDS_JUDGE as non-stale)
     known = [p for p in preds if p["question_id"] in bench]
     all_stale_flags = [auto_label(p["output"], bench[p["question_id"]], vocab) == "STALE" for p in known]
     sr_lb = ratio(all_stale_flags, n_boot=n_boot, seed=seed).as_dict()
 
-    # Bootstrap CI for KOR and PBER as well
     kor_dict = rep.get("KOR", {"num": 0, "den": 0, "value": None, "ci95": None})
     if kor_dict.get("den"):
         kor_flags = [True] * kor_dict["num"] + [False] * (kor_dict["den"] - kor_dict["num"])
@@ -196,44 +186,39 @@ def _score_config(
         "KOR": kor_dict.get("value"),
         "KOR_num": kor_dict.get("num"),
         "KOR_den": kor_dict.get("den"),
-        "KOR_ci_lo": kor_dict["ci95"][0] if kor_dict.get("ci95") else None,
-        "KOR_ci_hi": kor_dict["ci95"][1] if kor_dict.get("ci95") else None,
+        "KOR_ci_lo": kor_dict["ci95"][0] if kor_dict["ci95"] else None,
+        "KOR_ci_hi": kor_dict["ci95"][1] if kor_dict["ci95"] else None,
         "PBER": pber_dict.get("value"),
         "PBER_num": pber_dict.get("num"),
         "PBER_den": pber_dict.get("den"),
-        "PBER_ci_lo": pber_dict["ci95"][0] if pber_dict.get("ci95") else None,
-        "PBER_ci_hi": pber_dict["ci95"][1] if pber_dict.get("ci95") else None,
+        "PBER_ci_lo": pber_dict["ci95"][0] if pber_dict["ci95"] else None,
+        "PBER_ci_hi": pber_dict["ci95"][1] if pber_dict["ci95"] else None,
     }
-    rep["Recall@5_ci"] = rec_ci
-    rep["MRR@5_ci"] = mrr_ci
-    rep["SR_lower_bound"] = sr_lb
-    rep["KOR_ci"] = kor_dict
-    rep["PBER_ci"] = pber_dict
     return row, rep
 
 
-def _paired_mcnemar_rows(
+def _paired_mcnemar_preds(
     dataset_name: str,
     model: str,
     cfg_a: str,
-    path_a: Path,
+    preds_a: list[dict[str, Any]],
     cfg_b: str,
-    path_b: Path,
+    preds_b: list[dict[str, Any]],
     bench: dict[str, dict[str, Any]],
     vocab: set[str],
     k: int = 5,
     n_boot: int = N_BOOT,
     seed: int = SEED,
 ) -> list[dict[str, Any]]:
-    pa = {p["question_id"]: p for p in load_predictions(path_a) if p["question_id"] in bench}
-    pb = {p["question_id"]: p for p in load_predictions(path_b) if p["question_id"] in bench}
+    pa = {p["question_id"]: p for p in preds_a if p["question_id"] in bench}
+    pb = {p["question_id"]: p for p in preds_b if p["question_id"] in bench}
     shared = sorted(set(pa) & set(pb))
     out: list[dict[str, Any]] = []
 
     def add_test(metric: str, flags_a: list[bool], flags_b: list[bool]) -> None:
         n = len(flags_a)
-        b = sum(x and not y for x, y in zip(flags_a, flags_b))  # A=1, B=0
-        c = sum((not x) and y for x, y in zip(flags_a, flags_b))  # A=0, B=1
+        b = sum(x and not y for x, y in zip(flags_a, flags_b))
+        c = sum((not x) and y for x, y in zip(flags_a, flags_b))
         p_mc = mcnemar_exact(b, c)
         pb_res = paired_bootstrap([float(y) for y in flags_b], [float(x) for x in flags_a], n_boot=n_boot, seed=seed)
         rate_a = sum(flags_a) / n if n else None
@@ -252,15 +237,13 @@ def _paired_mcnemar_rows(
             "discordant_a1_b0": b,
             "discordant_a0_b1": c,
             "p_mcnemar_exact": p_mc,
-            "p_holm": None,  # filled per family
+            "p_holm": None,
         })
 
-    # 1. SR on ALL paired questions (conservative lower bound: STALE=1, else=0; zero selection bias)
     stale_all_a = [auto_label(pa[q]["output"], bench[q], vocab) == "STALE" for q in shared]
     stale_all_b = [auto_label(pb[q]["output"], bench[q], vocab) == "STALE" for q in shared]
     add_test("SR_lower_bound_all", stale_all_a, stale_all_b)
 
-    # 2. SR on paired auto-labeled intersection (both A and B received a definite label in LABELS)
     la = {q: auto_label(pa[q]["output"], bench[q], vocab) for q in shared}
     lb = {q: auto_label(pb[q]["output"], bench[q], vocab) for q in shared}
     both_lab = [q for q in shared if la[q] in LABELS and lb[q] in LABELS]
@@ -270,18 +253,12 @@ def _paired_mcnemar_rows(
         [lb[q] == "STALE" for q in both_lab],
     )
 
-    # 3. EM on paired questions where answer_match is defined for both
     ma = {q: answer_match(pa[q]["output"], bench[q], vocab) for q in shared}
     mb = {q: answer_match(pb[q]["output"], bench[q], vocab) for q in shared}
     both_em = [q for q in shared if ma[q] is not None and mb[q] is not None]
     if both_em:
-        add_test(
-            "EM_paired",
-            [bool(ma[q]) for q in both_em],
-            [bool(mb[q]) for q in both_em],
-        )
+        add_test("EM_paired", [bool(ma[q]) for q in both_em], [bool(mb[q]) for q in both_em])
 
-    # 4. Recall@5 when comparing two retrieval configs (e.g. C2 vs C3)
     if cfg_a not in ("C0", "C5") and cfg_b not in ("C0", "C5"):
         ret_a, ret_b = [], []
         for q in shared:
@@ -299,7 +276,6 @@ def _paired_mcnemar_rows(
 
 
 def _apply_holm(rows: list[dict[str, Any]]) -> None:
-    """Apply Holm-Bonferroni correction within each (dataset, metric) comparison family."""
     families: dict[tuple[str, str], list[int]] = {}
     for idx, r in enumerate(rows):
         families.setdefault((r["dataset"], r["metric"]), []).append(idx)
@@ -313,27 +289,20 @@ def _apply_holm(rows: list[dict[str, Any]]) -> None:
 def _qwen_stability(outputs_dir: Path, bench: dict[str, dict[str, Any]], vocab: set[str]) -> list[dict[str, Any]]:
     rows = []
     for cfg in ("C0", "C2", "C3", "C4"):
-        base_file = outputs_dir / "pilot_80_v0.3" / cfg / "qwen-7b.jsonl"
-        run2_file = outputs_dir / "pilot_80_v0.3" / cfg / "qwen-7b.run2.jsonl"
-        run3_file = outputs_dir / "pilot_80_v0.3" / cfg / "qwen-7b.run3.jsonl"
-        p1 = {p["question_id"]: p["output"] for p in load_predictions(base_file)}
-        p2 = {p["question_id"]: p["output"] for p in load_predictions(run2_file)}
-        p3 = {p["question_id"]: p["output"] for p in load_predictions(run3_file)}
+        p1 = {p["question_id"]: p["output"] for p in load_predictions(outputs_dir / "pilot_80_v0.3" / cfg / "qwen-7b.jsonl")}
+        p2 = {p["question_id"]: p["output"] for p in load_predictions(outputs_dir / "pilot_80_v0.3" / cfg / "qwen-7b.run2.jsonl")}
+        p3 = {p["question_id"]: p["output"] for p in load_predictions(outputs_dir / "pilot_80_v0.3" / cfg / "qwen-7b.run3.jsonl")}
         qids = sorted(set(p1) & set(p2) & set(p3) & set(bench))
-        exact_12 = sum(p1[q] == p2[q] for q in qids)
-        exact_13 = sum(p1[q] == p3[q] for q in qids)
-        exact_all = sum(p1[q] == p2[q] == p3[q] for q in qids)
         l1 = [auto_label(p1[q], bench[q], vocab) for q in qids]
         l2 = [auto_label(p2[q], bench[q], vocab) for q in qids]
         l3 = [auto_label(p3[q], bench[q], vocab) for q in qids]
-        label_all = sum(a == b == c for a, b, c in zip(l1, l2, l3))
         rows.append({
             "config": cfg,
             "n": len(qids),
-            "exact_match_run1_run2": exact_12,
-            "exact_match_run1_run3": exact_13,
-            "exact_match_all3": exact_all,
-            "auto_label_same_all3": label_all,
+            "exact_match_run1_run2": sum(p1[q] == p2[q] for q in qids),
+            "exact_match_run1_run3": sum(p1[q] == p3[q] for q in qids),
+            "exact_match_all3": sum(p1[q] == p2[q] == p3[q] for q in qids),
+            "auto_label_same_all3": sum(a == b == c for a, b, c in zip(l1, l2, l3)),
             "sr_lb_run1": sum(x == "STALE" for x in l1) / len(qids),
             "sr_lb_run2": sum(x == "STALE" for x in l2) / len(qids),
             "sr_lb_run3": sum(x == "STALE" for x in l3) / len(qids),
@@ -353,9 +322,11 @@ def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
 
 def _write_markdown_report(
     out_path: Path,
+    bench308_rows: list[dict[str, Any]],
+    tv1_rows: list[dict[str, Any]],
+    tv3_rows: list[dict[str, Any]],
     pilot_rows: list[dict[str, Any]],
     pilot30_rows: list[dict[str, Any]],
-    tv1_rows: list[dict[str, Any]],
     mcnemar_rows: list[dict[str, Any]],
     stability_rows: list[dict[str, Any]],
     source_note: str,
@@ -373,9 +344,7 @@ def _write_markdown_report(
     def fmt_mrr(val: float | None, lo: float | None, hi: float | None) -> str:
         if val is None:
             return "—"
-        if lo is not None and hi is not None:
-            return f"{val:.3f} [{lo:.3f}–{hi:.3f}]"
-        return f"{val:.3f}"
+        return f"{val:.3f} [{lo:.3f}–{hi:.3f}]" if (lo is not None and hi is not None) else f"{val:.3f}"
 
     def table_from_summary(rows: list[dict[str, Any]]) -> list[str]:
         lines = [
@@ -397,39 +366,77 @@ def _write_markdown_report(
             )
         return lines
 
+    def find_row(rows: list[dict[str, Any]], model: str, cfg: str) -> dict[str, Any]:
+        return next(r for r in rows if r["model"] == model and r["config"] == cfg)
+
+    def find_mc(dataset: str, model: str, comp: str, metric: str) -> dict[str, Any]:
+        return next(
+            r for r in mcnemar_rows
+            if r["dataset"] == dataset and r["model"] == model and r["comparison"] == comp and r["metric"] == metric
+        )
+
+    tv1_g_c0, tv1_g_c4 = find_row(tv1_rows, "gemini-flash", "C0"), find_row(tv1_rows, "gemini-flash", "C4")
+    tv1_q_c0, tv1_q_c4 = find_row(tv1_rows, "qwen-7b", "C0"), find_row(tv1_rows, "qwen-7b", "C4")
+    tv1_mc_r5 = find_mc("tv1_v0.3", "qwen-7b", "C2_vs_C3", "Recall_at_5")
+    b308_g_c0, b308_g_c3, b308_g_c4 = (
+        find_row(bench308_rows, "gemini-flash", "C0"),
+        find_row(bench308_rows, "gemini-flash", "C3"),
+        find_row(bench308_rows, "gemini-flash", "C4"),
+    )
+    b308_q_c0, b308_q_c3, b308_q_c4 = (
+        find_row(bench308_rows, "qwen-7b", "C0"),
+        find_row(bench308_rows, "qwen-7b", "C3"),
+        find_row(bench308_rows, "qwen-7b", "C4"),
+    )
+    b308_mc_g_sr = find_mc("benchmark_v0.3", "gemini-flash", "C0_vs_C4", "SR_lower_bound_all")
+    b308_mc_q_sr = find_mc("benchmark_v0.3", "qwen-7b", "C0_vs_C4", "SR_lower_bound_all")
+    b308_mc_r5 = find_mc("benchmark_v0.3", "qwen-7b", "C2_vs_C3", "Recall_at_5")
+
     lines = [
-        "# Bảng số liệu nháp Tuần 3 — Chấm điểm C0 và RAG (TV3, phục vụ báo cáo tiến độ 05/12)",
+        "# Bảng số liệu nháp Tuần 3 (cập nhật 28/11/2026) — Chấm điểm C0–C4 trên đủ 308 câu v0.3",
         "",
-        f"- **Ngày sinh:** 27/11/2026 · **Nguồn đầu ra:** {source_note}",
+        f"- **Ngày cập nhật:** 28/11/2026 · **Nguồn đầu ra:** {source_note}",
         "- **Bộ chấm:** `eval/metrics.py` (`auto_label`, bootstrap 1.000 lần, seed = 0, kiểm định McNemar hai phía chính xác + hiệu chỉnh Holm–Bonferroni theo `eval/metrics_spec.md` §6).",
-        "- **Lưu ý quan trọng (quy tắc báo cáo):**",
-        "  1. Tất cả số liệu dưới đây là **số liệu nháp trên tập chưa khóa (`verified = false`)**: `pilot_80_v0.3.jsonl` (80 câu) và `tv1_v0.3.jsonl` (168 câu).",
-        "  2. Bộ chấm luật tự động (`auto_label`) chưa qua LLM-as-a-Judge nên chưa sinh nhãn `BLENDED` (do đó `SR⁺ = SR` ở bản nháp này) và để lại một tỷ lệ câu `NEEDS_JUDGE` (đặc biệt trên 50 câu `P-T-*` có `answer_type = free_text` và `obsolete_entities = []`). Vì vậy bảng báo **cả hai cột**: `SR` trên tập con luật chấm được và `SR cận dưới` trên toàn bộ mẫu (coi `NEEDS_JUDGE` là không lỗi thời, tránh sai lệch chọn mẫu).",
-        "  3. Hiện chỉ có **2 mô hình** (`gemini-3.5-flash-lite` và `Qwen2.5-7B-Instruct-AWQ`, temperature 0); Gemini trên `tv1_v0.3` mới có C0 (C2–C4 TV2 đang chạy tiếp ngày 27/11 do giới hạn 500 lượt/ngày). Chưa có key OpenAI/Anthropic.",
+        "- **Điểm mới so với bản nháp 27/11:**",
+        "  1. Chấm lại `tv1_v0.3.jsonl` (168 câu) sau khi TV1 bổ sung `obsolete_entities` cho 73 câu và sửa 15 câu (`verified = true`): ở C0, số câu bắt được `STALE` tăng gần gấp đôi (`37 → 71` ở Gemini, `37 → 69` ở Qwen).",
+        "  2. Bổ sung đầy đủ **Gemini C2–C4 trên 168 câu `tv1_v0.3`** và **cả Gemini lẫn Qwen C0–C4 trên 60 câu `tv3_v0.3`** (nhóm C, D, F).",
+        "  3. Bổ sung bảng tổng hợp toàn bộ **`benchmark_v0.3.jsonl` (308 câu)** cho cả hai mô hình.",
+        "- **Lưu ý phương pháp luận (quy tắc báo cáo):**",
+        "  1. Trong 308 câu `benchmark_v0.3.jsonl`, 168 câu `tv1_v0.3` đã đặt `verified = true` (TV1 + TV3 kiểm chéo 28/11); 60 câu `tv3_v0.3` đang chờ TV1 kiểm chéo và 80 câu `pilot_80_v0.3` vẫn giữ nhãn pilot (`verified = false`). Riêng 15 câu TV1 vừa sửa văn phong/địa danh trên `tv1_v0.3`, TV2 sẽ chạy lại ở đầu Tuần 4 (153/168 câu giữ nguyên nguyên văn).",
+        "  2. Bộ chấm luật tự động (`auto_label`) chưa qua LLM-as-a-Judge nên chưa sinh nhãn `BLENDED` (`SR⁺ = SR`) và còn một tỷ lệ câu `NEEDS_JUDGE`. Do đó bảng luôn báo song song **SR trên tập con luật chấm được** và **SR cận dưới trên toàn bộ mẫu** (coi `NEEDS_JUDGE` là không lỗi thời, tránh sai lệch chọn mẫu).",
+        "  3. Hiện có **2 mô hình** (`gemini-3.5-flash-lite` và `Qwen2.5-7B-Instruct-AWQ`, temperature 0); chưa có key OpenAI/Anthropic.",
         "",
         "---",
         "",
-        "## 1. Kết quả trên bộ `pilot_80_v0.3` (n = 80; 61 câu có khoản vàng cho Recall@5)",
+        "## 1. Tổng hợp toàn bộ `benchmark_v0.3` (n = 308; 287 câu có khoản vàng cho Recall@5)",
+        "",
+        *table_from_summary(bench308_rows),
+        "",
+        "---",
+        "",
+        "## 2. Bộ `tv1_v0.3` — Đã `verified = true` & đủ `obsolete_entities` (n = 168; 168/168 có khoản vàng)",
+        "",
+        *table_from_summary(tv1_rows),
+        "",
+        "---",
+        "",
+        "## 3. Bộ `tv3_v0.3` — Nhóm C, D, F (n = 60; 58/60 có khoản vàng; chờ TV1 kiểm chéo)",
+        "",
+        *table_from_summary(tv3_rows),
+        "",
+        "---",
+        "",
+        "## 4. Bộ `pilot_80_v0.3` (n = 80; 61/80 có khoản vàng)",
         "",
         *table_from_summary(pilot_rows),
         "",
-        "### 1.1. Tách riêng 30 câu pilot TV3 (`P-V-*`, có đầy đủ `obsolete_entities` và `answer_type` chuẩn)",
-        "",
-        "> Theo `eval/metrics_spec.md` §6, tập con 30 câu chỉ báo tỷ lệ và số câu để tham khảo chất lượng bộ luật, **không** dùng để kết luận ý nghĩa thống kê.",
+        "### 4.1. Tách riêng 30 câu pilot TV3 (`P-V-*`, chỉ báo tỷ lệ/số câu tham khảo theo `metrics_spec.md` §6)",
         "",
         *table_from_summary(pilot30_rows),
         "",
         "---",
         "",
-        "## 2. Kết quả trên bộ `tv1_v0.3` (n = 168; 168/168 câu có khoản vàng cho Recall@5)",
-        "",
-        *table_from_summary(tv1_rows),
-        "",
-        "> **Lưu ý về SR trên `tv1_v0.3`:** 70/104 câu `A_direct` trap trong `tv1_v0.3.jsonl` hiện đang để `obsolete_entities = []` (xem `docs/tv3_review_tv1_v03.md` mục 3), nên ở C0 bộ luật tự động xếp nhiều câu trả lời lỗi thời vào `OTHER_ERROR` (79/168 câu) thay vì `STALE`. Khi bổ sung `obsolete_entities` và chạy LLM-as-a-Judge, SR thực tế ở C0 sẽ cao hơn nhiều (tương đương mức 65–68% trên `P-V-*`).",
-        "",
-        "---",
-        "",
-        "## 3. Kiểm định McNemar chính xác (C0 vs RAG và C2 vs C3) + hiệu chỉnh Holm–Bonferroni",
+        "## 5. Kiểm định McNemar chính xác (C0 vs RAG và C2 vs C3) + hiệu chỉnh Holm–Bonferroni",
         "",
         "| Tập dữ liệu | Mô hình | So sánh | Độ đo | n ghép cặp | Tỷ lệ A | Tỷ lệ B | Chênh lệch (B − A) [CI 95%] | A=1, B=0 | A=0, B=1 | p (McNemar) | p (Holm) |",
         "|---|---|---|---|---:|---:|---:|---|---:|---:|---:|---:|",
@@ -453,7 +460,7 @@ def _write_markdown_report(
         "",
         "---",
         "",
-        "## 4. Kiểm tra độ ổn định 3 lần chạy của Qwen 2.5 7B (`pilot_80_v0.3`, temperature = 0)",
+        "## 6. Kiểm tra độ ổn định 3 lần chạy của Qwen 2.5 7B (`pilot_80_v0.3`, temperature = 0)",
         "",
         "| Cấu hình | n | Trùng văn bản lần 1–2 | Trùng văn bản lần 1–3 | Trùng cả 3 lần | Cùng nhãn tự động cả 3 lần | SR cận dưới (L1 / L2 / L3) |",
         "|---|---:|---:|---:|---:|---:|---|",
@@ -470,17 +477,19 @@ def _write_markdown_report(
         "",
         "---",
         "",
-        "## 5. Nhận xét chính rút ra cho báo cáo tiến độ 05/12",
+        "## 7. Nhận xét chính rút ra cho báo cáo tiến độ 05/12",
         "",
-        "1. **RAG giảm mạnh lỗi thời và tăng mạnh độ chính xác (RQ2):**",
-        "   - Trên `pilot_80_v0.3`, SR cận dưới giảm có ý nghĩa thống kê từ C0 xuống C2/C3/C4 ở cả hai mô hình (Gemini: `25,0% → 1,2%`, p_Holm = 3,82×10⁻⁵; Qwen 7B: `23,8% → 1,2%`, p_Holm = 6,87×10⁻⁵).",
-        "   - Trên `tv1_v0.3` (n = 168), Qwen 7B tăng `EM` từ **`12,2%` (C0)** lên **`62,3%` (C2)**, **`68,4%` (C3)** và **`71,4%` (C4)** (McNemar p_Holm < 10⁻²⁰ ở mọi cặp C0 vs RAG), đồng thời `PBER` ở mức rất thấp (**1,2%–2,0%**), cho thấy khi ngữ cảnh truy xuất chứa đúng khoản luật, mô hình ghi đè tốt tri thức tham số cũ.",
-        "2. **Hybrid + Reranker (`C3`) vượt trội Dense (`C2`) trên câu hỏi chi tiết cấp xã (RQ2):**",
-        "   - Trên `pilot_80_v0.3` (61 câu), Recall@5 tăng từ `82,0%` lên `85,2%` (chưa đạt ý nghĩa thống kê do mẫu nhỏ, 2 câu cải thiện / 0 câu giảm, p = 0,500) nhưng MRR@5 tăng rõ rệt từ `0,741` lên `0,836`.",
-        "   - Trên `tv1_v0.3` (168 câu), Recall@5 tăng vọt từ **`63,1%` (106/168)** lên **`82,7%` (139/168)** (**+19,6 điểm %**, 34 câu cải thiện vs 1 câu giảm, McNemar p_Holm = 4,19×10⁻⁹), chứng minh rõ giá trị của kết hợp BM25 + BGE-M3 + `bge-reranker-v2-m3` đối với tên riêng cấp xã/huyện.",
-        "3. **Hiệu ứng đánh đổi của prompt thời gian (`C4`):**",
-        "   - Prompt thời gian ở `C4` kéo `SR` về gần 0% nhưng làm `AbstainRate` trên `pilot_80_v0.3` tăng mạnh (Gemini: `0 → 28/80 = 35,0%`; Qwen: `0 → 23/80 = 28,7%`), do `pilot_80` có 19/80 câu không có khoản trong kho (trung tâm hành chính, tin đồn ngoài kho...) + 9 câu truy xuất trượt; trong khi trên `tv1_v0.3` (100% có khoản trong kho), Qwen C4 chỉ từ chối `4/168 (2,4%)` và đạt EM cao nhất (`71,4%`). Đây là phát hiện tốt về tính trung thực (faithfulness) của `C4`.",
-        "4. **Phương sai ở temperature = 0 gần bằng 0:** Qwen 7B trùng nhãn tự động 79–80/80 câu ở cả 3 lần chạy cho mọi cấu hình C0–C4, xác nhận nhận xét của TV2 rằng đo phương sai cần chạy ở temperature = 0,7 trên tập con.",
+        f"1. **Cập nhật `obsolete_entities` trên `tv1_v0.3` (168 câu `verified = true`) làm lộ rõ mức lỗi thời thật ở C0:**",
+        f"   - SR (trên tập luật) ở C0 tăng lên **{tv1_g_c0['SR_auto']:.1%} ({tv1_g_c0['SR_auto_num']}/{tv1_g_c0['SR_auto_den']})** ở Gemini và **{tv1_q_c0['SR_auto']:.1%} ({tv1_q_c0['SR_auto_num']}/{tv1_q_c0['SR_auto_den']})** ở Qwen 7B (SR cận dưới toàn bộ 168 câu tăng gần gấp đôi: từ 22,0% lên **{tv1_g_c0['SR_lower_bound_all']:.1%}** ở Gemini và **{tv1_q_c0['SR_lower_bound_all']:.1%}** ở Qwen).",
+        f"   - Khi dùng RAG đầy đủ (`C4`), SR (trên tập luật) trên 168 câu `tv1_v0.3` rơi mạnh xuống còn **{tv1_g_c4['SR_auto']:.1%} ({tv1_g_c4['SR_auto_num']}/{tv1_g_c4['SR_auto_den']})** ở Gemini và **{tv1_q_c4['SR_auto']:.1%} ({tv1_q_c4['SR_auto_num']}/{tv1_q_c4['SR_auto_den']})** ở Qwen; `EM` tăng vọt từ **{tv1_g_c0['EM']:.1%} → {tv1_g_c4['EM']:.1%}** (Gemini) và **{tv1_q_c0['EM']:.1%} → {tv1_q_c4['EM']:.1%}** (Qwen).",
+        f"2. **Trên toàn bộ `benchmark_v0.3` (n = 308), RAG giảm mạnh lỗi thời và tăng mạnh EM ở cả hai mô hình (RQ2):**",
+        f"   - **Gemini 3.5 Flash-Lite:** SR cận dưới giảm từ **{b308_g_c0['SR_lower_bound_all']:.1%} ({b308_g_c0['n_stale']}/308)** ở C0 xuống **{b308_g_c4['SR_lower_bound_all']:.1%} ({b308_g_c4['n_stale']}/308)** ở C4 (McNemar p_Holm = {b308_mc_g_sr['p_holm']:.3g}); EM tăng từ **{b308_g_c0['EM']:.1%} → {b308_g_c4['EM']:.1%}**; PBER ở C4 chỉ **{b308_g_c4['PBER']:.1%} ({b308_g_c4['PBER_num']}/{b308_g_c4['PBER_den']})**.",
+        f"   - **Qwen 2.5 7B:** SR cận dưới giảm từ **{b308_q_c0['SR_lower_bound_all']:.1%} ({b308_q_c0['n_stale']}/308)** ở C0 xuống **{b308_q_c4['SR_lower_bound_all']:.1%} ({b308_q_c4['n_stale']}/308)** ở C4 (McNemar p_Holm = {b308_mc_q_sr['p_holm']:.3g}); EM tăng từ **{b308_q_c0['EM']:.1%} → {b308_q_c4['EM']:.1%}**; PBER ở C4 chỉ **{b308_q_c4['PBER']:.1%} ({b308_q_c4['PBER_num']}/{b308_q_c4['PBER_den']})**.",
+        f"3. **Hybrid + Reranker (`C3`) vượt trội Dense (`C2`) có ý nghĩa thống kê rất mạnh (RQ2):**",
+        f"   - Trên `benchmark_v0.3` (287 câu có khoản vàng), Recall@5 tăng từ **{b308_mc_r5['rate_a']:.1%}** (C2) lên **{b308_mc_r5['rate_b']:.1%}** (C3, **{b308_mc_r5['diff_b_minus_a']:+.1%}**, {b308_mc_r5['discordant_a0_b1']} câu cải thiện vs {b308_mc_r5['discordant_a1_b0']} câu giảm, McNemar p_Holm = {b308_mc_r5['p_holm']:.3g}), chủ yếu nhờ mức cải thiện **+19,6 điểm %** trên 168 câu chi tiết cấp xã/huyện của `tv1_v0.3` (McNemar p_Holm = {tv1_mc_r5['p_holm']:.3g}).",
+        f"4. **Hiệu ứng prompt thời gian (`C4`) và độ ổn định (temperature = 0):**",
+        f"   - `C4` giữ nguyên tập ngữ cảnh của `C3` nhưng kéo `SR` về mức thấp nhất và nâng `EM` nhờ chủ động từ chối (`Abstain`) khi không có bằng chứng trong kho (chủ yếu rơi vào 19 câu ngoài kho của `pilot_80` và 2 câu tin đồn ngoài kho của `tv3_v0.3`).",
+        f"   - Qwen 7B ở temperature = 0 trùng nhãn tự động 79–80/80 câu cả 3 lần chạy; đo phương sai thực tế cần chạy ở temperature = 0,7 trên tập con.",
     ]
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -490,7 +499,7 @@ def _write_markdown_report(
 def main() -> int:
     ap = argparse.ArgumentParser(description="Run Week 3 C0–C4 evaluation with CI and McNemar tests")
     ap.add_argument("--outputs-dir", type=Path, default=ROOT / "outputs")
-    ap.add_argument("--git-ref", type=str, default=None, help="Optional git ref to read outputs/ from (e.g. origin/an-huy)")
+    ap.add_argument("--git-ref", type=str, default=None, help="Optional git ref to read outputs/ from")
     ap.add_argument("--out-dir", type=Path, default=ROOT / "results/w3_eval")
     ap.add_argument("--bootstrap", type=int, default=N_BOOT)
     ap.add_argument("--seed", type=int, default=SEED)
@@ -500,69 +509,83 @@ def main() -> int:
     try:
         if args.git_ref:
             outputs_dir = _extract_git_outputs(args.git_ref, Path(tmp_ctx.name))
-            source_note = f"nhánh `{args.git_ref}` (`outputs/pilot_80_v0.3/`, `outputs/tv1_v0.3/`)"
+            source_note = f"nhánh `{args.git_ref}` (`outputs/pilot_80_v0.3/`, `outputs/tv1_v0.3/`, `outputs/tv3_v0.3/`)"
         else:
             outputs_dir = args.outputs_dir
-            source_note = f"thư mục `{outputs_dir}`"
+            source_note = f"thư mục `outputs/` (`pilot_80_v0.3`, `tv1_v0.3`, `tv3_v0.3`)"
 
         pilot_bench = _load_bench(ROOT / "data/benchmark/pilot_80_v0.3.jsonl")
         pilot30_bench = _load_bench(ROOT / "data/benchmark/pilot_80_v0.3.jsonl", prefix="P-V-")
         tv1_bench = _load_bench(ROOT / "data/benchmark/tv1_v0.3.jsonl")
+        tv3_bench = _load_bench(ROOT / "data/benchmark/tv3_v0.3.jsonl")
+        bench308_path = ROOT / "data/benchmark/benchmark_v0.3.jsonl"
+        bench308 = _load_bench(bench308_path) if bench308_path.exists() else {**pilot_bench, **tv1_bench, **tv3_bench}
+
         pilot_vocab = load_vocab(DEFAULT_ENTITY_MAPS, pilot_bench.values())
         tv1_vocab = load_vocab(DEFAULT_ENTITY_MAPS, tv1_bench.values())
+        tv3_vocab = load_vocab(DEFAULT_ENTITY_MAPS, tv3_bench.values())
+        all_vocab = load_vocab(DEFAULT_ENTITY_MAPS, bench308.values())
 
-        pilot_rows, pilot30_rows, tv1_rows, mcnemar_rows = [], [], [], []
+        pilot_rows, pilot30_rows, tv1_rows, tv3_rows, bench308_rows, mcnemar_rows = [], [], [], [], [], []
 
-        for model in ("gemini-flash", "qwen-7b"):
-            base_p = outputs_dir / "pilot_80_v0.3" / "C0" / f"{model}.jsonl"
-            for cfg in ("C0", "C2", "C3", "C4"):
-                pred_p = outputs_dir / "pilot_80_v0.3" / cfg / f"{model}.jsonl"
-                row80, _ = _score_config(pred_p, base_p, pilot_bench, pilot_vocab, "pilot_80_v0.3", model, cfg, n_boot=args.bootstrap, seed=args.seed)
-                pilot_rows.append(row80)
-                row30, _ = _score_config(pred_p, base_p, pilot30_bench, pilot_vocab, "pilot_30_vinh", model, cfg, n_boot=args.bootstrap, seed=args.seed)
-                pilot30_rows.append(row30)
-                if cfg != "C0":
-                    mcnemar_rows.extend(_paired_mcnemar_rows("pilot_80_v0.3", model, "C0", base_p, cfg, pred_p, pilot_bench, pilot_vocab, n_boot=args.bootstrap, seed=args.seed))
-            # C2 vs C3 and C3 vs C4 on pilot_80
-            p_c2 = outputs_dir / "pilot_80_v0.3" / "C2" / f"{model}.jsonl"
-            p_c3 = outputs_dir / "pilot_80_v0.3" / "C3" / f"{model}.jsonl"
-            p_c4 = outputs_dir / "pilot_80_v0.3" / "C4" / f"{model}.jsonl"
-            mcnemar_rows.extend(_paired_mcnemar_rows("pilot_80_v0.3", model, "C2", p_c2, "C3", p_c3, pilot_bench, pilot_vocab, n_boot=args.bootstrap, seed=args.seed))
-            mcnemar_rows.extend(_paired_mcnemar_rows("pilot_80_v0.3", model, "C3", p_c3, "C4", p_c4, pilot_bench, pilot_vocab, n_boot=args.bootstrap, seed=args.seed))
+        def eval_dataset(
+            ds_name: str,
+            subdirs: list[str],
+            bench: dict[str, dict[str, Any]],
+            vocab: set[str],
+            target_rows: list[dict[str, Any]],
+            also_sub: tuple[str, dict[str, dict[str, Any]], list[dict[str, Any]]] | None = None,
+            run_mcnemar: bool = True,
+        ) -> None:
+            for model in ("gemini-flash", "qwen-7b"):
+                preds_by_cfg: dict[str, list[dict[str, Any]]] = {}
+                for cfg in ("C0", "C2", "C3", "C4"):
+                    paths = [outputs_dir / sd / cfg / f"{model}.jsonl" for sd in subdirs]
+                    if all(p.exists() for p in paths):
+                        preds_by_cfg[cfg] = _load_preds_many(paths)
+                base_preds = preds_by_cfg.get("C0")
+                for cfg in ("C0", "C2", "C3", "C4"):
+                    if cfg not in preds_by_cfg:
+                        continue
+                    row, _ = _score_preds(preds_by_cfg[cfg], base_preds, bench, vocab, ds_name, model, cfg, n_boot=args.bootstrap, seed=args.seed)
+                    target_rows.append(row)
+                    if also_sub is not None:
+                        sub_name, sub_bench, sub_rows = also_sub
+                        srow, _ = _score_preds(preds_by_cfg[cfg], base_preds, sub_bench, vocab, sub_name, model, cfg, n_boot=args.bootstrap, seed=args.seed)
+                        sub_rows.append(srow)
+                    if run_mcnemar and cfg != "C0" and base_preds is not None:
+                        mcnemar_rows.extend(_paired_mcnemar_preds(ds_name, model, "C0", base_preds, cfg, preds_by_cfg[cfg], bench, vocab, n_boot=args.bootstrap, seed=args.seed))
+                if run_mcnemar and "C2" in preds_by_cfg and "C3" in preds_by_cfg:
+                    mcnemar_rows.extend(_paired_mcnemar_preds(ds_name, model, "C2", preds_by_cfg["C2"], "C3", preds_by_cfg["C3"], bench, vocab, n_boot=args.bootstrap, seed=args.seed))
+                if run_mcnemar and "C3" in preds_by_cfg and "C4" in preds_by_cfg:
+                    mcnemar_rows.extend(_paired_mcnemar_preds(ds_name, model, "C3", preds_by_cfg["C3"], "C4", preds_by_cfg["C4"], bench, vocab, n_boot=args.bootstrap, seed=args.seed))
 
-        # TV1 168 v0.3
-        gem_tv1_c0 = outputs_dir / "tv1_v0.3" / "C0" / "gemini-flash.jsonl"
-        if gem_tv1_c0.exists():
-            row, _ = _score_config(gem_tv1_c0, None, tv1_bench, tv1_vocab, "tv1_v0.3", "gemini-flash", "C0", n_boot=args.bootstrap, seed=args.seed)
-            tv1_rows.append(row)
-
-        qwen_tv1_base = outputs_dir / "tv1_v0.3" / "C0" / "qwen-7b.jsonl"
-        for cfg in ("C0", "C2", "C3", "C4"):
-            pred_p = outputs_dir / "tv1_v0.3" / cfg / "qwen-7b.jsonl"
-            row, _ = _score_config(pred_p, qwen_tv1_base, tv1_bench, tv1_vocab, "tv1_v0.3", "qwen-7b", cfg, n_boot=args.bootstrap, seed=args.seed)
-            tv1_rows.append(row)
-            if cfg != "C0":
-                mcnemar_rows.extend(_paired_mcnemar_rows("tv1_v0.3", "qwen-7b", "C0", qwen_tv1_base, cfg, pred_p, tv1_bench, tv1_vocab, n_boot=args.bootstrap, seed=args.seed))
-        mcnemar_rows.extend(_paired_mcnemar_rows("tv1_v0.3", "qwen-7b", "C2", outputs_dir / "tv1_v0.3/C2/qwen-7b.jsonl", "C3", outputs_dir / "tv1_v0.3/C3/qwen-7b.jsonl", tv1_bench, tv1_vocab, n_boot=args.bootstrap, seed=args.seed))
-        mcnemar_rows.extend(_paired_mcnemar_rows("tv1_v0.3", "qwen-7b", "C3", outputs_dir / "tv1_v0.3/C3/qwen-7b.jsonl", "C4", outputs_dir / "tv1_v0.3/C4/qwen-7b.jsonl", tv1_bench, tv1_vocab, n_boot=args.bootstrap, seed=args.seed))
+        eval_dataset("pilot_80_v0.3", ["pilot_80_v0.3"], pilot_bench, pilot_vocab, pilot_rows, also_sub=("pilot_30_vinh", pilot30_bench, pilot30_rows))
+        eval_dataset("tv1_v0.3", ["tv1_v0.3"], tv1_bench, tv1_vocab, tv1_rows)
+        eval_dataset("tv3_v0.3", ["tv3_v0.3"], tv3_bench, tv3_vocab, tv3_rows)
+        eval_dataset("benchmark_v0.3", ["pilot_80_v0.3", "tv1_v0.3", "tv3_v0.3"], bench308, all_vocab, bench308_rows)
 
         _apply_holm(mcnemar_rows)
         stability_rows = _qwen_stability(outputs_dir, pilot_bench, pilot_vocab)
 
-        _write_csv(args.out_dir / "summary_pilot_80.csv", pilot_rows + pilot30_rows)
+        _write_csv(args.out_dir / "summary_benchmark_v03_308.csv", bench308_rows)
         _write_csv(args.out_dir / "summary_tv1_168.csv", tv1_rows)
+        _write_csv(args.out_dir / "summary_tv3_60.csv", tv3_rows)
+        _write_csv(args.out_dir / "summary_pilot_80.csv", pilot_rows + pilot30_rows)
         _write_csv(args.out_dir / "mcnemar_c0_vs_rag.csv", mcnemar_rows)
         _write_csv(args.out_dir / "qwen_3runs_stability.csv", stability_rows)
         _write_markdown_report(
             args.out_dir / "w3_eval_report_draft.md",
+            bench308_rows,
+            tv1_rows,
+            tv3_rows,
             pilot_rows,
             pilot30_rows,
-            tv1_rows,
             mcnemar_rows,
             stability_rows,
             source_note,
         )
-        print(f"Wrote Week 3 evaluation tables and draft report to {args.out_dir}")
+        print(f"Wrote updated Week 3 evaluation tables (308 questions) -> {args.out_dir}")
         return 0
     finally:
         if tmp_ctx is not None:
