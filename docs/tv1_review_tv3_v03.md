@@ -52,10 +52,10 @@ Sửa trong `qgen/build_tv3_v03.py` rồi chạy lại, gộp bằng `scripts/me
 |---|---|
 | F-0002 | Đổi tin đồn sang "34 tỉnh còn 16 tỉnh"; đáp án theo CV 10988/BNV-CQĐP; ghi lý do (CV 6218/BNV-CQĐP) trong `verification_note` |
 | F-0001 | Bỏ Thông tư 31/2026/TT-BNV; giữ NĐ 185/2026/NĐ-CP ngày 26/5/2026, thêm `source_url` |
-| C-0012 | "Hồ thủy điện Hòa Bình" → "Nhà máy thủy điện Hòa Bình" (câu hỏi và đáp án lỗi thời) |
+| C-0012 | "Hồ thủy điện Hòa Bình" → "Nhà máy thủy điện Hòa Bình" (câu hỏi và đáp án lỗi thời). Đã tra: lòng hồ nằm trên địa phận cả Hòa Bình và Sơn La ([Tạp chí Khoa học và Kỹ thuật, vjs.ac.vn](https://vjs.ac.vn/index.php/jse/article/download/8409/pdf/30993)) |
 | C-0001, C-0004 | Ghi đủ đơn vị mới của TP Vũng Tàu cũ (thêm xã Long Sơn) và TP Rạch Giá cũ (thêm phường Vĩnh Thông) |
 | Nhóm F (12 câu) | `answer_type`: `premise_rejection` → `yes_no`; 12/12 đáp án vàng chấm `CORRECT_CURRENT` |
 | Alias | Bỏ tên tỉnh cũ ở C-0013..C-0017 và "63" ở D-0001 |
 | `verified` | 55/60 câu `true` (TV1 kiểm chéo); 5 câu TV1 đổi nội dung (C-0001, C-0004, C-0012, F-0001, F-0002) chờ TV3 xem lại. Bộ v0.3: 223/308 câu `verified` |
-| Chấm lại | `eval/run_w3_eval.py` bỏ đầu ra cũ của C-0012, F-0002 (16 đầu ra) vì câu hỏi đã đổi nghĩa, chờ TV2 chạy lại. Trên 308 câu, SR gần như không đổi (lệch dưới 1,5 điểm %); EM trên 60 câu tăng mạnh vì nhóm F được chấm đúng (ví dụ Qwen C3: 54,8% → 88,0%) |
+| Chấm lại | `eval/run_w3_eval.py` bỏ đầu ra cũ của C-0012, F-0002 (16 đầu ra) vì câu hỏi đã đổi nghĩa; đã xoá đầu ra và ngữ cảnh cũ của 2 câu khỏi `outputs/`, TV2 chạy lại theo `docs/w3_rerun_C0012_F0002.md`. Trên 308 câu, SR gần như không đổi (lệch dưới 1,5 điểm %); EM trên 60 câu tăng mạnh vì nhóm F được chấm đúng (ví dụ Qwen C3: 54,8% → 88,0%) |
 | Test | `tests/test_benchmark_v03.py`: thay kiểm "60 câu chưa verified" bằng kiểm 5 câu chờ và nhóm F dùng `yes_no`; 147 test đạt |
